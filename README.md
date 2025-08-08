@@ -90,5 +90,5 @@ export default nextConfig;
 
 ```sh
 docker exec rust sh -c "cd /project && wasm-pack build --target bundler && chmod -R 777 ."
-rsync -av --delete [rustのpkgディレクトリのパス] [nodeのpkgディレクトリのパス]
+rsync -av --delete [ホストのrustのpkgディレクトリのパス] [ホストのnodeのpkgディレクトリのパス]
 ```
