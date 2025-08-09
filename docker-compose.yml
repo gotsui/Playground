@@ -11,7 +11,8 @@ services:
     networks:
       - app_network
     tty: true
-    stdin_open: true
+    init: true
+    command: "cat"
     working_dir: /project
     depends_on:
       - db
