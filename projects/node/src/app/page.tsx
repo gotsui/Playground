@@ -1,18 +1,19 @@
 "use client";
 
+import next from "next";
 import React, { useEffect, useState } from "react";
 
 type Func = {
     id: string;
     name: string;
-    arg: string;
+    args: string;
+    returnValue: string;
 };
 
 export default function Home() {
     const [funcList, setFuncList] = useState<string[]>([]);
-    const [init, setInit] = useState("");
     const [inputFuncList, setInputFuncList] = useState<Func[]>([]);
-    const [result, setResult] = useState<number | null>(null);
+    const [resultMap, setResultMap] = useState<Map<string, any> | null>(null);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
@@ -21,7 +22,7 @@ export default function Home() {
             const nextFuncList = [];
 
             for (const [key, value] of Object.entries(module)) {
-                if (typeof value === "function" && key.substring(0, 2) !== "__") {
+                if (typeof value === "function" && !key.startsWith("__")) {
                     nextFuncList.push(key);
                 }
             }
@@ -34,7 +35,12 @@ export default function Home() {
     }, []);
 
     const handleClickAdd = () => {
-        setInputFuncList((prev) => [...prev, { id: String(performance.now()), name: "", arg: "" }]);
+        setInputFuncList((prev) => [...prev, {
+            id: String(performance.now()),
+            name: "",
+            args: "",
+            returnValue: "",
+        }]);
     };
 
     const handleClickRemove = (id: string) => {
@@ -42,57 +48,67 @@ export default function Home() {
     };
 
     const handleClickCalc = async () => {
-        setResult(null);
+        setResultMap(null);
         setError(null);
 
-        if (!init) {
-            setError("初期値を入力してください");
-            return;
-        }
-
-        const module = await import("@/pkg/project");
-        let nextResult = Number(init);
+        const nextResultValueMap = new Map<string, any>();
 
         for (let i = 0; i < inputFuncList.length; i++) {
             try {
                 const func = inputFuncList[i];
-                nextResult = module[func.name](nextResult, Number(func.arg));
+                const args: any[] = JSON.parse(func.args);
+                const replaced = args.map((arg) => {
+                    if (typeof arg !== "string") {
+                        return arg;
+                    }
+
+                    if (arg.startsWith("result_") && nextResultValueMap.has(arg)) {
+                        return nextResultValueMap.get(arg);
+                    } else {
+                        return arg;
+                    }
+                });
+
+                const result = await loadModule(func.name, ...replaced);
+
+                if (func.returnValue) {
+                    nextResultValueMap.set(func.returnValue, result);
+                }
             } catch (error) {
                 setError(`func ${i + 1}: ${error}`);
                 return;
             }
         }
 
-        setResult(nextResult);
+        setResultMap(nextResultValueMap);
+    };
+
+    const loadModule = async (funcName: string, ...args: any[]): Promise<any> => {
+        const modules = await import("@/pkg/project");
+        const { default: _, ...functions } = modules;
+        const dynamicFunctions = functions as Record<string, (...args: any[]) => any>;
+
+        if (funcName in dynamicFunctions && typeof dynamicFunctions[funcName] === "function") {
+            return dynamicFunctions[funcName](...args);
+        } else {
+            throw new Error(`Function ${funcName} not found`);
+        }
     };
 
     const handleChangeName = (id: string, name: string) => {
         setInputFuncList((prev) => prev.map((func) => func.id === id ? { ...func, name } : func));
     };
 
-    const handleChangeArg = (id: string, arg: string) => {
-        setInputFuncList((prev) => prev.map((func) => func.id === id ? { ...func, arg } : func));
+    const handleChangeArgs = (id: string, args: string) => {
+        setInputFuncList((prev) => prev.map((func) => func.id === id ? { ...func, args } : func));
+    };
+
+    const handleChangeReturn = (id: string, returnValue: string) => {
+        setInputFuncList((prev) => prev.map((func) => func.id === id ? { ...func, returnValue } : func));
     };
 
     return (
         <div className="p-4 space-y-4">
-            <div>
-                <label htmlFor="init" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">初期値</label>
-                <input
-                    type="number"
-                    id="init"
-                    className="
-                        bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
-                        focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5
-                        dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400
-                        dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500
-                    "
-                    placeholder="init"
-                    required
-                    value={init}
-                    onChange={(e) => setInit(e.target.value)}
-                />
-            </div>
             <div className="flex items-center">
                 <button
                     type="button"
@@ -116,11 +132,6 @@ export default function Home() {
                 >
                     計算
                 </button>
-                {result !== null && (
-                    <div>
-                        計算結果: {result}
-                    </div>
-                )}
                 {error && (
                     <div className="text-red-600">
                         {error}
@@ -139,6 +150,12 @@ export default function Home() {
                             </th>
                             <th scope="col" className="px-6 py-3">
                                 引数
+                            </th>
+                            <th scope="col" className="px-6 py-3">
+                                戻り値
+                            </th>
+                            <th scope="col" className="px-6 py-3">
+                                計算結果
                             </th>
                             <th scope="col" className="px-6 py-3">
                                 削除
@@ -176,7 +193,7 @@ export default function Home() {
                                 </td>
                                 <td className="px-6 py-4">
                                     <input
-                                        type="number"
+                                        type="text"
                                         className="
                                             bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
                                             focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5
@@ -185,8 +202,29 @@ export default function Home() {
                                         "
                                         placeholder="value"
                                         required
-                                        onChange={(e) => handleChangeArg(func.id, e.target.value)}
+                                        onChange={(e) => handleChangeArgs(func.id, e.target.value)}
                                     />
+                                </td>
+                                <td className="px-6 py-4">
+                                    <input
+                                        type="text"
+                                        className="
+                                            bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
+                                            focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5
+                                            dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400
+                                            dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500
+                                        "
+                                        placeholder="return value name"
+                                        required
+                                        onChange={(e) => handleChangeReturn(func.id, e.target.value)}
+                                    />
+                                </td>
+                                <td className="px-6 py-4">
+                                    {resultMap?.has(func.returnValue) && (
+                                        <div>
+                                            {resultMap.get(func.returnValue)}
+                                        </div>
+                                    )}
                                 </td>
                                 <td className="px-6 py-4">
                                     <button
