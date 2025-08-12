@@ -12,27 +12,27 @@ pub fn greet(name: &str) {
 
 #[wasm_bindgen]
 pub fn rust_add(augend: f64, addend: f64) -> f64 {
-    return augend + addend;
+    augend + addend
 }
 
 #[wasm_bindgen]
 pub fn rust_sub(minuend: f64, subtrahend: f64) -> f64 {
-    return minuend - subtrahend;
+    minuend - subtrahend
 }
 
 #[wasm_bindgen]
 pub fn rust_mul(multiplicand: f64, multiplier: f64) -> f64 {
-    return multiplicand * multiplier;
+    multiplicand * multiplier
 }
 
 #[wasm_bindgen]
 pub fn rust_div(dividend: f64, divisor: f64) -> f64 {
-    return dividend / divisor;
+    dividend / divisor
 }
 
 #[wasm_bindgen]
 pub fn rust_sum(numbers: Vec<f64>) -> f64 {
-    return numbers.iter().sum();
+    numbers.iter().sum()
 }
 
 #[wasm_bindgen]
