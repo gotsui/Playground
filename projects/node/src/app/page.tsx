@@ -1,33 +1,32 @@
 "use client";
 
-import next from "next";
 import React, { useEffect, useState } from "react";
 
 type Func = {
     id: string;
     name: string;
     args: string;
-    returnValue: string;
+    returnValueName: string;
 };
 
 export default function Home() {
-    const [funcList, setFuncList] = useState<string[]>([]);
-    const [inputFuncList, setInputFuncList] = useState<Func[]>([]);
+    const [funcNameList, setFuncNameList] = useState<string[]>([]);
+    const [funcList, setFuncList] = useState<Func[]>([]);
     const [resultMap, setResultMap] = useState<Map<string, any> | null>(null);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         const loadModules = async () => {
             const module = await import("@/pkg/project");
-            const nextFuncList = [];
+            const nextFuncNameList = [];
 
             for (const [key, value] of Object.entries(module)) {
                 if (typeof value === "function" && !key.startsWith("__")) {
-                    nextFuncList.push(key);
+                    nextFuncNameList.push(key);
                 }
             }
 
-            setFuncList(nextFuncList);
+            setFuncNameList(nextFuncNameList);
         };
 
         loadModules();
@@ -35,52 +34,43 @@ export default function Home() {
     }, []);
 
     const handleClickAdd = () => {
-        setInputFuncList((prev) => [...prev, {
+        setFuncList((prev) => [...prev, {
             id: String(performance.now()),
             name: "",
             args: "",
-            returnValue: "",
+            returnValueName: "",
         }]);
     };
 
     const handleClickRemove = (id: string) => {
-        setInputFuncList((prev) => prev.filter((func) => func.id !== id));
+        setFuncList((prev) => prev.filter((func) => func.id !== id));
     };
 
     const handleClickCalc = async () => {
         setResultMap(null);
         setError(null);
 
-        const nextResultValueMap = new Map<string, any>();
+        const nextResultMap = new Map<string, any>();
 
-        for (let i = 0; i < inputFuncList.length; i++) {
+        for (let i = 0; i < funcList.length; i++) {
             try {
-                const func = inputFuncList[i];
-                const args: any[] = JSON.parse(func.args);
-                const replaced = args.map((arg) => {
-                    if (typeof arg !== "string") {
-                        return arg;
-                    }
-
-                    if (arg.startsWith("result_") && nextResultValueMap.has(arg)) {
-                        return nextResultValueMap.get(arg);
-                    } else {
-                        return arg;
-                    }
+                const func = funcList[i];
+                const replaced = func.args.replace(/{{(\w+)}}/g, (_, key) => {
+                    return nextResultMap.has(key) ? JSON.stringify(nextResultMap.get(key)) : key;
                 });
+                const parsed: any[] = JSON.parse(`[${replaced}]`);
+                const result = await loadModule(func.name, ...parsed);
 
-                const result = await loadModule(func.name, ...replaced);
-
-                if (func.returnValue) {
-                    nextResultValueMap.set(func.returnValue, result);
+                if (func.returnValueName) {
+                    nextResultMap.set(func.returnValueName, result);
                 }
             } catch (error) {
-                setError(`func ${i + 1}: ${error}`);
+                setError(`step ${i + 1}: ${error}`);
                 return;
             }
         }
 
-        setResultMap(nextResultValueMap);
+        setResultMap(nextResultMap);
     };
 
     const loadModule = async (funcName: string, ...args: any[]): Promise<any> => {
@@ -96,15 +86,15 @@ export default function Home() {
     };
 
     const handleChangeName = (id: string, name: string) => {
-        setInputFuncList((prev) => prev.map((func) => func.id === id ? { ...func, name } : func));
+        setFuncList((prev) => prev.map((func) => func.id === id ? { ...func, name } : func));
     };
 
     const handleChangeArgs = (id: string, args: string) => {
-        setInputFuncList((prev) => prev.map((func) => func.id === id ? { ...func, args } : func));
+        setFuncList((prev) => prev.map((func) => func.id === id ? { ...func, args } : func));
     };
 
-    const handleChangeReturn = (id: string, returnValue: string) => {
-        setInputFuncList((prev) => prev.map((func) => func.id === id ? { ...func, returnValue } : func));
+    const handleChangeReturn = (id: string, returnValueName: string) => {
+        setFuncList((prev) => prev.map((func) => func.id === id ? { ...func, returnValueName } : func));
     };
 
     return (
@@ -152,7 +142,7 @@ export default function Home() {
                                 引数
                             </th>
                             <th scope="col" className="px-6 py-3">
-                                戻り値
+                                戻り値名
                             </th>
                             <th scope="col" className="px-6 py-3">
                                 計算結果
@@ -163,7 +153,7 @@ export default function Home() {
                         </tr>
                     </thead>
                     <tbody>
-                        {inputFuncList.map((func, index) => (
+                        {funcList.map((func, index) => (
                             <tr key={func.id} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200">
                                 <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                     {index + 1}
@@ -184,7 +174,7 @@ export default function Home() {
                                         onChange={(e) => handleChangeName(func.id, e.target.value)}
                                     />
                                     <datalist id={func.id}>
-                                        {funcList.map((name) => (
+                                        {funcNameList.map((name) => (
                                             <React.Fragment key={name}>
                                                 <option value={name}>{name}</option>
                                             </React.Fragment>
@@ -220,9 +210,9 @@ export default function Home() {
                                     />
                                 </td>
                                 <td className="px-6 py-4">
-                                    {resultMap?.has(func.returnValue) && (
+                                    {resultMap?.has(func.returnValueName) && (
                                         <div>
-                                            {resultMap.get(func.returnValue)}
+                                            {resultMap.get(func.returnValueName)}
                                         </div>
                                     )}
                                 </td>
