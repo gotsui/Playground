@@ -34,3 +34,13 @@ pub fn rust_div(dividend: f64, divisor: f64) -> f64 {
 pub fn rust_sum(numbers: Vec<f64>) -> f64 {
     return numbers.iter().sum();
 }
+
+#[wasm_bindgen]
+pub fn rust_max(numbers: Vec<f64>) -> f64 {
+    Some(numbers.iter().fold(0.0/0.0, |m, v| v.max(m))).filter(|v| !v.is_nan()).unwrap()
+}
+
+#[wasm_bindgen]
+pub fn rust_min(numbers: Vec<f64>) -> f64 {
+    Some(numbers.iter().fold(0.0/0.0, |m, v| v.min(m))).filter(|v| !v.is_nan()).unwrap()
+}
