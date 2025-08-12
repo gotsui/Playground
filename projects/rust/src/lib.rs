@@ -29,3 +29,8 @@ pub fn rust_mul(multiplicand: f64, multiplier: f64) -> f64 {
 pub fn rust_div(dividend: f64, divisor: f64) -> f64 {
     return dividend / divisor;
 }
+
+#[wasm_bindgen]
+pub fn rust_sum(numbers: Vec<f64>) -> f64 {
+    return numbers.iter().sum();
+}
