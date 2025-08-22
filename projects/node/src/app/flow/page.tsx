@@ -31,7 +31,12 @@ const FlowPage = () => {
         };
 
         loadModules();
-        handleClickAdd();
+        setFuncList([{
+            id: String(performance.now()),
+            name: "",
+            args: "",
+            returnValueName: "",
+        }]);
     }, []);
 
     const handleClickAdd = () => {
@@ -217,7 +222,7 @@ const FlowPage = () => {
                                 <td className="px-6 py-4">
                                     {resultMap?.has(func.returnValueName) && (
                                         <div>
-                                            {resultMap.get(func.returnValueName)}
+                                            {JSON.stringify(resultMap.get(func.returnValueName))}
                                         </div>
                                     )}
                                 </td>

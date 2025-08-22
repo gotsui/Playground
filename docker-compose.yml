@@ -36,6 +36,24 @@ services:
     depends_on:
       - db
 
+  api:
+    build:
+      context: .
+      dockerfile: ./dockerfiles/api/Dockerfile
+    container_name: api
+    volumes:
+      - ./projects/api:/project
+    ports:
+      - 28080:8080
+    networks:
+      - app_network
+    tty: true
+    init: true
+    command: "cat"
+    working_dir: /project
+    depends_on:
+      - db
+
   db:
     image: postgres:15
     hostname: db
