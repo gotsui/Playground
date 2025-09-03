@@ -1,4 +1,4 @@
-import { EdgeProps, useReactFlow } from "@xyflow/react";
+import { EdgeProps, MarkerType, useReactFlow } from "@xyflow/react";
 import { memo } from "react";
  
 import { PlusCircle } from "lucide-react";
@@ -11,8 +11,8 @@ const AddButtonEdge = memo((props: EdgeProps) => {
     const onEdgeClick = (props: EdgeProps) => {
         const newNodeId = `n${Date.now()}`;
         const newNode = { id: newNodeId, position: { x: 0, y: 0 }, data: { label: "関数" }, type: "default" };
-        const upstreamEdge = { id: `${props.source}-${newNodeId}`, source: props.source, target: newNodeId, type: "button" };
-        const downstreamEdge = { id: `${newNodeId}-${props.target}`, source: newNodeId, target: props.target, type: "button" };
+        const upstreamEdge = { id: `${props.source}-${newNodeId}`, source: props.source, target: newNodeId };
+        const downstreamEdge = { id: `${newNodeId}-${props.target}`, source: newNodeId, target: props.target };
 
         deleteElements({ edges: [{ id: props.id }]});
         addNodes(newNode);

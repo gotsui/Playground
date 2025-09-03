@@ -1,16 +1,26 @@
 "use client";
 
-import { Background, ReactFlow } from "@xyflow/react";
+import { Background, Edge, MarkerType, Node, ReactFlow } from "@xyflow/react";
 import AddButtonEdge from "./AddButtonEdge";
 
-const defaultNodes = [
+const defaultNodes: Node[] = [
     { id: "ns", position: { x: 0, y: 0 }, data: { label: "開始" }, type: "input" },
     { id: "ne", position: { x: 0, y: 200 }, data: { label: "終了" }, type: "output" },
 ];
 
-const defaultEdges = [
-    { id: "ns-ne", source: "ns", target: "ne", type: "button" },
+const defaultEdges: Edge[] = [
+    { id: "ns-ne", source: "ns", target: "ne" },
 ];
+
+const defaultEdgeOptions = {
+    type: "button",
+    markerEnd: {
+        type: MarkerType.ArrowClosed,
+    },
+    style: {
+        strokeWidth: 2,
+    },
+};
 
 const edgeTypes = {
     button: AddButtonEdge,
@@ -23,6 +33,7 @@ const FlowchartEditor = () => {
                 defaultNodes={defaultNodes}
                 defaultEdges={defaultEdges}
                 edgeTypes={edgeTypes}
+                defaultEdgeOptions={defaultEdgeOptions}
                 fitView
             >
                 <Background />
