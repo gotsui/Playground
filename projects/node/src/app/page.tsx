@@ -12,7 +12,7 @@ const Home = () => {
                     "
                 >
                     <div className="text-xl font-semibold">
-                        フロー
+                        Wasm
                     </div>
                 </Link>
                 <Link
@@ -35,6 +35,17 @@ const Home = () => {
                 >
                     <div className="text-xl font-semibold">
                         画面作成
+                    </div>
+                </Link>
+                <Link
+                    href="/flowchart"
+                    className="
+                        p-4 border rounded-lg shadow-md
+                        hover:bg-gray-100 overflow-hidden
+                    "
+                >
+                    <div className="text-xl font-semibold">
+                        フロー作成
                     </div>
                 </Link>
             </div>
