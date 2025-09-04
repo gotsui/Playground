@@ -1,13 +1,11 @@
-import { type ReactNode } from "react";
- 
-import {
-    BaseEdge,
-    EdgeLabelRenderer,
-    getSmoothStepPath,
-    type EdgeProps,
-} from "@xyflow/react";
- 
-export const ButtonEdge = ({
+"use client";
+
+import { memo, ReactNode } from "react";
+import { BaseEdge, EdgeLabelRenderer, EdgeProps, getBezierPath } from "@xyflow/react";
+import { FlowchartEdge } from "@/types/flowchart";
+
+const ButtonEdge = memo(({
+    id,
     sourceX,
     sourceY,
     targetX,
@@ -17,8 +15,8 @@ export const ButtonEdge = ({
     style = {},
     markerEnd,
     children,
-}: EdgeProps & { children: ReactNode }) => {
-    const [edgePath, labelX, labelY] = getSmoothStepPath({
+}: EdgeProps<FlowchartEdge> & { children: ReactNode }) => {
+    const [edgePath, labelX, labelY] = getBezierPath({
         sourceX,
         sourceY,
         sourcePosition,
@@ -26,10 +24,10 @@ export const ButtonEdge = ({
         targetY,
         targetPosition,
     });
- 
+
     return (
         <>
-        <BaseEdge path={edgePath} markerEnd={markerEnd} style={style} />
+            <BaseEdge path={edgePath} markerEnd={markerEnd} style={style} />
             <EdgeLabelRenderer>
                 <div
                     className="nodrag nopan pointer-events-auto absolute"
@@ -42,4 +40,6 @@ export const ButtonEdge = ({
             </EdgeLabelRenderer>
         </>
     );
-};
+});
+
+export default ButtonEdge;

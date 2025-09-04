@@ -1,17 +1,15 @@
 "use client";
 
 import { ReactFlowProvider } from "@xyflow/react";
-import FlowchartEditor from "./FlowchartEditor";
+import Flowchart from "@/components/flowchart/FlowChart";
 import "@xyflow/react/dist/style.css";
 
-const Home = () => {
+const FlowchartPage = () => {
     return (
         <ReactFlowProvider>
-            <div className="flex flex-col h-screen w-screen">
-                <FlowchartEditor />
-            </div>
+            <Flowchart />
         </ReactFlowProvider>
     );
 };
 
-export default Home;
+export default FlowchartPage;
