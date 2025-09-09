@@ -15,7 +15,7 @@ const StartNode = ({ data }: StartNodeProps) => {
                 type="source"
                 position={Position.Bottom}
                 id="source"
-                className="!w-4 !h-4 !bg-green-500 rounded-full"
+                className="!w-4 !h-4 !bg-green-500 !rounded-full"
                 style={{ bottom: -8 }}
             />
         </>

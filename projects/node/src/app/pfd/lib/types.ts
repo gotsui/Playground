@@ -12,7 +12,7 @@ export type PfdFunction = {
     id: string;
     name: string;
     args: PfdArg[];
-    func: (args: Record<string, any>) => any;
+    func: (args: Record<string, any>) => any | Promise<any>;
     nodeType: PfdNodeType;
 };
 

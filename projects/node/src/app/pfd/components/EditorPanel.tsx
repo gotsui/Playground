@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { PfdNode, PfdNodeData } from "../lib/types";
-import { findFunctionById, pfdFunctions } from "../lib/functions";
+import { findFunctionById } from "../lib/functions";
 
 type EditorPanelProps = {
     selectedNode: PfdNode | null;

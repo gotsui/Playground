@@ -9,6 +9,7 @@ import {
 	MarkerType,
 	NodeTypes,
 	OnConnect,
+	OnNodesDelete,
 	OnReconnect,
 	Panel,
 	ReactFlow,
@@ -130,6 +131,12 @@ const Pfd = () => {
         setSelectedNode(node);
     }, [setSelectedNode]);
 
+    const onNodesDelete: OnNodesDelete = useCallback((nodes) => {
+        if (selectedNode && nodes.find((node) => node.id === selectedNode.id)) {
+            setSelectedNode(null);
+        }
+    }, [selectedNode, setSelectedNode]);
+
     const onPaneClick = useCallback((_: React.MouseEvent) => {
         setSelectedNode(null);
     }, [setSelectedNode]);
@@ -145,8 +152,6 @@ const Pfd = () => {
     const executeFlow = useCallback(async () => {
         console.log("**********************************");
         const flow: Flow = { nodes, edges };
-        let data: any[] = [];
-        // let result: any = null;
         const resultMap = new Map<string, any>();
 
         const nodesMap = new Map(flow.nodes.map((node) => [node.id, node]));
@@ -169,9 +174,7 @@ const Pfd = () => {
             console.log("Node", node);
             console.log("Args", node.data.args);
 
-            if (node.type === "start") {
-                // 何もしない
-            } else if (node.type === "process") {
+            if (node.type === "process") {
                 const pfdFunc = pfdFunctions.find((f) => f.id === node.data.functionId);
                 const result = pfdFunc?.func(node.data.args);
                 resultMap.set(node.data.returnValueName, result);
@@ -190,7 +193,7 @@ const Pfd = () => {
                 }
 
                 return;
-            } else if (node.type === "end") {
+            } else {
                 // 何もしない
             }
 
@@ -220,6 +223,7 @@ const Pfd = () => {
                 onEdgesChange={onEdgesChange}
                 onConnect={onConnect}
                 onNodeClick={onNodeClick}
+                onNodesDelete={onNodesDelete}
                 onDrop={onDrop}
                 onDragOver={onDragOver}
                 onPaneClick={onPaneClick}

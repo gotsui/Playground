@@ -20,14 +20,14 @@ const LoopStartNode = ({ data }: LoopNodeProps) => {
                 type="target"
                 position={Position.Top}
                 id="target"
-                className="!w-4 !h-4 !bg-purple-500 rounded-full"
+                className="!w-4 !h-4 !bg-purple-500 !rounded-full"
                 style={{ top: -8 }}
             />
             <Handle
                 type="source"
                 position={Position.Bottom}
                 id="source"
-                className="!w-4 !h-4 !bg-purple-500 rounded-full"
+                className="!w-4 !h-4 !bg-purple-500 !rounded-full"
                 style={{ bottom: -8 }}
             />
         </>

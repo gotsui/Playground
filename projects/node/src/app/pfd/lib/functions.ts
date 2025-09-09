@@ -14,7 +14,7 @@ const loops: Loop[] = [];
 export const pfdFunctions: PfdFunction[] = [
     {
         id: "add",
-        name: "足す",
+        name: "足し算",
         args: [
             { name: "augend", type: "number", label: "足される数" },
             { name: "addend", type: "number", label: "足す数" },
