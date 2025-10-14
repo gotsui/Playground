@@ -34,7 +34,10 @@ type Elm = {
 };
 
 const ScreenPage = () => {
+    // 配置要素一覧
     const [elms, setElms] = useState<Elm[]>([]);
+
+    // 新規追加・再配置用
     const [draggedElm, setDraggedElm] = useState<Elm | null>(null);
     const [dragOverAddress, setDragOverAddress] = useState<Address | null>(null);
 
@@ -42,6 +45,7 @@ const ScreenPage = () => {
     const cellRef = useRef<HTMLDivElement>(null);
     const [cellSize, setCellSize] = useState({ width: 0, height: 0 });
 
+    // 各セルの要素の有無
     const cells: boolean[][] = useMemo(() => {
         return elms.reduce((acc, elm) => {
             const rowRange = range(elm.dragOverAddress.row, elm.dragOverAddress.row + elm.item.height);
@@ -51,6 +55,7 @@ const ScreenPage = () => {
         }, range(0, 12).map((_) => range(0, 12).map((_) => false)));
     }, [elms]);
 
+    // 要素を表示するセル
     const elmCells = useMemo(() => {
         return range(0, 12).map(
             (i) => range(0, 12).map(
@@ -114,10 +119,15 @@ const ScreenPage = () => {
     const canDrop = () => {
         if (!draggedElm || !dragOverAddress) return false;
 
+        const elmRowRange = range(draggedElm.dragOverAddress.row, draggedElm.dragOverAddress.row + draggedElm.item.height);
+        const elmColumnRange = range(draggedElm.dragOverAddress.column, draggedElm.dragOverAddress.column + draggedElm.item.width);
+        const withoutDragged = cells.map((row) => [...row]);
+        elmRowRange.forEach((i) => elmColumnRange.forEach((j) => withoutDragged[i][j] = false));
+
         const rowRange = range(dragOverAddress.row, dragOverAddress.row + draggedElm.item.height);
         const columnRange = range(dragOverAddress.column, dragOverAddress.column + draggedElm.item.width);
 
-        return !rowRange.some((i) => columnRange.some((j) => cells[i][j]));
+        return !rowRange.some((i) => columnRange.some((j) => withoutDragged[i][j]));
     };
 
     const handleElmDragStart = (e: React.DragEvent, elm: Elm) => {
@@ -169,7 +179,6 @@ const ScreenPage = () => {
                                         ref={i === 0 && j === 0 ? cellRef : undefined}
                                         className={[
                                             "relative w-1/12 border-r border-b bg-slate-100",
-                                            "hover:bg-slate-200",
                                         ].join(" ")}
                                         onDragOver={(e) => handleCellDragOver(e, { row: i, column: j })}
                                         onDrop={!hasElm ? handleCellDrop : undefined}
