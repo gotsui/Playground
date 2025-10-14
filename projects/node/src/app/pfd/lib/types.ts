@@ -31,4 +31,38 @@ export type PfdNode = Node<PfdNodeData, PfdNodeType>;
 export type Flow = {
     nodes: PfdNode[];
     edges: Edge[];
+};
+
+export enum Operator {
+    GREATER_THAN = ">",
 }
+
+export type Condition = {
+    operator: Operator;
+    target: string;
+    value: string;
+    label: string;
+};
+
+export type BaseNodeData = {
+    label: string;
+    params: Record<string, any>;
+};
+
+export type ConditionNodeData = BaseNodeData & {
+    type: "condition";
+    conditions: Condition[];
+};
+
+export type ProcessNodeData = BaseNodeData & {
+    type: "process";
+};
+
+export type FlowchartNodeData = ConditionNodeData | ProcessNodeData;
+
+export type FlowchartNode = Node & {
+    data: FlowchartNodeData;
+};
+
+
+const n1: FlowchartNode = { id: "1", position: { x: 0, y: 0 }, data: { label: "", params: [], type: "condition", conditions: [] } };

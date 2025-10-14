@@ -1,149 +1,128 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+
 import Tab from "@/components/sidetabs/Tab";
 import TabGroup from "@/components/sidetabs/TabGroup";
 import TabList from "@/components/sidetabs/TabList";
 import TabPanel from "@/components/sidetabs/TabPanel";
 
-type Elm = {
+const range = (begin: number, end: number) => ([...Array(end - begin)].map((_, i) => (begin + i)));
+
+const menuItems: Item[] = [
+    { id: "input", label: "input", width: 2, height: 1 },
+    { id: "button", label: "button", width: 1, height: 1 },
+];
+
+type Item = {
     id: string;
-    name: string;
-    type: "actual" | "ghost";
+    label: string;
+    width: number;
+    height: number;
 };
 
-type Point = {
-    x: number;
-    y: number;
+type Address = {
+    row: number;
+    column: number;
+};
+
+type Elm = {
+    id: string;
+    item: Item;
+    dragOverAddress: Address;
 };
 
 const ScreenPage = () => {
-    const [elements, setElements] = useState<Elm[][]>([]);
-    const [rowIndex, setRowIndex] = useState<number | null>(null);
-    const [columnIndex, setColumnIndex] = useState<number | null>(null);
+    const [elms, setElms] = useState<Elm[]>([]);
+    const [draggedElm, setDraggedElm] = useState<Elm | null>(null);
+    const [dragOverAddress, setDragOverAddress] = useState<Address | null>(null);
 
-    const displayElements: Elm[][] = useMemo(() => {
-        console.log("rowIndex", rowIndex);
-        console.log("columnIndex", columnIndex);
-        if (rowIndex === null || columnIndex === null) {
-            return elements;
-        }
+    // セルサイズ取得用
+    const cellRef = useRef<HTMLDivElement>(null);
+    const [cellSize, setCellSize] = useState({ width: 0, height: 0 });
 
-        const newElm: Elm = { id: performance.now().toString(), name: performance.now().toString(), type: "ghost" };
+    const cells: boolean[][] = useMemo(() => {
+        return elms.reduce((acc, elm) => {
+            const rowRange = range(elm.dragOverAddress.row, elm.dragOverAddress.row + elm.item.height);
+            const columnRange = range(elm.dragOverAddress.column, elm.dragOverAddress.column + elm.item.width);
+            rowRange.forEach((i) => columnRange.forEach((j) => acc[i][j] = true));
+            return acc;
+        }, range(0, 12).map((_) => range(0, 12).map((_) => false)));
+    }, [elms]);
 
-        if (rowIndex < 0) {
-            return [[newElm]].concat(elements);
-        } else if (rowIndex >= elements.length) {
-            return elements.concat([[newElm]]);
-        } else if (columnIndex < 0) {
-            return elements.map((row, idx) => idx === rowIndex ? [newElm].concat(row) : row);
-        } else {
-            return elements.map((row, idx) => idx === rowIndex ? [...row.slice(0, columnIndex), newElm, ...row.slice(columnIndex)] : row);
-        }
-    }, [elements, rowIndex, columnIndex]);
+    const elmCells = useMemo(() => {
+        return range(0, 12).map(
+            (i) => range(0, 12).map(
+                (j) => elms.find((elm) => elm.dragOverAddress.row === i && elm.dragOverAddress.column === j)
+            )
+        );
+    }, [elms]);
 
-    const handleDragStart = (e: React.DragEvent, id: string) => {
-        e.dataTransfer.setData("application/screen", id);
+    // 初期レンダリング・リサイズ時のセルサイズ取得
+    useEffect(() => {
+        const cell = cellRef.current;
+        if (!cell) return;
+
+        const observer = new ResizeObserver((entries) => {
+            if (entries[0]) {
+                const rect = entries[0].contentRect;
+                setCellSize({ width: rect.width, height: rect.height });
+            }
+        });
+
+        observer.observe(cell);
+
+        // クリーンアップ関数
+        return () => observer.disconnect();
+    }, []);
+
+    const handleMenuDragStart = (e: React.DragEvent, id: string) => {
+        const item = menuItems.find((item) => item.id === id);
+        if (!item) return;
+
+        setDraggedElm({ id: crypto.randomUUID(), item, dragOverAddress: { row: -1, column: -1}})
         e.dataTransfer.effectAllowed = "move";
     };
 
-    const handleDragLeave = (e: React.DragEvent) => {
-        if (e.relatedTarget && e.currentTarget.contains(e.relatedTarget as Node)) {
-            return;
-        }
-
-        console.log("leave");
-        setRowIndex(null);
-        setColumnIndex(null);
+    const handleDragEnd = (e: React.DragEvent) => {
+        setDraggedElm(null);
+        setDragOverAddress(null);
     };
 
-    const handleDragOver = (e: React.DragEvent) => {
+    const handleCellDragOver = (e: React.DragEvent, addr: Address) => {
         e.preventDefault();
-
-        const target = e.target as HTMLElement;
-
-        if (target.dataset.role === "parent") {
-            setRowIndex(elements.length);
-            setColumnIndex(0);
-        } else if (target.dataset.role === "row") {
-            const nextRowIndex = Number(target.dataset.row);
-            const nextColumnIndex = nextRowIndex < elements.length ? elements[nextRowIndex].length : 0;
-            setRowIndex(nextRowIndex);
-            setColumnIndex(nextColumnIndex);
-        } else if (target.dataset.role === "element") {
-            const targetClientRect = target.getBoundingClientRect();
-            const xl = targetClientRect.x;
-            const yt = targetClientRect.y;
-            const xr = xl + targetClientRect.width;
-            const yb = yt + targetClientRect.height;
-
-            const negativeGradientY = calcYByTwoPoints({ x: xl, y: yt })({ x: xr, y: yb })(e.clientX);
-            const positiveGradientY = calcYByTwoPoints({ x: xl, y: yb })({ x: xr, y: yt })(e.clientX);
-
-            const elementRowIndex = Number(target.dataset.row);
-            const elementColumnIndex = Number(target.dataset.column);
-
-            if (e.clientY >= negativeGradientY) {
-                if (e.clientY >= positiveGradientY) {
-                    // 上
-                    setRowIndex(elementRowIndex + 1);
-                    setColumnIndex(elementColumnIndex);
-                } else {
-                    // 右
-                    setRowIndex(elementRowIndex);
-                    setColumnIndex(elementColumnIndex - 1);
-                }
-            } else {
-                if (e.clientY >= positiveGradientY) {
-                    // 左
-                    setRowIndex(elementRowIndex);
-                    setColumnIndex(elementColumnIndex + 1);
-                } else {
-                    // 下
-                    setRowIndex(elementRowIndex - 1);
-                    setColumnIndex(elementColumnIndex);
-                }
-            }
-        } else if (target.dataset.role === "ghost") {
-            // 何もしない
-        } else {
-            setRowIndex(null);
-            setColumnIndex(null);
-        }
+        e.dataTransfer.dropEffect = "move";
+        setDragOverAddress(addr);
     };
 
-    const handleDrop = (e: React.DragEvent) => {
-        console.log("row", rowIndex);
-        console.log("column", columnIndex);
+    const handleCellDrop = (e: React.DragEvent) => {
+        e.preventDefault();
+        if (!canDrop()) return;
 
-        if (rowIndex === null || columnIndex === null) {
-            return;
+        if (draggedElm && dragOverAddress) {
+            setElms((prev) => prev.some((elm) => elm.id === draggedElm.id)
+                ? prev.map((elm) => elm.id === draggedElm.id ? { ...draggedElm, dragOverAddress } : elm)
+                : prev.concat({ ...draggedElm, dragOverAddress })
+            );
         }
 
-        const id = e.dataTransfer.getData("application/screen");
-        const newElm: Elm = { id, name: performance.now().toString(), type: "actual" };
-
-        if (rowIndex < 0) {
-            setElements([[newElm]].concat(elements));
-        } else if (rowIndex >= elements.length) {
-            setElements(elements.concat([[newElm]]));
-        } else if (columnIndex < 0) {
-            setElements(elements.map((row, idx) => idx === rowIndex ? [newElm].concat(row) : row));
-        } else {
-            setElements(elements.map((row, idx) => idx === rowIndex ? [...row.slice(0, columnIndex), newElm, ...row.slice(columnIndex)] : row));
-        }
-
-        setRowIndex(null);
-        setColumnIndex(null);
+        setDraggedElm(null);
+        setDragOverAddress(null);
     };
 
-    const calcYByTwoPoints = (p1: Point) => {
-        return (p2: Point) => {
-            return (x: number) => {
-                return (p2.y - p1.y) / (p2.x - p1.x) * (x - p1.x) + p1.y;
-            };
-        };
+    const canDrop = () => {
+        if (!draggedElm || !dragOverAddress) return false;
+
+        const rowRange = range(dragOverAddress.row, dragOverAddress.row + draggedElm.item.height);
+        const columnRange = range(dragOverAddress.column, dragOverAddress.column + draggedElm.item.width);
+
+        return !rowRange.some((i) => columnRange.some((j) => cells[i][j]));
+    };
+
+    const handleElmDragStart = (e: React.DragEvent, elm: Elm) => {
+        setDraggedElm(elm);
+        e.dataTransfer.effectAllowed = "move";
     };
 
     return (
@@ -159,48 +138,77 @@ const ScreenPage = () => {
                                 <Tab id="form">フォーム</Tab>
                             </TabList>
                             <TabPanel id="form">
-                                <div className="h-full w-32">
-                                    <div
-                                        className="
-                                            cursor-grab border-b border-gray-200 p-1
-                                            hover:bg-gray-200 transition
-                                        "
-                                        draggable
-                                        onDragStart={(e) => handleDragStart(e, performance.now().toString())}
-                                    >
-                                        input
-                                    </div>
+                                <div className="h-full w-32 space-y-2">
+                                    {menuItems.map((item) => (
+                                        <div
+                                            key={item.id}
+                                            className="
+                                                cursor-grab border-b border-gray-200 p-1
+                                                hover:bg-gray-200 transition
+                                                active:cursor-grabbing
+                                            "
+                                            onDragStart={(e) => handleMenuDragStart(e, item.id)}
+                                            onDragEnd={handleDragEnd}
+                                            draggable={true}
+                                        >
+                                            {item.label}
+                                        </div>
+                                    ))}
                                 </div>
                             </TabPanel>
                         </TabGroup>
                     </div>
                 </div>
-                <div
-                    className="flex-1 bg-gray-100"
-                    onDragLeave={handleDragLeave}
-                    onDragOver={handleDragOver}
-                    onDrop={handleDrop}
-                    data-role="parent"
-                >
-                    {displayElements.map((row, idx) => (
-                        <div key={idx} className="flex" data-role="row" data-row={idx}>
-                            {row.map((elm, idx2) => {
-                                if (elm.type === "actual") {
-                                    return (
-                                        <div key={elm.id} className="h-10 w-40 bg-red-100" data-role="element" data-row={idx} data-column={idx2}>
-                                            {elm.name}
-                                        </div>
-                                    )
-                                } else {
-                                    return (
-                                        <div key={elm.id} className="h-10 w-40 bg-blue-100 border-2 border-dashed" data-role="ghost" data-row={idx} data-column={idx2}>
-                                            {elm.name}
-                                        </div>
-                                    )
-                                }
-                            })}
-                        </div>
-                    ))}
+                <div className="flex-1 p-4">
+                    <div className="h-full border-t border-l">
+                        {cells.map((row, i) => (
+                            <div key={i} className="flex h-1/12">
+                                {row.map((hasElm, j) => (
+                                    <div
+                                        key={j}
+                                        ref={i === 0 && j === 0 ? cellRef : undefined}
+                                        className={[
+                                            "relative w-1/12 border-r border-b bg-slate-100",
+                                            "hover:bg-slate-200",
+                                        ].join(" ")}
+                                        onDragOver={(e) => handleCellDragOver(e, { row: i, column: j })}
+                                        onDrop={!hasElm ? handleCellDrop : undefined}
+                                    >
+                                        {elmCells[i][j] && (
+                                            <div
+                                                className={[
+                                                    "absolute bg-yellow-100 px-2 py-1 z-30 cursor-grab",
+                                                    "hover:bg-yellow-200 active:cursor-grabbing",
+                                                    `${draggedElm && draggedElm.id !== elmCells[i][j].id && "pointer-events-none"}`,
+                                                ].join(" ")}
+                                                onDragStart={(e) => handleElmDragStart(e, elmCells[i][j]!)}
+                                                onDragEnd={handleDragEnd}
+                                                draggable={true}
+                                                style={{
+                                                    width: cellSize.width * elmCells[i][j].item.width,
+                                                    height: cellSize.height * elmCells[i][j].item.height,
+                                                }}
+                                            >
+                                                {elmCells[i][j].item.label}
+                                            </div>
+                                        )}
+                                        {draggedElm && dragOverAddress && (
+                                            <div
+                                                className={[
+                                                    "absolute z-50 pointer-events-none opacity-50",
+                                                    `${dragOverAddress.row === i && dragOverAddress.column === j && (canDrop() ? "bg-green-300" : "bg-red-300")}`,
+                                                ].join(" ")}
+                                                style={{
+                                                    width: cellSize.width * draggedElm.item.width,
+                                                    height: cellSize.height * draggedElm.item.height,
+                                                }}
+                                            />
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </div>
         </div>
