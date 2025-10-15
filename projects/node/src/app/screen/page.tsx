@@ -8,11 +8,23 @@ import TabGroup from "@/components/sidetabs/TabGroup";
 import TabList from "@/components/sidetabs/TabList";
 import TabPanel from "@/components/sidetabs/TabPanel";
 
-const range = (begin: number, end: number) => ([...Array(end - begin)].map((_, i) => (begin + i)));
+type Range = {
+    (num: number): number[];
+    (begin: number, end: number): number[];
+};
+
+const range: Range = (begin: number, end?: number) => {
+    if (end === undefined) {
+        return [...Array(begin)].map((_, i) => i);
+    } else {
+        return [...Array(end - begin)].map((_, i) => (begin + i));
+    }
+};
 
 const menuItems: Item[] = [
     { id: "input", label: "input", width: 2, height: 1 },
     { id: "button", label: "button", width: 1, height: 1 },
+    { id: "table", label: "table", width: 3, height: 3 },
 ];
 
 type Item = {
@@ -30,10 +42,13 @@ type Address = {
 type Elm = {
     id: string;
     item: Item;
-    dragOverAddress: Address;
+    address: Address;
 };
 
 const ScreenPage = () => {
+    const ROW_NUM = 12;
+    const COLUMN_NUM = 12;
+
     // 配置要素一覧
     const [elms, setElms] = useState<Elm[]>([]);
 
@@ -47,19 +62,23 @@ const ScreenPage = () => {
 
     // 各セルの要素の有無
     const cells: boolean[][] = useMemo(() => {
-        return elms.reduce((acc, elm) => {
-            const rowRange = range(elm.dragOverAddress.row, elm.dragOverAddress.row + elm.item.height);
-            const columnRange = range(elm.dragOverAddress.column, elm.dragOverAddress.column + elm.item.width);
+        const displayElms = draggedElm
+            ? elms.filter((elm) => elm.id !== draggedElm.id)
+            : elms;
+
+        return displayElms.reduce((acc, elm) => {
+            const rowRange = range(elm.address.row, elm.address.row + elm.item.height);
+            const columnRange = range(elm.address.column, elm.address.column + elm.item.width);
             rowRange.forEach((i) => columnRange.forEach((j) => acc[i][j] = true));
             return acc;
-        }, range(0, 12).map((_) => range(0, 12).map((_) => false)));
-    }, [elms]);
+        }, range(ROW_NUM).map((_) => range(COLUMN_NUM).map((_) => false)));
+    }, [elms, draggedElm]);
 
     // 要素を表示するセル
     const elmCells = useMemo(() => {
-        return range(0, 12).map(
-            (i) => range(0, 12).map(
-                (j) => elms.find((elm) => elm.dragOverAddress.row === i && elm.dragOverAddress.column === j)
+        return range(ROW_NUM).map(
+            (i) => range(COLUMN_NUM).map(
+                (j) => elms.find((elm) => elm.address.row === i && elm.address.column === j)
             )
         );
     }, [elms]);
@@ -86,7 +105,7 @@ const ScreenPage = () => {
         const item = menuItems.find((item) => item.id === id);
         if (!item) return;
 
-        setDraggedElm({ id: crypto.randomUUID(), item, dragOverAddress: { row: -1, column: -1}})
+        setDraggedElm({ id: crypto.randomUUID(), item, address: { row: -1, column: -1 }})
         e.dataTransfer.effectAllowed = "move";
     };
 
@@ -103,12 +122,13 @@ const ScreenPage = () => {
 
     const handleCellDrop = (e: React.DragEvent) => {
         e.preventDefault();
-        if (!canDrop()) return;
 
-        if (draggedElm && dragOverAddress) {
+        if (canDrop() && draggedElm && dragOverAddress) {
+            const newElm: Elm = { ...draggedElm, address: dragOverAddress };
+
             setElms((prev) => prev.some((elm) => elm.id === draggedElm.id)
-                ? prev.map((elm) => elm.id === draggedElm.id ? { ...draggedElm, dragOverAddress } : elm)
-                : prev.concat({ ...draggedElm, dragOverAddress })
+                ? prev.map((elm) => elm.id === draggedElm.id ? newElm : elm)
+                : prev.concat(newElm)
             );
         }
 
@@ -119,20 +139,15 @@ const ScreenPage = () => {
     const canDrop = () => {
         if (!draggedElm || !dragOverAddress) return false;
 
-        const elmRowRange = range(draggedElm.dragOverAddress.row, draggedElm.dragOverAddress.row + draggedElm.item.height);
-        const elmColumnRange = range(draggedElm.dragOverAddress.column, draggedElm.dragOverAddress.column + draggedElm.item.width);
-        const withoutDragged = cells.map((row) => [...row]);
-        elmRowRange.forEach((i) => elmColumnRange.forEach((j) => withoutDragged[i][j] = false));
-
         const rowRange = range(dragOverAddress.row, dragOverAddress.row + draggedElm.item.height);
         const columnRange = range(dragOverAddress.column, dragOverAddress.column + draggedElm.item.width);
 
-        return !rowRange.some((i) => columnRange.some((j) => withoutDragged[i][j]));
+        return !rowRange.some((i) => columnRange.some((j) => cells[i][j]));
     };
 
     const handleElmDragStart = (e: React.DragEvent, elm: Elm) => {
-        setDraggedElm(elm);
         e.dataTransfer.effectAllowed = "move";
+        setDraggedElm(elm);
     };
 
     return (
@@ -186,12 +201,17 @@ const ScreenPage = () => {
                                         {elmCells[i][j] && (
                                             <div
                                                 className={[
-                                                    "absolute bg-yellow-100 px-2 py-1 z-30 cursor-grab",
-                                                    "hover:bg-yellow-200 active:cursor-grabbing",
-                                                    `${draggedElm && draggedElm.id !== elmCells[i][j].id && "pointer-events-none"}`,
+                                                    "absolute bg-yellow-100 px-2 py-1 z-30 cursor-move",
+                                                    "hover:bg-yellow-200",
+                                                    `${draggedElm && (
+                                                        draggedElm.id === elmCells[i][j].id
+                                                            ? "active:invisible transition duration-initial"
+                                                            : "pointer-events-none"
+                                                    )}`,
                                                 ].join(" ")}
                                                 onDragStart={(e) => handleElmDragStart(e, elmCells[i][j]!)}
                                                 onDragEnd={handleDragEnd}
+                                                onDragOver={(e) => {e.stopPropagation()}}
                                                 draggable={true}
                                                 style={{
                                                     width: cellSize.width * elmCells[i][j].item.width,
@@ -201,11 +221,15 @@ const ScreenPage = () => {
                                                 {elmCells[i][j].item.label}
                                             </div>
                                         )}
-                                        {draggedElm && dragOverAddress && (
+                                        {draggedElm
+                                        && dragOverAddress
+                                        && dragOverAddress.row === i
+                                        && dragOverAddress.column === j
+                                        && (
                                             <div
                                                 className={[
                                                     "absolute z-50 pointer-events-none opacity-50",
-                                                    `${dragOverAddress.row === i && dragOverAddress.column === j && (canDrop() ? "bg-green-300" : "bg-red-300")}`,
+                                                    `${canDrop() ? "bg-green-300" : "bg-red-300"}`,
                                                 ].join(" ")}
                                                 style={{
                                                     width: cellSize.width * draggedElm.item.width,
