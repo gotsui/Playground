@@ -12,7 +12,7 @@ const ConditionNode = ({ data }: ConditionNodeProps) => {
     return (
         <>
             <div className="p-4 bg-yellow-100 rounded shadow border border-yellow-300">
-                <div className="font-bold">{pfdFunc?.label || "条件分岐"}</div>
+                <div className="font-bold">{pfdFunc?.name || "条件分岐"}</div>
                 <div className="text-sm">
                     条件: {data.args.condition || "未設定"}
                 </div>

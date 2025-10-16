@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { rust_solve_linear_equations } from "@/pkg/project";
+// import { rust_solve_linear_equations } from "@/pkg/project";
 
 const MatrixPage = () => {
     const [coefficientMatrix, setCoefficientMatrix] = useState<number[][]>([[1, 1, 1], [2, 2, 1], [2, 3, 2]]);
