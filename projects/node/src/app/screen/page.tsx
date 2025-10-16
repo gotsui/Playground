@@ -1,14 +1,14 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 
 import Tab from "@/components/sidetabs/Tab";
 import TabGroup from "@/components/sidetabs/TabGroup";
 import TabList from "@/components/sidetabs/TabList";
 import TabPanel from "@/components/sidetabs/TabPanel";
-import useDOMSize from "./useDOMSize";
-import useGrid from "./useGrid";
+import useGrid, { CellAddress, XYPosition } from "./useGrid";
+import usePointerPosition from "./usePointerPosition";
 
 type Range = {
     (num: number): number[];
@@ -47,18 +47,25 @@ type Elm = {
     address: Address;
 };
 
+let id = 0;
+const getId = () => `item_${id++}`;
+
 const ScreenPage = () => {
     const ROW_NUM = 12;
     const COLUMN_NUM = 12;
 
-    const { gridRef, rect, cellSize } = useGrid({ row: ROW_NUM, column: COLUMN_NUM });
+    const { gridRef, cellSize, screenToCellAddress } = useGrid({ row: ROW_NUM, column: COLUMN_NUM });
+    const { pointerPosition } = usePointerPosition();
+
+    const pointerCellAddress = pointerPosition
+        ? screenToCellAddress(pointerPosition)
+        : null;
 
     // 配置要素一覧
     const [elms, setElms] = useState<Elm[]>([]);
 
     // 新規追加・再配置用
     const [draggedElm, setDraggedElm] = useState<Elm | null>(null);
-    const [dragOverAddress, setDragOverAddress] = useState<Address | null>(null);
 
     // 各セルの要素の有無
     const cells: boolean[][] = useMemo(() => {
@@ -83,54 +90,65 @@ const ScreenPage = () => {
         );
     }, [elms]);
 
-    const handleMenuDragStart = (e: React.DragEvent, id: string) => {
-        const item = menuItems.find((item) => item.id === id);
-        if (!item) return;
-
-        setDraggedElm({ id: crypto.randomUUID(), item, address: { row: -1, column: -1 }})
-        e.dataTransfer.effectAllowed = "move";
-    };
-
-    const handleDragEnd = (e: React.DragEvent) => {
-        setDraggedElm(null);
-        setDragOverAddress(null);
-    };
-
-    const handleCellDragOver = (e: React.DragEvent, addr: Address) => {
-        e.preventDefault();
-        e.dataTransfer.dropEffect = "move";
-        setDragOverAddress(addr);
-    };
-
-    const handleCellDrop = (e: React.DragEvent) => {
-        e.preventDefault();
-
-        if (canDrop() && draggedElm && dragOverAddress) {
-            const newElm: Elm = { ...draggedElm, address: dragOverAddress };
-
-            setElms((prev) => prev.some((elm) => elm.id === draggedElm.id)
-                ? prev.map((elm) => elm.id === draggedElm.id ? newElm : elm)
-                : prev.concat(newElm)
-            );
-        }
-
-        setDraggedElm(null);
-        setDragOverAddress(null);
-    };
-
-    const canDrop = () => {
-        if (!draggedElm || !dragOverAddress) return false;
-
-        const rowRange = range(dragOverAddress.row, dragOverAddress.row + draggedElm.item.height);
-        const columnRange = range(dragOverAddress.column, dragOverAddress.column + draggedElm.item.width);
-
+    const canDrop = (address: CellAddress, size: { width: number, height: number }): boolean => {
+        const rowRange = range(address.row, address.row + size.height);
+        const columnRange = range(address.column, address.column + size.width);
         return !rowRange.some((i) => columnRange.some((j) => cells[i][j]));
     };
 
-    const handleElmDragStart = (e: React.DragEvent, elm: Elm) => {
-        e.dataTransfer.effectAllowed = "move";
-        setDraggedElm(elm);
+
+
+    type OnPointerUpAction = ({ position }: { position: XYPosition }) => void;
+    const [isDragging, setIsDragging] = useState(false);
+    const [pointerUpAction, setPointerUpAction] = useState<OnPointerUpAction | null>(null);
+
+    const handlePointerDown = useCallback((event: React.PointerEvent, onPointerUp: OnPointerUpAction) => {
+        event.preventDefault();
+        (event.target as HTMLElement).setPointerCapture(event.pointerId);
+        setIsDragging(true);
+        setPointerUpAction(() => onPointerUp);
+    }, [setIsDragging, setPointerUpAction]);
+
+    const createElm = (itemId: string) => ({ position }: { position: XYPosition }) => {
+        const newItem = menuItems.find((v) => v.id === itemId);
+        if (!newItem) return;
+
+        setElms((prev) => prev.concat({
+            id: getId(),
+            item: newItem,
+            address: screenToCellAddress(position)
+        }));
     };
+
+    const handlePointerUp = (event: PointerEvent) => {
+        if (!isDragging) return;
+
+        event.preventDefault();
+        (event.target as HTMLElement).releasePointerCapture(event.pointerId);
+
+        const position = { x: event.clientX, y: event.clientY };
+        const address = screenToCellAddress(position);
+
+        if (address.row >= 0
+            && address.row < ROW_NUM
+            && address.column >= 0
+            && address.column < COLUMN_NUM
+        ) {
+            pointerUpAction?.({ position });
+        }
+
+        setIsDragging(false);
+    };
+
+    useEffect(() => {
+        if (!isDragging) return;
+
+        document.addEventListener("pointerup", handlePointerUp);
+
+        return () => {
+            document.removeEventListener("pointerup", handlePointerUp);
+        };
+    }, [isDragging, handlePointerUp]);
 
     return (
         <div className="h-screen w-screen flex flex-col select-none overflow-x-hidden">
@@ -154,9 +172,7 @@ const ScreenPage = () => {
                                                 hover:bg-gray-200 transition
                                                 active:cursor-grabbing
                                             "
-                                            onDragStart={(e) => handleMenuDragStart(e, item.id)}
-                                            onDragEnd={handleDragEnd}
-                                            draggable={true}
+                                            onPointerDown={(e) => handlePointerDown(e, createElm(item.id))}
                                         >
                                             {item.label}
                                         </div>
@@ -176,8 +192,6 @@ const ScreenPage = () => {
                                         className={[
                                             "relative w-1/12 border-r border-b bg-slate-100",
                                         ].join(" ")}
-                                        onDragOver={(e) => handleCellDragOver(e, { row: i, column: j })}
-                                        onDrop={!hasElm ? handleCellDrop : undefined}
                                     >
                                         {elmCells[i][j] && (
                                             <div
@@ -190,22 +204,19 @@ const ScreenPage = () => {
                                                             : "pointer-events-none"
                                                     )}`,
                                                 ].join(" ")}
-                                                onDragStart={(e) => handleElmDragStart(e, elmCells[i][j]!)}
-                                                onDragEnd={handleDragEnd}
-                                                onDragOver={(e) => {e.stopPropagation()}}
-                                                draggable={true}
                                                 style={{
                                                     width: cellSize.width * elmCells[i][j].item.width,
                                                     height: cellSize.height * elmCells[i][j].item.height,
                                                 }}
+                                                draggable
                                             >
                                                 {elmCells[i][j].item.label}
                                             </div>
                                         )}
-                                        {draggedElm
-                                        && dragOverAddress
-                                        && dragOverAddress.row === i
-                                        && dragOverAddress.column === j
+                                        {/* {draggedElm
+                                        && pointerCellAddress
+                                        && pointerCellAddress.row === i
+                                        && pointerCellAddress.column === j
                                         && (
                                             <div
                                                 className={[
@@ -217,7 +228,7 @@ const ScreenPage = () => {
                                                     height: cellSize.height * draggedElm.item.height,
                                                 }}
                                             />
-                                        )}
+                                        )} */}
                                     </div>
                                 ))}
                             </div>
