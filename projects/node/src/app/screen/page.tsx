@@ -7,6 +7,8 @@ import Tab from "@/components/sidetabs/Tab";
 import TabGroup from "@/components/sidetabs/TabGroup";
 import TabList from "@/components/sidetabs/TabList";
 import TabPanel from "@/components/sidetabs/TabPanel";
+import useDOMSize from "./useDOMSize";
+import useGrid from "./useGrid";
 
 type Range = {
     (num: number): number[];
@@ -49,16 +51,14 @@ const ScreenPage = () => {
     const ROW_NUM = 12;
     const COLUMN_NUM = 12;
 
+    const { gridRef, rect, cellSize } = useGrid({ row: ROW_NUM, column: COLUMN_NUM });
+
     // 配置要素一覧
     const [elms, setElms] = useState<Elm[]>([]);
 
     // 新規追加・再配置用
     const [draggedElm, setDraggedElm] = useState<Elm | null>(null);
     const [dragOverAddress, setDragOverAddress] = useState<Address | null>(null);
-
-    // セルサイズ取得用
-    const cellRef = useRef<HTMLDivElement>(null);
-    const [cellSize, setCellSize] = useState({ width: 0, height: 0 });
 
     // 各セルの要素の有無
     const cells: boolean[][] = useMemo(() => {
@@ -82,24 +82,6 @@ const ScreenPage = () => {
             )
         );
     }, [elms]);
-
-    // 初期レンダリング・リサイズ時のセルサイズ取得
-    useEffect(() => {
-        const cell = cellRef.current;
-        if (!cell) return;
-
-        const observer = new ResizeObserver((entries) => {
-            if (entries[0]) {
-                const rect = entries[0].contentRect;
-                setCellSize({ width: rect.width, height: rect.height });
-            }
-        });
-
-        observer.observe(cell);
-
-        // クリーンアップ関数
-        return () => observer.disconnect();
-    }, []);
 
     const handleMenuDragStart = (e: React.DragEvent, id: string) => {
         const item = menuItems.find((item) => item.id === id);
@@ -185,13 +167,12 @@ const ScreenPage = () => {
                     </div>
                 </div>
                 <div className="flex-1 p-4">
-                    <div className="h-full border-t border-l">
+                    <div ref={gridRef} className="h-full border-t border-l">
                         {cells.map((row, i) => (
                             <div key={i} className="flex h-1/12">
                                 {row.map((hasElm, j) => (
                                     <div
                                         key={j}
-                                        ref={i === 0 && j === 0 ? cellRef : undefined}
                                         className={[
                                             "relative w-1/12 border-r border-b bg-slate-100",
                                         ].join(" ")}
