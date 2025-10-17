@@ -1,50 +1,39 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import Link from "next/link";
 
 import Tab from "@/components/sidetabs/Tab";
 import TabGroup from "@/components/sidetabs/TabGroup";
 import TabList from "@/components/sidetabs/TabList";
 import TabPanel from "@/components/sidetabs/TabPanel";
+import useDnD, { OnPointerUpAction } from "./useDnD";
 import useGrid, { CellAddress, XYPosition } from "./useGrid";
 import usePointerPosition from "./usePointerPosition";
-
-type Range = {
-    (num: number): number[];
-    (begin: number, end: number): number[];
-};
-
-const range: Range = (begin: number, end?: number) => {
-    if (end === undefined) {
-        return [...Array(begin)].map((_, i) => i);
-    } else {
-        return [...Array(end - begin)].map((_, i) => (begin + i));
-    }
-};
+import { range } from "./utils";
 
 const menuItems: Item[] = [
-    { id: "input", label: "input", width: 2, height: 1 },
-    { id: "button", label: "button", width: 1, height: 1 },
-    { id: "table", label: "table", width: 3, height: 3 },
+    { id: "input", label: "input", size: { width: 2, height: 1 } },
+    { id: "button", label: "button", size: { width: 1, height: 1 } },
+    { id: "table", label: "table", size: { width: 3, height: 3 } },
 ];
 
 type Item = {
     id: string;
     label: string;
-    width: number;
-    height: number;
+    size: Size;
 };
 
-type Address = {
-    row: number;
-    column: number;
+type Size = {
+    width: number;
+    height: number;
 };
 
 type Elm = {
     id: string;
     item: Item;
-    address: Address;
+    address: CellAddress;
+    size: Size;
 };
 
 let id = 0;
@@ -55,31 +44,19 @@ const ScreenPage = () => {
     const COLUMN_NUM = 12;
 
     const { gridRef, cellSize, screenToCellAddress } = useGrid({ row: ROW_NUM, column: COLUMN_NUM });
-    const { pointerPosition } = usePointerPosition();
-
-    const pointerCellAddress = pointerPosition
-        ? screenToCellAddress(pointerPosition)
-        : null;
 
     // 配置要素一覧
     const [elms, setElms] = useState<Elm[]>([]);
 
-    // 新規追加・再配置用
-    const [draggedElm, setDraggedElm] = useState<Elm | null>(null);
-
     // 各セルの要素の有無
     const cells: boolean[][] = useMemo(() => {
-        const displayElms = draggedElm
-            ? elms.filter((elm) => elm.id !== draggedElm.id)
-            : elms;
-
-        return displayElms.reduce((acc, elm) => {
-            const rowRange = range(elm.address.row, elm.address.row + elm.item.height);
-            const columnRange = range(elm.address.column, elm.address.column + elm.item.width);
+        return elms.reduce((acc, elm) => {
+            const rowRange = range(elm.address.row, elm.address.row + elm.size.height);
+            const columnRange = range(elm.address.column, elm.address.column + elm.size.width);
             rowRange.forEach((i) => columnRange.forEach((j) => acc[i][j] = true));
             return acc;
         }, range(ROW_NUM).map((_) => range(COLUMN_NUM).map((_) => false)));
-    }, [elms, draggedElm]);
+    }, [elms]);
 
     // 要素を表示するセル
     const elmCells = useMemo(() => {
@@ -96,59 +73,115 @@ const ScreenPage = () => {
         return !rowRange.some((i) => columnRange.some((j) => cells[i][j]));
     };
 
+    // 要素の作成、更新、削除
+    const isValidElm = (address: CellAddress, size: Size): boolean => {
+        // アドレスのグリッド内判定
+        if (
+            address.row < 0
+            || address.row >= ROW_NUM
+            || address.column < 0
+            || address.column >= COLUMN_NUM
+        ) {
+            return false;
+        }
 
+        // サイズのグリッド内判定
+        if (
+            address.row + size.height > ROW_NUM
+            || address.column + size.width > COLUMN_NUM
+        ) {
+            return false;
+        }
 
-    type OnPointerUpAction = ({ position }: { position: XYPosition }) => void;
-    const [isDragging, setIsDragging] = useState(false);
-    const [pointerUpAction, setPointerUpAction] = useState<OnPointerUpAction | null>(null);
+        return true;
+    };
 
-    const handlePointerDown = useCallback((event: React.PointerEvent, onPointerUp: OnPointerUpAction) => {
-        event.preventDefault();
-        (event.target as HTMLElement).setPointerCapture(event.pointerId);
-        setIsDragging(true);
-        setPointerUpAction(() => onPointerUp);
-    }, [setIsDragging, setPointerUpAction]);
-
-    const createElm = (itemId: string) => ({ position }: { position: XYPosition }) => {
+    const createElm = (itemId: string, size: Size) => ({ position }: { position: XYPosition }) => {
         const newItem = menuItems.find((v) => v.id === itemId);
         if (!newItem) return;
+
+        const address = screenToCellAddress(position);
+        if (!isValidElm(address, size)) return;
 
         setElms((prev) => prev.concat({
             id: getId(),
             item: newItem,
-            address: screenToCellAddress(position)
+            address,
+            size,
         }));
     };
 
-    const handlePointerUp = (event: PointerEvent) => {
-        if (!isDragging) return;
+    const updateElmAddress = (elmId: string, elmSize: Size, offset: CellAddress) => ({ position }: { position: XYPosition }) => {
+        const pointerAddress = screenToCellAddress(position);
+        const nextAddress = {
+            row: pointerAddress.row + offset.row,
+            column: pointerAddress.column + offset.column,
+        };
 
-        event.preventDefault();
-        (event.target as HTMLElement).releasePointerCapture(event.pointerId);
+        if (!isValidElm(nextAddress, elmSize)) return;
 
-        const position = { x: event.clientX, y: event.clientY };
-        const address = screenToCellAddress(position);
-
-        if (address.row >= 0
-            && address.row < ROW_NUM
-            && address.column >= 0
-            && address.column < COLUMN_NUM
-        ) {
-            pointerUpAction?.({ position });
-        }
-
-        setIsDragging(false);
+        setElms((prev) => prev.map((elm) => elm.id === elmId ? { ...elm, address: nextAddress } : elm));
     };
 
-    useEffect(() => {
-        if (!isDragging) return;
-
-        document.addEventListener("pointerup", handlePointerUp);
-
-        return () => {
-            document.removeEventListener("pointerup", handlePointerUp);
+    const updateElmSize = (elmId: string, startAddress: CellAddress) => ({ position }: { position: XYPosition }) => {
+        const endAddress = screenToCellAddress(position);
+        const nextSize = {
+            width: Math.max(1, endAddress.column - startAddress.column + 1),
+            height: Math.max(1, endAddress.row - startAddress.row + 1),
         };
-    }, [isDragging, handlePointerUp]);
+
+        if (!isValidElm(startAddress, nextSize)) return;
+
+        setElms((prev) => prev.map((elm) => elm.id === elmId ? { ...elm, size: nextSize } : elm));
+    };
+
+    const deleteElm = (elmId: string) => {
+        setElms((prev) => prev.filter((elm) => elm.id !== elmId));
+    };
+
+    // DnD
+    const { handlePointerDown } = useDnD();
+    const { pointerPosition } = usePointerPosition();
+
+    const pointerCellAddress = pointerPosition
+        ? screenToCellAddress(pointerPosition)
+        : null;
+
+    // 配置
+    const [draggedElmSize, setDraggedElmSize] = useState<Size | null>(null);
+    const [draggedOffset, setDraggedOffset] = useState<CellAddress | null>(null);
+
+    const draggedElmAddress = pointerCellAddress && draggedOffset
+        ? {
+            row: pointerCellAddress.row + draggedOffset.row,
+            column: pointerCellAddress.column + draggedOffset.column,
+        }
+        : null;
+
+    const handleLayoutPointerUp = (action: OnPointerUpAction): OnPointerUpAction => {
+        return ({ position }: { position: XYPosition }) => {
+            action({ position });
+            setDraggedElmSize(null);
+            setDraggedOffset(null);
+        };
+    };
+
+    // リサイズ
+    const [resizedElmAddress, setResizedElmAddress] = useState<CellAddress | null>(null);
+
+    const resizeSize = pointerCellAddress && resizedElmAddress
+        ? {
+            width: Math.max(1, pointerCellAddress.column - resizedElmAddress.column + 1 ),
+            height: Math.max(1, pointerCellAddress.row - resizedElmAddress.row + 1),
+        }
+        : null;
+
+    const handleResizePointerUp = (action: OnPointerUpAction): OnPointerUpAction => {
+        return ({ position }: { position: XYPosition }) => {
+            action({ position });
+            setResizedElmAddress(null);
+        };
+    };
 
     return (
         <div className="h-screen w-screen flex flex-col select-none overflow-x-hidden">
@@ -172,7 +205,11 @@ const ScreenPage = () => {
                                                 hover:bg-gray-200 transition
                                                 active:cursor-grabbing
                                             "
-                                            onPointerDown={(e) => handlePointerDown(e, createElm(item.id))}
+                                            onPointerDown={(e) => {
+                                                setDraggedElmSize(item.size);
+                                                setDraggedOffset({ row: 0, column: 0 });
+                                                handlePointerDown(e, handleLayoutPointerUp(createElm(item.id, item.size)));
+                                            }}
                                         >
                                             {item.label}
                                         </div>
@@ -186,7 +223,7 @@ const ScreenPage = () => {
                     <div ref={gridRef} className="h-full border-t border-l">
                         {cells.map((row, i) => (
                             <div key={i} className="flex h-1/12">
-                                {row.map((hasElm, j) => (
+                                {row.map((_, j) => (
                                     <div
                                         key={j}
                                         className={[
@@ -197,38 +234,86 @@ const ScreenPage = () => {
                                             <div
                                                 className={[
                                                     "absolute bg-yellow-100 px-2 py-1 z-30 cursor-move",
-                                                    "hover:bg-yellow-200",
-                                                    `${draggedElm && (
-                                                        draggedElm.id === elmCells[i][j].id
-                                                            ? "active:invisible transition duration-initial"
-                                                            : "pointer-events-none"
-                                                    )}`,
+                                                    "hover:not-[:has(.absolute:hover)]:bg-yellow-200",
                                                 ].join(" ")}
-                                                style={{
-                                                    width: cellSize.width * elmCells[i][j].item.width,
-                                                    height: cellSize.height * elmCells[i][j].item.height,
+                                                onPointerDown={(e) => {
+                                                    const offset = {
+                                                        row: (pointerCellAddress
+                                                            ? elmCells[i][j]!.address.row - pointerCellAddress.row
+                                                            : 0
+                                                        ),
+                                                        column: (pointerCellAddress
+                                                            ? elmCells[i][j]!.address.column - pointerCellAddress.column
+                                                            : 0
+                                                        ),
+                                                    };
+                                                    setDraggedElmSize(elmCells[i][j]!.size);
+                                                    setDraggedOffset(offset);
+                                                    handlePointerDown(e, handleLayoutPointerUp(updateElmAddress(elmCells[i][j]!.id, elmCells[i][j]!.size, offset)));
                                                 }}
-                                                draggable
+                                                style={{
+                                                    width: cellSize.width * elmCells[i][j].size.width,
+                                                    height: cellSize.height * elmCells[i][j].size.height,
+                                                }}
                                             >
                                                 {elmCells[i][j].item.label}
+                                                <div
+                                                    className={[
+                                                        "absolute top-0 right-0 z-50 w-3 h-3",
+                                                        "bg-red-500 cursor-pointer",
+                                                        "hover:bg-red-600",
+                                                    ].join(" ")}
+                                                    onClick={() => deleteElm(elmCells[i][j]!.id)}
+                                                    onPointerDown={(e) => e.stopPropagation()}
+                                                />
+                                                <div
+                                                    className={[
+                                                        "absolute bottom-0 right-0 z-50 w-3 h-3",
+                                                        "bg-yellow-500 cursor-se-resize",
+                                                        "hover:bg-yellow-600",
+                                                    ].join(" ")}
+                                                    onPointerDown={(e) => {
+                                                        e.stopPropagation();
+                                                        setResizedElmAddress(elmCells[i][j]!.address);
+                                                        handlePointerDown(e, handleResizePointerUp(updateElmSize(elmCells[i][j]!.id, elmCells[i][j]!.address)));
+                                                    }}
+                                                />
                                             </div>
                                         )}
-                                        {/* {draggedElm
-                                        && pointerCellAddress
-                                        && pointerCellAddress.row === i
-                                        && pointerCellAddress.column === j
+                                        {draggedElmSize
+                                        && draggedElmAddress
+                                        && draggedElmAddress.row === i
+                                        && draggedElmAddress.column === j
                                         && (
                                             <div
                                                 className={[
                                                     "absolute z-50 pointer-events-none opacity-50",
-                                                    `${canDrop() ? "bg-green-300" : "bg-red-300"}`,
+                                                    // `${canDrop() ? "bg-green-300" : "bg-red-300"}`,
+                                                    "bg-violet-300",
                                                 ].join(" ")}
                                                 style={{
-                                                    width: cellSize.width * draggedElm.item.width,
-                                                    height: cellSize.height * draggedElm.item.height,
+                                                    width: cellSize.width * draggedElmSize.width,
+                                                    height: cellSize.height * draggedElmSize.height,
                                                 }}
                                             />
-                                        )} */}
+                                        )}
+                                        {resizeSize
+                                        && resizedElmAddress
+                                        && resizedElmAddress.row === i
+                                        && resizedElmAddress.column === j
+                                        && (
+                                            <div
+                                                className={[
+                                                    "absolute z-50 pointer-events-none opacity-50",
+                                                    // `${canDrop() ? "bg-green-300" : "bg-red-300"}`,
+                                                    "bg-violet-300",
+                                                ].join(" ")}
+                                                style={{
+                                                    width: cellSize.width * resizeSize.width,
+                                                    height: cellSize.height * resizeSize.height,
+                                                }}
+                                            />
+                                        )}
                                     </div>
                                 ))}
                             </div>
