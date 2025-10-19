@@ -153,11 +153,22 @@ const ScreenPage = () => {
     const [draggedElmSize, setDraggedElmSize] = useState<Size | null>(null);
     const [draggedOffset, setDraggedOffset] = useState<CellAddress | null>(null);
 
-    const draggedElmAddress = pointerCellAddress && draggedOffset
-        ? {
-            row: pointerCellAddress.row + draggedOffset.row,
-            column: pointerCellAddress.column + draggedOffset.column,
-        }
+    // グリッド内からはみ出さないように調整
+    const placeWithinGrid = (address: CellAddress, size: Size): CellAddress => {
+        return {
+            row: Math.min(ROW_NUM - size.height, Math.max(0, address.row)),
+            column: Math.min(COLUMN_NUM - size.width, Math.max(0, address.column)),
+        };
+    };
+
+    const draggedElmAddress = pointerCellAddress && draggedOffset && draggedElmSize
+        ? placeWithinGrid(
+            {
+                row: pointerCellAddress.row + draggedOffset.row,
+                column: pointerCellAddress.column + draggedOffset.column,
+            },
+            draggedElmSize,
+        )
         : null;
 
     const handleLayoutPointerUp = (action: OnPointerUpAction): OnPointerUpAction => {
@@ -300,7 +311,6 @@ const ScreenPage = () => {
                                             <div
                                                 className={[
                                                     "absolute z-50 pointer-events-none opacity-50",
-                                                    // `${canDrop() ? "bg-green-300" : "bg-red-300"}`,
                                                     "bg-violet-300",
                                                 ].join(" ")}
                                                 style={{
@@ -317,7 +327,6 @@ const ScreenPage = () => {
                                             <div
                                                 className={[
                                                     "absolute z-50 pointer-events-none opacity-50",
-                                                    // `${canDrop() ? "bg-green-300" : "bg-red-300"}`,
                                                     "bg-violet-300",
                                                 ].join(" ")}
                                                 style={{
@@ -330,6 +339,11 @@ const ScreenPage = () => {
                                 ))}
                             </div>
                         ))}
+                    </div>
+                </div>
+                <div className="flex flex-col">
+                    <div className="h-full w-64 space-y-2">
+                        編集
                     </div>
                 </div>
             </div>
