@@ -98,6 +98,14 @@ const ScreenPage = () => {
         return true;
     };
 
+    // グリッド内からはみ出さないように調整
+    const placeWithinGrid = (address: CellAddress, size: Size): CellAddress => {
+        return {
+            row: Math.min(ROW_NUM - size.height, Math.max(0, address.row)),
+            column: Math.min(COLUMN_NUM - size.width, Math.max(0, address.column)),
+        };
+    };
+
     const createElm = (itemId: string, size: Size) => ({ position }: { position: XYPosition }) => {
         const newItem = menuItems.find((v) => v.id === itemId);
         if (!newItem) return;
@@ -153,22 +161,11 @@ const ScreenPage = () => {
     const [draggedElmSize, setDraggedElmSize] = useState<Size | null>(null);
     const [draggedOffset, setDraggedOffset] = useState<CellAddress | null>(null);
 
-    // グリッド内からはみ出さないように調整
-    const placeWithinGrid = (address: CellAddress, size: Size): CellAddress => {
-        return {
-            row: Math.min(ROW_NUM - size.height, Math.max(0, address.row)),
-            column: Math.min(COLUMN_NUM - size.width, Math.max(0, address.column)),
-        };
-    };
-
     const draggedElmAddress = pointerCellAddress && draggedOffset && draggedElmSize
-        ? placeWithinGrid(
-            {
-                row: pointerCellAddress.row + draggedOffset.row,
-                column: pointerCellAddress.column + draggedOffset.column,
-            },
-            draggedElmSize,
-        )
+        ? {
+            row: pointerCellAddress.row + draggedOffset.row,
+            column: pointerCellAddress.column + draggedOffset.column,
+        }
         : null;
 
     const handleLayoutPointerUp = (action: OnPointerUpAction): OnPointerUpAction => {
