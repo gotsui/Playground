@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import Link from "next/link";
 
 import Tab from "@/components/sidetabs/Tab";
@@ -36,12 +36,14 @@ type Elm = {
     size: Size;
 };
 
-let id = 0;
-const getId = () => `item_${id++}`;
-
 const ScreenPage = () => {
     const ROW_NUM = 12;
     const COLUMN_NUM = 12;
+
+    const itemId = useRef(0);
+    const getId = () => {
+        return `item_${itemId.current++}`;
+    };
 
     const { gridRef, cellSize, screenToCellAddress } = useGrid({ row: ROW_NUM, column: COLUMN_NUM });
 
