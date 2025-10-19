@@ -142,7 +142,7 @@ const ScreenPage = () => {
     };
 
     // DnD
-    const { handlePointerDown } = useDnD();
+    const { isDragging, handlePointerDown } = useDnD();
     const { pointerPosition } = usePointerPosition();
 
     const pointerCellAddress = pointerPosition
@@ -188,6 +188,16 @@ const ScreenPage = () => {
     return (
         <div className="h-screen w-screen flex flex-col select-none overflow-x-hidden">
             <div className="flex w-full h-full min-h-0 divide-x-2 divide-indigo-500">
+                {pointerPosition && isDragging && draggedElmSize && (
+                    <div
+                        className="fixed pointer-events-none bg-yellow-100 opacity-50 z-100"
+                        style={{
+                            width: cellSize.width * draggedElmSize.width,
+                            height: cellSize.height * draggedElmSize.height,
+                            transform: `translate(${pointerPosition.x}px, ${pointerPosition.y}px) translate(-50%, -50%)`,
+                        }}
+                    />
+                )}
                 <div className="flex flex-col">
                     <div className="p-2">
                         <Link href="/" className="font-medium text-blue-600 dark:text-blue-500 hover:underline">← 戻る</Link>
