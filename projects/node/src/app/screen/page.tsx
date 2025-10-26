@@ -34,6 +34,10 @@ type Elm = {
     item: Item;
     address: CellAddress;
     size: Size;
+    property: {
+        label: string;
+        type: string;
+    };
 };
 
 const ScreenPage = () => {
@@ -118,6 +122,10 @@ const ScreenPage = () => {
             item: newItem,
             address,
             size,
+            property: {
+                label: newItem.label,
+                type: "",
+            },
         }));
     };
 
@@ -193,6 +201,9 @@ const ScreenPage = () => {
         };
     };
 
+    // 編集
+    const [selectedElmId, setSelectedElmId] = useState<string | null>(null);
+
     return (
         <div className="h-screen w-screen flex flex-col select-none overflow-x-hidden">
             <div className="flex w-full h-full min-h-0 divide-x-2 divide-indigo-500">
@@ -256,6 +267,7 @@ const ScreenPage = () => {
                                                     "absolute bg-yellow-100 px-2 py-1 z-30 cursor-move",
                                                     "hover:not-[:has(.absolute:hover)]:bg-yellow-200",
                                                 ].join(" ")}
+                                                onClick={() => setSelectedElmId(elmCells[i][j]!.id)}
                                                 onPointerDown={(e) => {
                                                     const offset = {
                                                         row: (pointerCellAddress
@@ -276,7 +288,7 @@ const ScreenPage = () => {
                                                     height: cellSize.height * elmCells[i][j].size.height,
                                                 }}
                                             >
-                                                {elmCells[i][j].item.label}
+                                                {elmCells[i][j].property.label}
                                                 <div
                                                     className={[
                                                         "absolute top-0 right-0 z-50 w-3 h-3",
@@ -339,8 +351,58 @@ const ScreenPage = () => {
                     </div>
                 </div>
                 <div className="flex flex-col">
-                    <div className="h-full w-64 space-y-2">
-                        編集
+                    <div className="h-full w-64 space-y-2 p-2">
+                        <div>編集</div>
+                        {selectedElmId && (
+                            <>
+                                <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                                    <span>ラベル</span>
+                                    <input
+                                        type="text"
+                                        className={[
+                                            "block w-full p-2.5",
+                                            "bg-gray-50 text-gray-900 text-sm rounded-lg border border-gray-300",
+                                            "focus:ring-blue-500 focus:border-blue-500",
+                                            "dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white",
+                                            "dark:focus:ring-blue-500 dark:focus:border-blue-500",
+                                        ].join(" ")}
+                                        value={elms.find((elm) => elm.id === selectedElmId)?.property.label}
+                                        onChange={(e) => setElms((prev) =>
+                                            prev.map((elm) => elm.id === selectedElmId
+                                                ? { ...elm, property: { ...elm.property, label: e.target.value } }
+                                                : elm
+                                            )
+                                        )}
+                                        required
+                                    />
+                                </label>
+                                <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                                    <span>タイプ</span>
+                                    <select
+                                        className={[
+                                            "block w-full p-2.5",
+                                            "bg-gray-50 text-gray-900 text-sm rounded-lg border border-gray-300",
+                                            "focus:ring-blue-500 focus:border-blue-500",
+                                            "dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white",
+                                            "dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                        ].join(" ")}
+                                        value={elms.find((elm) => elm.id === selectedElmId)?.property.type}
+                                        onChange={(e) => setElms((prev) =>
+                                            prev.map((elm) => elm.id === selectedElmId
+                                                ? { ...elm, property: { ...elm.property, type: e.target.value } }
+                                                : elm
+                                            )
+                                        )}
+                                    >
+                                        <option value="text">text</option>
+                                        <option value="number">number</option>
+                                        <option value="date">date</option>
+                                        <option value="password">password</option>
+                                        <option value="file">file</option>
+                                    </select>
+                                </label>
+                            </>
+                        )}
                     </div>
                 </div>
             </div>
