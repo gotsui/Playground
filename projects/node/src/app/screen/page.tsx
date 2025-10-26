@@ -1,44 +1,23 @@
 "use client";
 
 import React, { useMemo, useRef, useState } from "react";
-import Link from "next/link";
 
-import Tab from "@/components/sidetabs/Tab";
-import TabGroup from "@/components/sidetabs/TabGroup";
-import TabList from "@/components/sidetabs/TabList";
-import TabPanel from "@/components/sidetabs/TabPanel";
 import useDnD, { OnPointerUpAction } from "./useDnD";
 import useGrid, { CellAddress, XYPosition } from "./useGrid";
 import usePointerPosition from "./usePointerPosition";
 import { range } from "./utils";
+import Ghost from "./Ghost";
+import { Elm, Item, Size } from "./types";
+import LeftSidebar from "./LeftSidebar";
+import RightSidebar from "./RightSidebar";
+import Handle from "./Handle";
+import DropIndicator from "./DropIndicator";
 
 const menuItems: Item[] = [
     { id: "input", label: "input", size: { width: 2, height: 1 } },
     { id: "button", label: "button", size: { width: 1, height: 1 } },
     { id: "table", label: "table", size: { width: 3, height: 3 } },
 ];
-
-type Item = {
-    id: string;
-    label: string;
-    size: Size;
-};
-
-type Size = {
-    width: number;
-    height: number;
-};
-
-type Elm = {
-    id: string;
-    item: Item;
-    address: CellAddress;
-    size: Size;
-    property: {
-        label: string;
-        type: string;
-    };
-};
 
 const ScreenPage = () => {
     const ROW_NUM = 12;
@@ -201,6 +180,20 @@ const ScreenPage = () => {
         };
     };
 
+    const isDragAddress = (row: number, column: number): boolean => {
+        return draggedElmSize !== null
+            && draggedElmAddress !== null
+            && draggedElmAddress.row === row
+            && draggedElmAddress.column === column;
+    };
+
+    const isResizeAddress = (row: number, column: number): boolean => {
+        return resizeSize !== null
+            && resizedElmAddress !== null
+            && resizedElmAddress.row === row
+            && resizedElmAddress.column === column;
+    };
+
     // 編集
     const [selectedElmId, setSelectedElmId] = useState<string | null>(null);
 
@@ -208,48 +201,18 @@ const ScreenPage = () => {
         <div className="h-screen w-screen flex flex-col select-none overflow-x-hidden">
             <div className="flex w-full h-full min-h-0 divide-x-2 divide-indigo-500">
                 {pointerPosition && isDragging && draggedElmSize && (
-                    <div
-                        className="fixed pointer-events-none bg-yellow-100 opacity-50 z-100"
-                        style={{
-                            width: cellSize.width * draggedElmSize.width,
-                            height: cellSize.height * draggedElmSize.height,
-                            transform: `translate(${pointerPosition.x}px, ${pointerPosition.y}px) translate(-50%, -50%)`,
-                        }}
+                    <Ghost
+                        pointerPosition={pointerPosition}
+                        cellSize={cellSize}
+                        draggedElmSize={draggedElmSize}
                     />
                 )}
-                <div className="flex flex-col">
-                    <div className="p-2">
-                        <Link href="/" className="font-medium text-blue-600 dark:text-blue-500 hover:underline">← 戻る</Link>
-                    </div>
-                    <div className="flex-1 flex">
-                        <TabGroup defaultTab="form">
-                            <TabList>
-                                <Tab id="form">フォーム</Tab>
-                            </TabList>
-                            <TabPanel id="form">
-                                <div className="h-full w-32 space-y-2">
-                                    {menuItems.map((item) => (
-                                        <div
-                                            key={item.id}
-                                            className="
-                                                cursor-grab border-b border-gray-200 p-1
-                                                hover:bg-gray-200 transition
-                                                active:cursor-grabbing
-                                            "
-                                            onPointerDown={(e) => {
-                                                setDraggedElmSize(item.size);
-                                                setDraggedOffset({ row: 0, column: 0 });
-                                                handlePointerDown(e, handleLayoutPointerUp(createElm(item.id, item.size)));
-                                            }}
-                                        >
-                                            {item.label}
-                                        </div>
-                                    ))}
-                                </div>
-                            </TabPanel>
-                        </TabGroup>
-                    </div>
-                </div>
+                <LeftSidebar
+                    setDraggedElmSize={setDraggedElmSize}
+                    setDraggedOffset={setDraggedOffset}
+                    handleLayoutPointerUp={handleLayoutPointerUp}
+                    createElm={createElm}
+                />
                 <div className="flex-1 p-4">
                     <div ref={gridRef} className="h-full border-t border-l">
                         {cells.map((row, i) => (
@@ -264,41 +227,35 @@ const ScreenPage = () => {
                                         {elmCells[i][j] && (
                                             <div
                                                 className={[
-                                                    "absolute bg-yellow-100 px-2 py-1 z-30 cursor-move",
+                                                    "absolute bg-yellow-100 px-2 py-1 z-30",
                                                     "hover:not-[:has(.absolute:hover)]:bg-yellow-200",
+                                                    `${selectedElmId === elmCells[i][j].id ? "cursor-move border border-yellow-500" : "cursor-pointer"}`,
                                                 ].join(" ")}
                                                 onClick={() => setSelectedElmId(elmCells[i][j]!.id)}
-                                                onPointerDown={(e) => {
-                                                    const offset = {
-                                                        row: (pointerCellAddress
-                                                            ? elmCells[i][j]!.address.row - pointerCellAddress.row
-                                                            : 0
-                                                        ),
-                                                        column: (pointerCellAddress
-                                                            ? elmCells[i][j]!.address.column - pointerCellAddress.column
-                                                            : 0
-                                                        ),
-                                                    };
-                                                    setDraggedElmSize(elmCells[i][j]!.size);
-                                                    setDraggedOffset(offset);
-                                                    handlePointerDown(e, handleLayoutPointerUp(updateElmAddress(elmCells[i][j]!.id, elmCells[i][j]!.size, offset)));
-                                                }}
+                                                onPointerDown={selectedElmId === elmCells[i][j].id ?
+                                                    (e) => {
+                                                        const offset = {
+                                                            row: (pointerCellAddress
+                                                                ? elmCells[i][j]!.address.row - pointerCellAddress.row
+                                                                : 0
+                                                            ),
+                                                            column: (pointerCellAddress
+                                                                ? elmCells[i][j]!.address.column - pointerCellAddress.column
+                                                                : 0
+                                                            ),
+                                                        };
+                                                        setDraggedElmSize(elmCells[i][j]!.size);
+                                                        setDraggedOffset(offset);
+                                                        handlePointerDown(e, handleLayoutPointerUp(updateElmAddress(elmCells[i][j]!.id, elmCells[i][j]!.size, offset)));
+                                                    } : undefined
+                                                }
                                                 style={{
                                                     width: cellSize.width * elmCells[i][j].size.width,
                                                     height: cellSize.height * elmCells[i][j].size.height,
                                                 }}
                                             >
                                                 {elmCells[i][j].property.label}
-                                                <div
-                                                    className={[
-                                                        "absolute top-0 right-0 z-50 w-3 h-3",
-                                                        "bg-red-500 cursor-pointer",
-                                                        "hover:bg-red-600",
-                                                    ].join(" ")}
-                                                    onClick={() => deleteElm(elmCells[i][j]!.id)}
-                                                    onPointerDown={(e) => e.stopPropagation()}
-                                                />
-                                                <div
+                                                {/* <div
                                                     className={[
                                                         "absolute bottom-0 right-0 z-50 w-3 h-3",
                                                         "bg-yellow-500 cursor-se-resize",
@@ -309,39 +266,22 @@ const ScreenPage = () => {
                                                         setResizedElmAddress(elmCells[i][j]!.address);
                                                         handlePointerDown(e, handleResizePointerUp(updateElmSize(elmCells[i][j]!.id, elmCells[i][j]!.address)));
                                                     }}
-                                                />
+                                                /> */}
+                                                {elmCells[i][j].id === selectedElmId && (
+                                                    <Handle />
+                                                )}
                                             </div>
                                         )}
-                                        {draggedElmSize
-                                        && draggedElmAddress
-                                        && draggedElmAddress.row === i
-                                        && draggedElmAddress.column === j
-                                        && (
-                                            <div
-                                                className={[
-                                                    "absolute z-50 pointer-events-none opacity-50",
-                                                    "bg-violet-300",
-                                                ].join(" ")}
-                                                style={{
-                                                    width: cellSize.width * draggedElmSize.width,
-                                                    height: cellSize.height * draggedElmSize.height,
-                                                }}
+                                        {isDragAddress(i, j) && (
+                                            <DropIndicator
+                                                cellSize={cellSize}
+                                                indicatorSize={draggedElmSize!}
                                             />
                                         )}
-                                        {resizeSize
-                                        && resizedElmAddress
-                                        && resizedElmAddress.row === i
-                                        && resizedElmAddress.column === j
-                                        && (
-                                            <div
-                                                className={[
-                                                    "absolute z-50 pointer-events-none opacity-50",
-                                                    "bg-violet-300",
-                                                ].join(" ")}
-                                                style={{
-                                                    width: cellSize.width * resizeSize.width,
-                                                    height: cellSize.height * resizeSize.height,
-                                                }}
+                                        {isResizeAddress(i, j) && (
+                                            <DropIndicator
+                                                cellSize={cellSize}
+                                                indicatorSize={resizeSize!}
                                             />
                                         )}
                                     </div>
@@ -350,61 +290,13 @@ const ScreenPage = () => {
                         ))}
                     </div>
                 </div>
-                <div className="flex flex-col">
-                    <div className="h-full w-64 space-y-2 p-2">
-                        <div>編集</div>
-                        {selectedElmId && (
-                            <>
-                                <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                                    <span>ラベル</span>
-                                    <input
-                                        type="text"
-                                        className={[
-                                            "block w-full p-2.5",
-                                            "bg-gray-50 text-gray-900 text-sm rounded-lg border border-gray-300",
-                                            "focus:ring-blue-500 focus:border-blue-500",
-                                            "dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white",
-                                            "dark:focus:ring-blue-500 dark:focus:border-blue-500",
-                                        ].join(" ")}
-                                        value={elms.find((elm) => elm.id === selectedElmId)?.property.label}
-                                        onChange={(e) => setElms((prev) =>
-                                            prev.map((elm) => elm.id === selectedElmId
-                                                ? { ...elm, property: { ...elm.property, label: e.target.value } }
-                                                : elm
-                                            )
-                                        )}
-                                        required
-                                    />
-                                </label>
-                                <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                                    <span>タイプ</span>
-                                    <select
-                                        className={[
-                                            "block w-full p-2.5",
-                                            "bg-gray-50 text-gray-900 text-sm rounded-lg border border-gray-300",
-                                            "focus:ring-blue-500 focus:border-blue-500",
-                                            "dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white",
-                                            "dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                        ].join(" ")}
-                                        value={elms.find((elm) => elm.id === selectedElmId)?.property.type}
-                                        onChange={(e) => setElms((prev) =>
-                                            prev.map((elm) => elm.id === selectedElmId
-                                                ? { ...elm, property: { ...elm.property, type: e.target.value } }
-                                                : elm
-                                            )
-                                        )}
-                                    >
-                                        <option value="text">text</option>
-                                        <option value="number">number</option>
-                                        <option value="date">date</option>
-                                        <option value="password">password</option>
-                                        <option value="file">file</option>
-                                    </select>
-                                </label>
-                            </>
-                        )}
-                    </div>
-                </div>
+                <RightSidebar
+                    elms={elms}
+                    setElms={setElms}
+                    selectedElmId={selectedElmId}
+                    setSelectedElmId={setSelectedElmId}
+                    deleteElm={deleteElm}
+                />
             </div>
         </div>
     );
