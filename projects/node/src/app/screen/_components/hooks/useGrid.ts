@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
+
 import useDOMSize from "./useDOMSize";
 
 export type XYPosition = {
@@ -43,11 +44,21 @@ const useGrid = ({
         };
     }, [rect, cellSize]);
 
+    const getRow = () => {
+        return row;
+    };
+
+    const getColumn = () => {
+        return column;
+    };
+
     return {
         gridRef,
         rect,
         cellSize,
-        screenToCellAddress
+        screenToCellAddress,
+        getRow,
+        getColumn,
     };
 };
 

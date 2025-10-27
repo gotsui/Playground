@@ -6,6 +6,8 @@ import { Item, Size } from "./types";
 import { CellAddress } from "./hooks/useGrid";
 import useDnD, { OnPointerUpAction } from "./hooks/useDnD";
 import { XYPosition } from "./hooks/usePointerPosition";
+import { useContext } from "react";
+import { DnDContext } from "./DnDContext";
 
 const menuItems: Item[] = [
     { id: "input", label: "input", size: { width: 2, height: 1 } },
@@ -26,7 +28,13 @@ const LeftSidebar = ({
     handleLayoutPointerUp,
     createElm,
 }: LeftSidebarProps) => {
-    const { handlePointerDown } = useDnD();
+    const context = useContext(DnDContext);
+    
+    if (!context) {
+        throw new Error('useDnD must be used within a DnDProvider');
+    }
+
+    const { handlePointerDown } = context;
 
     return (
         <div className="flex flex-col">
