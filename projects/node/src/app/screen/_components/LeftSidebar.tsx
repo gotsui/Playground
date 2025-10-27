@@ -3,9 +3,9 @@
 import Link from "next/link";
 import { Tab, TabGroup, TabList, TabPanel } from "@/components/sidetabs";
 import { Item, Size } from "./types";
-import { CellAddress } from "./useGrid";
-import useDnD, { OnPointerUpAction } from "./useDnD";
-import { XYPosition } from "./usePointerPosition";
+import { CellAddress } from "./hooks/useGrid";
+import useDnD, { OnPointerUpAction } from "./hooks/useDnD";
+import { XYPosition } from "./hooks/usePointerPosition";
 
 const menuItems: Item[] = [
     { id: "input", label: "input", size: { width: 2, height: 1 } },

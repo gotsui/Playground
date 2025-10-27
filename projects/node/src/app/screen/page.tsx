@@ -2,16 +2,16 @@
 
 import React, { useMemo, useRef, useState } from "react";
 
-import useDnD, { OnPointerUpAction } from "./useDnD";
-import useGrid, { CellAddress, XYPosition } from "./useGrid";
-import usePointerPosition from "./usePointerPosition";
-import { range } from "./utils";
-import Ghost from "./Ghost";
-import { Elm, Item, Size } from "./types";
-import LeftSidebar from "./LeftSidebar";
-import RightSidebar from "./RightSidebar";
-import Handle from "./Handle";
-import DropIndicator from "./DropIndicator";
+import useDnD, { OnPointerUpAction } from "./_components/hooks/useDnD";
+import useGrid, { CellAddress, XYPosition } from "./_components/hooks/useGrid";
+import usePointerPosition from "./_components/hooks/usePointerPosition";
+import { range } from "./_components/utils";
+import Ghost from "./_components/Ghost";
+import { Elm, Item, Size } from "./_components/types";
+import LeftSidebar from "./_components/LeftSidebar";
+import RightSidebar from "./_components/RightSidebar";
+import Handle from "./_components/Handle";
+import DropIndicator from "./_components/DropIndicator";
 
 const menuItems: Item[] = [
     { id: "input", label: "input", size: { width: 2, height: 1 } },

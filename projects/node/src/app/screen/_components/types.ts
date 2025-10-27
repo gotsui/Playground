@@ -1,4 +1,4 @@
-import { CellAddress } from "./useGrid";
+import { CellAddress } from "./hooks/useGrid";
 
 export type Size = {
     width: number;

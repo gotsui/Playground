@@ -1,6 +1,6 @@
 "use client";
 
-import { XYPosition } from "./usePointerPosition";
+import { XYPosition } from "./hooks/usePointerPosition";
 
 type GhostProps = {
     pointerPosition: XYPosition;
