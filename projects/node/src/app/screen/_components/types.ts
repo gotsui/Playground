@@ -21,3 +21,5 @@ export type Elm = {
         type: string;
     };
 };
+
+export type HandleDirection = "nw" | "n" | "ne" | "w" | "e" | "sw" | "s" | "se";

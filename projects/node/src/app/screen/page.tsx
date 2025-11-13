@@ -7,7 +7,9 @@ import GridProvider from "./_components/GridProvider";
 const ScreenPage = () => {
     return (
         <DnDProvider>
-            <ScreenLayout/>
+            <GridProvider>
+                <ScreenLayout/>
+            </GridProvider>
         </DnDProvider>
     );
 };

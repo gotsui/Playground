@@ -14,6 +14,11 @@ export type CellAddress = {
     column: number;
 };
 
+export type CellSize = {
+    width: number;
+    height: number;
+};
+
 type UseGridProps = {
     row: number;
     column: number;
@@ -27,7 +32,7 @@ const useGrid = ({
 
     const { ref: gridRef, rect } = useDOMSize();
 
-    const cellSize = {
+    const cellSize: CellSize = {
         width: Math.floor(rect.width / column * PLACE) / PLACE,
         height: Math.floor(rect.height/ row * PLACE) / PLACE,
     };
@@ -44,6 +49,13 @@ const useGrid = ({
         };
     }, [rect, cellSize]);
 
+    const addressToPosition = useCallback((address: CellAddress): XYPosition => {
+        return {
+            x: address.column * cellSize.width + rect.left,
+            y: address.row * cellSize.height + rect.top,
+        };
+    }, [rect, cellSize]);
+
     const getRow = () => {
         return row;
     };
@@ -57,6 +69,7 @@ const useGrid = ({
         rect,
         cellSize,
         screenToCellAddress,
+        addressToPosition,
         getRow,
         getColumn,
     };

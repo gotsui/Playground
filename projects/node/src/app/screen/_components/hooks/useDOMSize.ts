@@ -2,8 +2,15 @@
 
 import { useCallback, useState } from "react";
 
+export type Rect = {
+    top: number;
+    left: number;
+    width: number;
+    height: number;
+};
+
 const useDOMSize = () => {
-    const [rect, setRect] = useState({
+    const [rect, setRect] = useState<Rect>({
         top: 0,
         left: 0,
         width: 0,
