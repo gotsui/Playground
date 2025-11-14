@@ -107,6 +107,113 @@ const ScreenLayout = () => {
         setElms((prev) => prev.map((elm) => elm.id === elmId ? { ...elm, size: nextSize } : elm));
     };
 
+    const updateElmSize2 = (elm: Elm, direction: HandleDirection) => ({ position }: { position: XYPosition }) => {
+        const endAddress = screenToCellAddress(position);
+
+        let rowDiff: number;
+        let columnDiff: number;
+
+        let nextAddress: CellAddress = elm.address;
+        let nextSize: Size = elm.size;
+
+        // 次の組み合わせ
+        // n: row, height / s: height
+        // w: column, width / e: width
+
+        switch (direction) {
+            case "nw":
+                nextAddress = {
+                    row: endAddress.row,
+                    column: endAddress.column,
+                };
+
+                rowDiff = nextAddress.row - elm.address.row;
+                columnDiff = nextAddress.column - elm.address.column;
+
+                nextSize = {
+                    width: elm.size.width - columnDiff,
+                    height: elm.size.height - rowDiff,
+                };
+                break;
+            case "n":
+                nextAddress = {
+                    row: endAddress.row,
+                    column: elm.address.column,
+                };
+
+                rowDiff = nextAddress.row - elm.address.row;
+
+                nextSize = {
+                    width: elm.size.width,
+                    height: elm.size.height - rowDiff,
+                };
+                break;
+            case "ne":
+                nextAddress = {
+                    row: endAddress.row,
+                    column: elm.address.column,
+                };
+
+                rowDiff = nextAddress.row - elm.address.row;
+
+                nextSize = {
+                    width: endAddress.column - elm.address.column + 1,
+                    height: elm.size.height - rowDiff,
+                };
+                break;
+            case "w":
+                nextAddress = {
+                    row: elm.address.row,
+                    column: endAddress.column,
+                };
+
+                columnDiff = nextAddress.column - elm.address.column;
+
+                nextSize = {
+                    width: elm.size.width - columnDiff,
+                    height: elm.size.height,
+                };
+                break;
+            case "e":
+                nextSize = {
+                    width: endAddress.column - elm.address.column + 1,
+                    height: elm.size.height,
+                };
+                break;
+            case "sw":
+                nextAddress = {
+                    row: elm.address.row,
+                    column: endAddress.column,
+                };
+
+                columnDiff = nextAddress.column - elm.address.column;
+
+                nextSize = {
+                    width: elm.size.width - columnDiff,
+                    height: endAddress.row - elm.address.row + 1,
+                };
+                break;
+            case "s":
+                nextSize = {
+                    width: elm.size.width,
+                    height: endAddress.row - elm.address.row + 1,
+                };
+                break;
+            case "se":
+                nextSize = {
+                    width: endAddress.column - elm.address.column + 1,
+                    height: endAddress.row - elm.address.row + 1,
+                };
+                break;
+            default:
+                return;
+        }
+
+        if (!isValidElm(nextAddress, nextSize)) return;
+
+        setElms((prev) => prev.map((v) => v.id === elm.id ? { ...v, address: nextAddress, size: nextSize } : v));
+    };
+
     const deleteElm = (elmId: string) => {
         setElms((prev) => prev.filter((elm) => elm.id !== elmId));
     };
@@ -182,7 +289,8 @@ const ScreenLayout = () => {
     const handleHandlePointerDown = (e: React.PointerEvent<HTMLDivElement>, elm: Elm, direction: HandleDirection) => {
         e.stopPropagation();
         setResizedElmAddress(elm.address);
-        handlePointerDown(e, handleResizePointerUp(updateElmSize(elm.id, elm.address, direction)));
+        // handlePointerDown(e, handleResizePointerUp(updateElmSize(elm.id, elm.address, direction)));
+        handlePointerDown(e, handleResizePointerUp(updateElmSize2(elm, direction)));
     };
 
     // 編集
