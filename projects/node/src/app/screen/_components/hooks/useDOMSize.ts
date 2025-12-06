@@ -35,6 +35,13 @@ const useDOMSize = () => {
                 width: element.offsetWidth,
                 height: element.offsetHeight,
             });
+            console.log(element.getBoundingClientRect());
+            console.log({
+                top: element.offsetTop,
+                left: element.offsetLeft,
+                width: element.offsetWidth,
+                height: element.offsetHeight,
+            });
         });
 
         observer.observe(element);

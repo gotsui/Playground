@@ -11,7 +11,7 @@ type GridProviderProps = {
 const GridProvider = ({
     children,
 }: GridProviderProps) => {
-    const value = useGrid({ row: 12, column: 12 });
+    const value = useGrid({ row: 9, column: 16 });
 
     return (
         <GridContext value={value}>

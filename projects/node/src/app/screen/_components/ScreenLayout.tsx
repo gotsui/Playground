@@ -13,6 +13,7 @@ import { Elm, HandleDirection, Item, Size } from "./types";
 import { OnPointerUpAction } from "./hooks/useDnD";
 import { CellAddress, XYPosition } from "./hooks/useGrid";
 import usePointerPosition from "./hooks/usePointerPosition";
+import { resizeRect } from "./resize";
 
 const menuItems: Item[] = [
     { id: "input", label: "input", size: { width: 2, height: 1 } },
@@ -27,7 +28,7 @@ const ScreenLayout = () => {
     };
 
     const [screenName, setScreenName] = useState("");
-    const { cellSize, screenToCellAddress, addressToPosition, getRow, getColumn } = useGridContext();
+    const { rect, cellSize, screenToCellAddress, addressToPosition, getRow, getColumn } = useGridContext();
 
     // 配置要素一覧
     const [elms, setElms] = useState<Elm[]>([]);
@@ -108,110 +109,23 @@ const ScreenLayout = () => {
     };
 
     const updateElmSize2 = (elm: Elm, direction: HandleDirection) => ({ position }: { position: XYPosition }) => {
-        const endAddress = screenToCellAddress(position);
+        console.log(rect);
+        const elmPos = addressToPosition(elm.address);
+        const elmRect = { x: elmPos.x, y: elmPos.y, width: cellSize.width * elm.size.width, height: cellSize.height * elm.size.height };
+        const nextRect = resizeRect(
+            elmRect,
+            direction,
+            position,
+            {
+                maxSize: { width: rect.width, height: rect.height },
+                minSize: { width: cellSize.width, height: cellSize.height },
+            },
+        );
 
-        let rowDiff: number;
-        let columnDiff: number;
-
-        let nextAddress: CellAddress = elm.address;
-        let nextSize: Size = elm.size;
-
-        // 次の組み合わせ
-        // n: row, height / s: height
-        // w: column, width / e: width
-
-        switch (direction) {
-            case "nw":
-                nextAddress = {
-                    row: endAddress.row,
-                    column: endAddress.column,
-                };
-
-                rowDiff = nextAddress.row - elm.address.row;
-                columnDiff = nextAddress.column - elm.address.column;
-
-                nextSize = {
-                    width: elm.size.width - columnDiff,
-                    height: elm.size.height - rowDiff,
-                };
-                break;
-            case "n":
-                nextAddress = {
-                    row: endAddress.row,
-                    column: elm.address.column,
-                };
-
-                rowDiff = nextAddress.row - elm.address.row;
-
-                nextSize = {
-                    width: elm.size.width,
-                    height: elm.size.height - rowDiff,
-                };
-                break;
-            case "ne":
-                nextAddress = {
-                    row: endAddress.row,
-                    column: elm.address.column,
-                };
-
-                rowDiff = nextAddress.row - elm.address.row;
-
-                nextSize = {
-                    width: endAddress.column - elm.address.column + 1,
-                    height: elm.size.height - rowDiff,
-                };
-                break;
-            case "w":
-                nextAddress = {
-                    row: elm.address.row,
-                    column: endAddress.column,
-                };
-
-                columnDiff = nextAddress.column - elm.address.column;
-
-                nextSize = {
-                    width: elm.size.width - columnDiff,
-                    height: elm.size.height,
-                };
-                break;
-            case "e":
-                nextSize = {
-                    width: endAddress.column - elm.address.column + 1,
-                    height: elm.size.height,
-                };
-                break;
-            case "sw":
-                nextAddress = {
-                    row: elm.address.row,
-                    column: endAddress.column,
-                };
-
-                columnDiff = nextAddress.column - elm.address.column;
-
-                nextSize = {
-                    width: elm.size.width - columnDiff,
-                    height: endAddress.row - elm.address.row + 1,
-                };
-                break;
-            case "s":
-                nextSize = {
-                    width: elm.size.width,
-                    height: endAddress.row - elm.address.row + 1,
-                };
-                break;
-            case "se":
-                nextSize = {
-                    width: endAddress.column - elm.address.column + 1,
-                    height: endAddress.row - elm.address.row + 1,
-                };
-                break;
-            default:
-                return;
-        }
-
-        if (!isValidElm(nextAddress, nextSize)) return;
-
-        setElms((prev) => prev.map((v) => v.id === elm.id ? { ...v, address: nextAddress, size: nextSize } : v));
+        const startAddress = screenToCellAddress({ x: nextRect.x, y: nextRect.y });
+        const endAddress = screenToCellAddress({ x: nextRect.x + nextRect.width, y: nextRect.y + nextRect.height });
+        const size = { width: endAddress.column - startAddress.column + 1, height: endAddress.row - startAddress.row + 1 };
+        setElms((prev) => prev.map((v) => v.id === elm.id ? { ...v, address: startAddress, size } : v));
     };
 
     const deleteElm = (elmId: string) => {
@@ -267,6 +181,26 @@ const ScreenLayout = () => {
 
     // リサイズ
     const [resizedElmAddress, setResizedElmAddress] = useState<CellAddress | null>(null);
+    const [resizeHandle, setResizeHandle] = useState<HandleDirection | null>(null);
+
+    const resizeRect2 = (elm: Elm, direction: HandleDirection, position: XYPosition) => {
+        const elmPos = addressToPosition(elm.address);
+        const elmRect = { x: elmPos.x, y: elmPos.y, width: cellSize.width * elm.size.width, height: cellSize.height * elm.size.height };
+        const nextRect = resizeRect(
+            elmRect,
+            direction,
+            position,
+            {
+                maxSize: { width: rect.width, height: rect.height },
+                minSize: { width: cellSize.width, height: cellSize.height },
+            },
+        );
+
+        const startAddress = screenToCellAddress({ x: nextRect.x, y: nextRect.y });
+        const endAddress = screenToCellAddress({ x: nextRect.x + nextRect.width, y: nextRect.y + nextRect.height });
+        const size = { width: endAddress.column - startAddress.column, height: endAddress.row - startAddress.row };
+        setElms((prev) => prev.map((v) => v.id === elm.id ? { ...v, address: startAddress, size } : v));
+    };
 
     const resizeSize = pointerCellAddress && resizedElmAddress
         ? {

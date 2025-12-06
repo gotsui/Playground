@@ -69,28 +69,11 @@ export const resizeRect = (
     const { minSize, maxSize } = options;
     const config = HANDLE_CONFIG[handle];
 
-    // // 現在の中心座標を取得
-    // const centerX = rect.x + rect.width * 0.5;
-    // const centerY = rect.y + rect.height * 0.5;
-
-    // // 中心からの符号付き移動量(変化量)
-    // const deltaX = config.scaleX * (pointer.x - centerX);
-    // const deltaY = config.scaleY = (pointer.y - centerY);
-
-    // // const newWidth = clamp(minSize?.width)(maxSize?.width)(rect.width + deltaX * 2);
-    // // const newHeight = clamp(minSize?.height)(maxSize?.height)(rect.height + deltaY * 2);
-    // const newWidth = rect.width + deltaX * 2;
-    // const newHeight = rect.height + deltaY * 2;
-
-    // const newX = centerX - newWidth * config.anchorX;
-    // const newY = centerY - newHeight * config.anchorY;
-
     // 固定点の取得
     const fixedPointX = config.fixedX === "right" ? rect.x + rect.width : rect.x;
     const fixedPointY = config.fixedY === "bottom" ? rect.y + rect.height : rect.y;
 
     // 固定点からの距離
-    // const newWidth = Math.abs(pointer.x - fixedX);
     const newWidth = config.fixedX === "center" ? rect.width : Math.abs(pointer.x - fixedPointX);
     const newHeight = config.fixedY === "center" ? rect.height : Math.abs(pointer.y - fixedPointY);
 
@@ -98,11 +81,6 @@ export const resizeRect = (
     const newX = config.fixedX === "right" ? fixedPointX - newWidth : fixedPointX;
     const newY = config.fixedY === "bottom" ? fixedPointY - newHeight : fixedPointY;
 
-    console.log(rect);
-    console.log(pointer.x, pointer.y);
-    console.log(fixedPointX, fixedPointY);
-    console.log(newWidth, newHeight);
-    console.log(newX, newY);
     return { x: newX, y: newY, width: newWidth, height: newHeight };
 };
 

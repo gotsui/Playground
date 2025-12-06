@@ -22,4 +22,13 @@ export type Elm = {
     };
 };
 
-export type HandleDirection = "nw" | "n" | "ne" | "w" | "e" | "sw" | "s" | "se";
+// export type HandleDirection = "nw" | "n" | "ne" | "w" | "e" | "sw" | "s" | "se";
+export type HandleDirection =
+    | "topLeft"
+    | "topCenter"
+    | "topRight"
+    | "middleLeft"
+    | "middleRight"
+    | "bottomLeft"
+    | "bottomCenter"
+    | "bottomRight";
