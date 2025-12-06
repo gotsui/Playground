@@ -59,6 +59,17 @@ const Home = () => {
                         フロー作成2
                     </div>
                 </Link>
+                <Link
+                    href="/wbs"
+                    className="
+                        p-4 border rounded-lg shadow-md
+                        hover:bg-gray-100 overflow-hidden
+                    "
+                >
+                    <div className="text-xl font-semibold">
+                        WBS
+                    </div>
+                </Link>
             </div>
         </div>
     );

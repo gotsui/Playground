@@ -89,10 +89,10 @@ const WbsRow = ({
                             value={editForm?.buffer || ""}
                             onChange={(e) => updateForm({ buffer: e.target.value })}
                         />
-                        <div className="col-span-2 text-right font-bold text-green-600">
+                        <div className="col-span-1 text-right font-bold text-green-600">
                             {withBuffer}h
                         </div>
-                        <div className="col-span-2 flex gap-2 justify-end">
+                        <div className="col-span-1 flex gap-2 justify-end">
                             <button onClick={saveEdit} className="text-green-600 text-sm">
                                 保存
                             </button>
@@ -103,7 +103,7 @@ const WbsRow = ({
                     </>
                 ) : (
                     <>
-                        <div className="col-span-6" onDoubleClick={() => startEdit(node)}>
+                        <div className="col-span-5" onDoubleClick={() => startEdit(node)}>
                             <span className={`inline-block px-2 py-0.5 text-xs rounded-md mr-2 ${
                                 node.status === "完了" ? "bg-green-100 text-green-800" :
                                 node.status === "進行中" ? "bg-yellow-100 text-yellow-800" :
