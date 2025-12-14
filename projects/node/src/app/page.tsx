@@ -70,6 +70,17 @@ const Home = () => {
                         WBS
                     </div>
                 </Link>
+                <Link
+                    href="/form"
+                    className="
+                        p-4 border rounded-lg shadow-md
+                        hover:bg-gray-100 overflow-hidden
+                    "
+                >
+                    <div className="text-xl font-semibold">
+                        フォーム
+                    </div>
+                </Link>
             </div>
         </div>
     );
