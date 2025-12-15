@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import Grid from "./Grid";
 import { createLabel } from "./lib/field";
@@ -132,12 +132,27 @@ const Page = () => {
         setHandle(handle);
         handlePointerDown(e, handleResizePointerUp(field, handle));
     };
-    
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === "Delete" && selectedFieldId) {
-            setFields((prev) => prev.filter((field) => field.id !== selectedFieldId));
-        }
-    };
+
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === "Escape") {
+                setFieldType(null);
+            }
+
+            if (e.key === "Delete") {
+                if (selectedFieldId) {
+                    setFields((prev) => prev.filter((field) => field.id !== selectedFieldId));
+                    setSelectedFieldId(null);
+                }
+            }
+        };
+
+        document.addEventListener("keydown", handleKeyDown);
+
+        return () => {
+            document.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [selectedFieldId, setSelectedFieldId, setFields, setFieldType]);
 
     return (
         <div className="w-screen h-screen">
@@ -195,7 +210,6 @@ const Page = () => {
                                     setSelectedFieldId(field.id);
                                     setFieldType(null);
                                 }}
-                                onKeyDown={handleKeyDown}
                                 onPointerDown={
                                     field.id === selectedFieldId
                                     ? (e) => {
