@@ -1,7 +1,9 @@
 "use client";
 
-import { authClient } from "@/lib/auth/auth-client";
 import { useState } from "react";
+import Link from "next/link";
+
+import { authClient } from "@/lib/auth/auth-client";
 
 const SignUpPage = () => {
     const [name, setName] = useState("");
@@ -13,11 +15,11 @@ const SignUpPage = () => {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        const result = await authClient.signUp.email({
+        await authClient.signUp.email({
             email,
             password,
             name,
-            callbackURL: "/form",
+            callbackURL: "/sign-in",
         }, {
             onRequest: () => {
                 setIsPending(true);
@@ -27,25 +29,22 @@ const SignUpPage = () => {
                 setIsPending(false);
             },
             onError: (ctx) => {
-                setError(ctx.error.message);
+                setError(ctx.error.message || "登録に失敗しました");
                 setIsPending(false);
             },
         });
     };
 
-    if (isPending) {
-        return (
-            <div className="flex justify-center" aria-label="読み込み中">
-                <div className="animate-spin h-10 w-10 border-4 border-blue-500 rounded-full border-t-transparent"></div>
-            </div>
-        );
-    }
-
     return (
-        <form className="container mx-auto p-4" onSubmit={handleSubmit}>
-            <div className="mx-auto max-w-80 border border-slate-300 p-4 shadow-md">
-                <p className="text-center mb-6">ユーザー登録</p>
-                <p className="text-red-500">{error}</p>
+        <div className="flex flex-col justify-center items-center p-8 space-y-4 w-full">
+            <form
+                className="w-80 p-4 border border-slate-300 rounded-md shadow-md"
+                onSubmit={handleSubmit}
+            >
+                <div className="min-h-12 mb-2">
+                    <p className="text-center">新規登録</p>
+                    <p className="text-red-500">{error}</p>
+                </div>
                 <label className="block mb-4">
                     <span>名前</span>
                     <input
@@ -68,7 +67,7 @@ const SignUpPage = () => {
                         required={true}
                     />
                 </label>
-                <label className="block mb-6">
+                <label className="block mb-8">
                     <span>パスワード</span>
                     <input
                         type="password"
@@ -81,12 +80,28 @@ const SignUpPage = () => {
                 </label>
                 <button
                     type="submit"
-                    className="bg-blue-500 text-white rounded-md hover:bg-gray-600 px-4 py-2 w-full"
+                    className={[
+                        "px-4 py-2 w-full",
+                        "bg-blue-500 text-white rounded-md",
+                        "hover:bg-blue-600",
+                        "disabled:bg-gray-500 disabled:cursor-not-allowed",
+                    ].join(" ")}
+                    disabled={isPending}
                 >
-                    登録
+                    {isPending ? (
+                        <div className="flex justify-center" aria-label="読み込み中">
+                            <div className="animate-spin h-6 w-6 border-4 border-white rounded-full border-t-transparent"></div>
+                        </div>
+                    ) : (
+                        <span>新規登録</span>
+                    )}
                 </button>
+            </form>
+            <div className="w-80 flex justify-center space-x-2 p-2 border border-slate-300 rounded-md shadow-md">
+                <p>登録済みの方は</p>
+                <Link href="/sign-in" className="text-blue-500 hover:underline">こちらからログイン</Link>
             </div>
-        </form>
+        </div>
     );
 };
 

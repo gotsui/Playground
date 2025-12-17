@@ -1,32 +1,48 @@
 "use client";
 
-import { authClient } from "@/lib/auth/auth-client";
 import { useState } from "react";
+import Link from "next/link";
+
+import { authClient } from "@/lib/auth/auth-client";
 
 const SignInPage = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
+    const [isPending, setIsPending] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        const result = await authClient.signIn.email({
+        await authClient.signIn.email({
             email,
             password,
-            callbackURL: "/form",
+            callbackURL: "/",
+        }, {
+            onRequest: () => {
+                setError("");
+                setIsPending(true);
+            },
+            onSuccess: () => {
+                setIsPending(false);
+            },
+            onError: (ctx) => {
+                setError(ctx.error.message || "ログインに失敗しました");
+                setIsPending(false);
+            },
         });
-
-        if (result.error) {
-            setError(result.error.message || "ログインに失敗しました");
-        }
     };
 
     return (
-        <form className="container mx-auto p-4" onSubmit={handleSubmit}>
-            <div className="mx-auto max-w-80 border border-slate-300 p-4 shadow-md">
-                <p className="text-center mb-6">ログイン</p>
-                <p className="text-red-500">{error}</p>
+        <div className="flex flex-col justify-center items-center p-8 space-y-4 w-full">
+            <form
+                className="w-80 p-4 border border-slate-300 rounded-md shadow-md"
+                onSubmit={handleSubmit}
+            >
+                <div className="min-h-12 mb-2">
+                    <p className="text-center">ログイン</p>
+                    <p className="text-red-500">{error}</p>
+                </div>
                 <label className="block mb-4">
                     <span>メールアドレス</span>
                     <input
@@ -38,7 +54,7 @@ const SignInPage = () => {
                         required={true}
                     />
                 </label>
-                <label className="block mb-6">
+                <label className="block mb-8">
                     <span>パスワード</span>
                     <input
                         type="password"
@@ -51,12 +67,28 @@ const SignInPage = () => {
                 </label>
                 <button
                     type="submit"
-                    className="bg-blue-500 text-white rounded-md hover:bg-gray-600 px-4 py-2 w-full"
+                    className={[
+                        "px-4 py-2 w-full",
+                        "bg-blue-500 text-white rounded-md",
+                        "hover:bg-blue-600",
+                        "disabled:bg-gray-500 disabled:cursor-not-allowed",
+                    ].join(" ")}
+                    disabled={isPending}
                 >
-                    ログイン
+                    {isPending ? (
+                        <div className="flex justify-center" aria-label="読み込み中">
+                            <div className="animate-spin h-6 w-6 border-4 border-white rounded-full border-t-transparent"></div>
+                        </div>
+                    ) : (
+                        <span>ログイン</span>
+                    )}
                 </button>
+            </form>
+            <div className="w-80 flex justify-center space-x-2 p-2 border border-slate-300 rounded-md shadow-md">
+                <p>初めての方は</p>
+                <Link href="/sign-up" className="text-blue-500 hover:underline">こちらから登録</Link>
             </div>
-        </form>
+        </div>
     );
 };
 
