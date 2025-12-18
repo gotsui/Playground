@@ -49,16 +49,16 @@ const NavBar = () => {
                             {session ? (
                                 <>
                                     <p>ユーザー名：{session.user.name}</p>
-                                    <button className="h-full" onClick={handleClickSignOut}>
+                                    <button className="h-full cursor-pointer" onClick={handleClickSignOut}>
                                         <NavText>ログアウト</NavText>
                                     </button>
                                 </>
                             ) : (
                                 <>
-                                    <Link href="/sign-in" className="h-full">
+                                    <Link href="/sign-in" className="h-full cursor-pointer">
                                         <NavText>ログイン</NavText>
                                     </Link>
-                                    <Link href="/sign-up" className="h-full">
+                                    <Link href="/sign-up" className="h-full cursor-pointer">
                                         <NavText>新規登録</NavText>
                                     </Link>
                                 </>
