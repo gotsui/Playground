@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import { authClient } from "@/lib/auth/auth-client";
 
@@ -9,8 +10,10 @@ const SignUpPage = () => {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [error, setError] = useState("");
     const [isPending, setIsPending] = useState(false);
+    const [message, setMessage] = useState("");
+    const [error, setError] = useState("");
+    const router = useRouter();
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -19,14 +22,18 @@ const SignUpPage = () => {
             email,
             password,
             name,
-            callbackURL: "/sign-in",
+            // メール検証が有効な場合のみ
+            // callbackURL: "/sign-in",
         }, {
             onRequest: () => {
+                setMessage("");
+                setError("");
                 setIsPending(true);
             },
             onSuccess: () => {
-                setError("");
+                setMessage("登録しました");
                 setIsPending(false);
+                router.push("/sign-in");
             },
             onError: (ctx) => {
                 setError(ctx.error.message || "登録に失敗しました");
@@ -43,6 +50,7 @@ const SignUpPage = () => {
             >
                 <div className="min-h-12 mb-2">
                     <p className="text-center">新規登録</p>
+                    <p className="text-green-500">{message}</p>
                     <p className="text-red-500">{error}</p>
                 </div>
                 <label className="block mb-4">
