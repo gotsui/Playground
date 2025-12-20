@@ -1,5 +1,9 @@
-import { alignItemsSchema, justifyContentSchema, writingModeSchema } from "../schemas/field";
-import { Field, Rect } from "../types";
+import {
+    alignItemsSchema,
+    justifyContentSchema,
+    writingModeSchema,
+} from "../../schemas/field";
+import { Field, Rect } from "../../types";
 import ColorEditRow from "./ColorEditRow";
 import NumberEditRow from "./NumberEditRow";
 import SelectEditRow from "./SelectEditRow";

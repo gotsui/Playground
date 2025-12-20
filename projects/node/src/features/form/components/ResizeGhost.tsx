@@ -1,10 +1,9 @@
 "use client";
 
-import { calcRelativePosition } from "./lib/position";
-import { Handle, resizeRect } from "./lib/resize";
-import { XYPosition } from "./lib/useDnD";
-import usePointerPosition from "./lib/usePointerPosition";
-import { Field } from "./types";
+import { calcRelativePosition } from "../lib/position";
+import { Handle, resizeRect } from "../lib/resize";
+import usePointerPosition from "../lib/usePointerPosition";
+import { Field } from "../types";
 
 type Props = {
     grid: HTMLElement;

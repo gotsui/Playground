@@ -2,8 +2,8 @@
 
 import { PointerEvent } from "react";
 
-import { Handle } from "./lib/resize";
-import { Field } from "./types";
+import { Handle } from "../lib/resize";
+import { Field } from "../types";
 
 type Props = {
     field: Field;
