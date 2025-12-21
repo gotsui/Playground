@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "next/navigation";
-import { Save, Type } from "lucide-react";
+import { ArrowLeft, Save, Type } from "lucide-react";
 
 import { Field, Rect } from "../types";
 import useDnD, { OnPointerUpAction, XYPosition } from "../lib/useDnD";
@@ -16,6 +16,9 @@ import DragRect from "./DragRect";
 import DragGhost from "./DragGhost";
 import ResizeGhost from "./ResizeGhost";
 import DataEditor from "./editrows/DataEditor";
+import SaveDialogButton from "./SaveDialogButton";
+import UpdateButton from "./UpdateButton";
+import Link from "next/link";
 
 type Props = {
     defaultFields: Field[];
@@ -169,6 +172,20 @@ const FormEditor = ({
         <div className="w-screen h-screen">
             <div className="flex flex-col size-full">
                 <div className="flex items-center h-8 p-4 bg-blue-200 space-x-4">
+                    <div className="size-4">
+                        <Link href="/form">
+                            <ArrowLeft className="size-full" />
+                        </Link>
+                    </div>
+                    {formId ? (
+                        <div className="size-4">
+                            <UpdateButton id={formId} fields={fields} />
+                        </div>
+                    ) : (
+                        <div className="size-4">
+                            <SaveDialogButton caption="名前を付けて保存" fields={fields} />
+                        </div>
+                    )}
                     <div
                         className={[
                             "size-4 bg-gray-200 text-xs text-center cursor-pointer",

@@ -4,9 +4,7 @@ import FormEditor from "@/features/form/components/FormEditor";
 
 const Page = () => {
     return (
-        <div>
-            <FormEditor defaultFields={[]} />
-        </div>
+        <FormEditor defaultFields={[]} />
     );
 };
 

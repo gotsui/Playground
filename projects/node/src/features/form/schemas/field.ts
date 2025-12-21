@@ -69,3 +69,4 @@ const fieldDataSchema = z.discriminatedUnion("type", [
 ]);
 
 export const fieldSchema = baseFieldSchema.and(fieldDataSchema);
+export const fieldsSchema = z.array(fieldSchema);

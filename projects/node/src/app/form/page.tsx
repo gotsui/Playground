@@ -1,11 +1,21 @@
-"use client";
+import Link from "next/link";
+import { desc } from "drizzle-orm";
 
-import FormEditor from "@/features/form/components/FormEditor";
+import { db } from "@/db";
+import { forms } from "@/db/schema";
+import { formsSchema } from "@/features/form/schemas/form";
 
-const Page = () => {
+const Page = async () => {
+    const allForm = await db.select().from(forms).orderBy(desc(forms.updatedAt));
+    const parsed = formsSchema.safeParse(allForm);
+
     return (
-        <div>
-            <FormEditor defaultFields={[]} />
+        <div className="flex flex-col">
+            {(parsed.data ?? []).map((form) => (
+                <Link key={form.id} href={`/form/edit/${form.id}`}>
+                    {form.name}
+                </Link>
+            ))}
         </div>
     );
 };
