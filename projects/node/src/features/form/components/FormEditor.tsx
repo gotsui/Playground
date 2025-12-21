@@ -19,6 +19,7 @@ import DataEditor from "./editrows/DataEditor";
 import SaveDialogButton from "./SaveDialogButton";
 import UpdateButton from "./UpdateButton";
 import Link from "next/link";
+import FormField from "./FormField";
 
 type Props = {
     defaultFields: Field[];
@@ -223,48 +224,31 @@ const FormEditor = ({
                             <Grid gridSize={gridSize} cellSize={cellSize} />
                         </div>
                         {fields.map((field) => (
-                            <div
+                            <FormField
                                 key={field.id}
-                                className={[
-                                    "absolute flex",
-                                    `${field.id === selectedFieldId ? "cursor-move" : "cursor-pointer"}`,
-                                ].join(" ")}
-                                style={{
-                                    ...field.rect,
-                                    ...field.data,
-                                }}
+                                field={field}
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     setSelectedFieldId(field.id);
                                     setFieldType(null);
                                 }}
-                                onPointerDown={
-                                    field.id === selectedFieldId
-                                    ? (e) => {
-                                        if (!gridContainerRef.current) return;
+                                onPointerDownField={(e) => {
+                                    if (!gridContainerRef.current) return;
 
-                                        const offset = calcOffset(
-                                            calcRelativePosition(
-                                                { x: e.clientX, y: e.clientY },
-                                                gridContainerRef.current,
-                                            ),
-                                            field.rect,
-                                        );
+                                    const offset = calcOffset(
+                                        calcRelativePosition(
+                                            { x: e.clientX, y: e.clientY },
+                                            gridContainerRef.current,
+                                        ),
+                                        field.rect,
+                                    );
 
-                                        setOffset(offset);
-                                        handlePointerDown(e, handleMovePointerUp(field.id, offset));
-                                    }
-                                    : undefined
-                                }
-                            >
-                                {field.data.value || field.type}
-                                {field.id === selectedFieldId && (
-                                    <ResizeHandle
-                                        field={field}
-                                        onPointerDown={handleResizePointerDown}
-                                    />
-                                )}
-                            </div>
+                                    setOffset(offset);
+                                    handlePointerDown(e, handleMovePointerUp(field.id, offset));
+                                }}
+                                onPointerDownHandle={handleResizePointerDown}
+                                isSelected={field.id === selectedFieldId}
+                            />
                         ))}
                         {startPosition && gridContainerRef.current && (
                             <DragRect
