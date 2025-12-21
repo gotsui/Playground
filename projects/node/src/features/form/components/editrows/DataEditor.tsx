@@ -1,6 +1,7 @@
 import {
     alignItemsSchema,
     justifyContentSchema,
+    referenceValueSchema,
     writingModeSchema,
 } from "../../schemas/field";
 import { Field, Rect } from "../../types";
@@ -134,6 +135,21 @@ const DataEditor = ({
                 setValue={(value) => updateData({ alignItems: value })}
                 optionsSchema={alignItemsSchema}
             />
+            {field.type === "input" && (
+                <>
+                    <ToggleEditRow
+                        label="編集可能"
+                        value={field.data.editable}
+                        setValue={(value) => updateData({ editable: value })}
+                    />
+                    <SelectEditRow
+                        label="値参照"
+                        value={field.data.referenceValue}
+                        setValue={(value) => updateData({ referenceValue: value })}
+                        optionsSchema={referenceValueSchema}
+                    />
+                </>
+            )}
         </div>
     );
 };

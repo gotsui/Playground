@@ -38,7 +38,7 @@ const FormField = ({
                     : undefined
                 }
             >
-                {field.data.value || field.type}
+                {field.data.value}
             </div>
             {isSelected && (
                 <ResizeHandle

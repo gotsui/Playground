@@ -1,5 +1,9 @@
 import { db } from "@/db";
+import { fields } from "@/db/schema";
+import FormBuilder from "@/features/form/components/FormBuilder";
+import { fieldsSchema } from "@/features/form/schemas/field";
 import { idSchema } from "@/features/form/schemas/form";
+import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 
 type Props = {
@@ -8,13 +12,18 @@ type Props = {
 
 const Page = async ({ params }: Props) => {
     const { id } = await params;
-    const parsed = idSchema.safeParse(id);
+    const parsedParams = idSchema.safeParse(id);
 
-    if (!parsed.success) {
+    if (!parsedParams.success) {
         notFound();
     }
 
-    // const result = await db.select().from()
+    const result = await db.select().from(fields).where(eq(fields.formId, parsedParams.data));
+    const parsedFields = fieldsSchema.safeParse(result);
+
+    return (
+        <FormBuilder fields={parsedFields.data ?? []} />
+    );
 };
 
 export default Page;

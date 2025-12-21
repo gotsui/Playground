@@ -36,6 +36,14 @@ export const alignItemsSchema = z.enum([
     "stretch",
 ]);
 
+export const referenceValueSchema = z.enum([
+    "none",
+    "user-name",
+    "user-email",
+    "system-date",
+    "system-datetime",
+]);
+
 const baseFieldSchema = z.object({
     id: z.uuidv4(),
     name: z.string(),
@@ -64,7 +72,10 @@ const fieldDataSchema = z.discriminatedUnion("type", [
     }),
     z.object({
         type: z.literal("input"),
-        data: baseDataSchema.and(z.object({ tmp: z.string() }))
+        data: baseDataSchema.and(z.object({
+            editable: z.boolean(),
+            referenceValue: referenceValueSchema,
+        }))
     })
 ]);
 

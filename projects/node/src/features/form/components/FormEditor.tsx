@@ -2,12 +2,12 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "next/navigation";
-import { ArrowLeft, Save, Type } from "lucide-react";
+import { ArrowLeft, Save, Type, TypeOutline } from "lucide-react";
 
 import { Field, Rect } from "../types";
 import useDnD, { OnPointerUpAction, XYPosition } from "../lib/useDnD";
 import { Handle, resizeRect } from "../lib/resize";
-import { createLabel } from "../lib/field";
+import { createInput, createLabel } from "../lib/field";
 import { calcOffset, calcRelativePosition } from "../lib/position";
 import { fieldSchema } from "../schemas/field";
 import Grid from "./Grid";
@@ -46,11 +46,18 @@ const FormEditor = ({
 
     const createField = (type: Field["type"], rect: Rect) => {
         switch (type) {
-            case "label":
+            case "label": {
                 const newField = createLabel(rect);
                 setFields((prev) => prev.concat(newField));
                 setSelectedFieldId(newField.id);
                 break;
+            }
+            case "input": {
+                const newField = createInput(rect);
+                setFields((prev) => prev.concat(newField));
+                setSelectedFieldId(newField.id);
+                break;
+            }
             default:
                 break;
         };
@@ -196,6 +203,15 @@ const FormEditor = ({
                     >
                         <Type className="size-full" />
                     </div>
+                    <div
+                        className={[
+                            "size-4 bg-gray-200 text-xs text-center cursor-pointer",
+                            `${fieldType === "input" ? "border" : ""}`,
+                        ].join(" ")}
+                        onClick={() => setFieldType("input")}
+                    >
+                        <TypeOutline className="size-full" />
+                    </div>
                 </div>
                 <div className="flex-1 flex overflow-hidden">
                     <div
@@ -216,7 +232,7 @@ const FormEditor = ({
                                             gridContainerRef.current!,
                                         );
                                         setStartPosition(calced);
-                                        handlePointerDown(e, handleCreatePointerUp("label", calced));
+                                        handlePointerDown(e, handleCreatePointerUp(fieldType, calced));
                                     }
                                     : undefined
                             }
