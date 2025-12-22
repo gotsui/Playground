@@ -37,6 +37,7 @@ const SelectEditRow = <T extends z.ZodEnum>({
                 ].join(" ")}
                 value={value}
                 onChange={handleChange}
+                spellCheck={false}
             >
                 {optionsSchema.options.map((item) => (
                     <option key={item} value={item}>{item}</option>

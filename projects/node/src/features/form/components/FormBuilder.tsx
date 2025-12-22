@@ -105,7 +105,7 @@ const InputField = ({
 
     return (
         <input
-            className="absolute block px-2 py-1"
+            className="absolute block px-2 py-1 outline-none"
             style={{
                 ...field.rect,
                 ...field.data,

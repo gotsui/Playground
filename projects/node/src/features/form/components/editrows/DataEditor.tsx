@@ -48,7 +48,7 @@ const DataEditor = ({
                 readOnly={true}
             />
             <StringEditRow
-                label="名前"
+                label="ﾌｨｰﾙﾄﾞ名"
                 value={field.name}
                 setValue={(value) => updateField({ id: field.id, name: value })}
             />

@@ -28,6 +28,7 @@ const ColorEditRow = ({
                 value={value}
                 onChange={setValue ? (e) => setValue(e.target.value) : undefined}
                 readOnly={readOnly}
+                spellCheck={false}
             />
         </DataEditRow>
     );

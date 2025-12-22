@@ -25,6 +25,7 @@ const ToggleEditRow = ({
                     checked={value}
                     onChange={setValue ? (e) => setValue(e.target.checked) : undefined}
                     disabled={readOnly}
+                    spellCheck={false}
                 />
                 <div
                     className={[

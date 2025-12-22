@@ -64,6 +64,7 @@ const NumberEditRow = ({
                 onCompositionEnd={() => setIsComposing(false)}
                 onKeyDown={handleKeyDown}
                 readOnly={readOnly}
+                spellCheck={false}
             />
         </DataEditRow>
     );

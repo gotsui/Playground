@@ -1,4 +1,4 @@
-import { boolean, jsonb, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { boolean, jsonb, pgTable, text, timestamp, unique, uuid } from "drizzle-orm/pg-core";
 
 const id = uuid("id").primaryKey().defaultRandom();
 const createdAt = timestamp("created_at", { withTimezone: true })
@@ -25,4 +25,6 @@ export const fields = pgTable("fields", {
     type: text("type").notNull(),
     createdAt,
     updatedAt,
-});
+}, (t) => [
+    unique().on(t.formId, t.name),
+]);
