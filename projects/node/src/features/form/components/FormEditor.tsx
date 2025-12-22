@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "next/navigation";
-import { ArrowLeft, Save, Type, TypeOutline } from "lucide-react";
+import { ArrowLeft, Square, SquareChartGantt, TextCursorInput } from "lucide-react";
 
 import { Field, Rect } from "../types";
 import useDnD, { OnPointerUpAction, XYPosition } from "../lib/useDnD";
@@ -11,7 +11,6 @@ import { createInput, createLabel } from "../lib/field";
 import { calcOffset, calcRelativePosition } from "../lib/position";
 import { fieldSchema } from "../schemas/field";
 import Grid from "./Grid";
-import ResizeHandle from "./ResizeHandle";
 import DragRect from "./DragRect";
 import DragGhost from "./DragGhost";
 import ResizeGhost from "./ResizeGhost";
@@ -20,6 +19,7 @@ import SaveDialogButton from "./SaveDialogButton";
 import UpdateButton from "./UpdateButton";
 import Link from "next/link";
 import FormField from "./FormField";
+import "../styles.css";
 
 type Props = {
     defaultFields: Field[];
@@ -198,19 +198,58 @@ const FormEditor = ({
                         className={[
                             "size-4 bg-gray-200 text-xs text-center cursor-pointer",
                             `${fieldType === "label" ? "border" : ""}`,
+                            "anchor-scope group",
                         ].join(" ")}
                         onClick={() => setFieldType("label")}
                     >
-                        <Type className="size-full" />
+                        <Square className="size-full relative anchor" />
+                        <span
+                            className={[
+                                "popover hidden p-0.5 bg-white",
+                                "after:",
+                                "group-hover:block",
+                            ].join(" ")}
+                        >
+                            text
+                        </span>
                     </div>
                     <div
                         className={[
                             "size-4 bg-gray-200 text-xs text-center cursor-pointer",
                             `${fieldType === "input" ? "border" : ""}`,
+                            "anchor-scope group",
                         ].join(" ")}
                         onClick={() => setFieldType("input")}
                     >
-                        <TypeOutline className="size-full" />
+                        <TextCursorInput className="size-full relative anchor" />
+                        <span
+                            className={[
+                                "popover hidden p-0.5 bg-white",
+                                "after:",
+                                "group-hover:block",
+                            ].join(" ")}
+                        >
+                            input
+                        </span>
+                    </div>
+                    <div
+                        className={[
+                            "size-4 bg-gray-200 text-xs text-center cursor-pointer",
+                            `${fieldType === "input" ? "border" : ""}`,
+                            "anchor-scope group",
+                        ].join(" ")}
+                        onClick={() => setFieldType("input")}
+                    >
+                        <SquareChartGantt className="size-full relative anchor" />
+                        <span
+                            className={[
+                                "popover hidden p-0.5 bg-white",
+                                "after:",
+                                "group-hover:block",
+                            ].join(" ")}
+                        >
+                            textarea
+                        </span>
                     </div>
                 </div>
                 <div className="flex-1 flex overflow-hidden">

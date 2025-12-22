@@ -1,0 +1,13 @@
+.anchor-scope {
+    anchor-scope: --anchor;
+}
+
+.anchor {
+    anchor-name: --anchor;
+}
+
+.popover {
+    position-anchor: --anchor;
+    position: absolute;
+    position-area: top center;
+}
