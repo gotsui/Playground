@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import z from "zod";
+import { asc } from "drizzle-orm";
 
 import { fieldsSchema } from "@/features/form/schemas/field";
 import { nameSchema } from "@/features/form/schemas/form";
@@ -10,6 +11,22 @@ const postSchema = z.object({
     name: nameSchema,
     fields: fieldsSchema,
 });
+
+export const GET = async (_: NextRequest) => {
+    try {
+        const allForm = await db.select().from(forms).orderBy(asc(forms.name));
+
+        return NextResponse.json(
+            { forms: allForm },
+            { status: 201 },
+        );
+    } catch (error) {
+        return NextResponse.json(
+            { error },
+            { status: 500 },
+        );
+    }
+};
 
 export const POST = async (req: NextRequest) => {
     const parsed = postSchema.safeParse(await req.json());
