@@ -9,11 +9,11 @@ import { Form } from "@/features/form/types";
 import useDnD, { OnPointerUpAction } from "@/hooks/useDnD";
 import Ghost from "./Ghost";
 import ProcessIcon from "./processes/ProcessIcon";
-import { addressToPosition, coordinatesToAddress } from "../lib/grid";
-import { Process } from "../types";
+import { addressToPosition, calcCellOffset, calcElementOffset, coordinatesToAddress } from "../lib/grid";
+import { Position, Process } from "../types";
 
 const initialProcesses: Process[] = [
-    { id: crypto.randomUUID(), name: "開始", priority: 1, step: 1, type: "start", data: {} },
+    { id: crypto.randomUUID(), name: "開始", step: 1, priority: 1, type: "start", data: {} },
 ];
 
 const WorkflowEditor = () => {
@@ -23,6 +23,7 @@ const WorkflowEditor = () => {
     const [selectedProcessId, setSelectedProcessId] = useState<string | null>(null);
     const [forms, setForms] = useState<Form[]>([]);
     const [draggedType, setDraggedType] = useState<Process["type"] | null>(null);
+    const [draggedOffset, setDraggedOffset] = useState<Position | null>(null);
     const { handlePointerDown } = useDnD();
     const gridContainerRef = useRef<HTMLDivElement>(null);
 
@@ -88,6 +89,7 @@ const WorkflowEditor = () => {
         }));
         setSelectedProcessId(id);
         setDraggedType(null);
+        setDraggedOffset(null);
     };
 
     const handleMenuProcessPointerDown = (
@@ -95,6 +97,7 @@ const WorkflowEditor = () => {
         type: Process["type"],
     ) => {
         setDraggedType(type);
+        setDraggedOffset(calcElementOffset(e));
         handlePointerDown(e, handleMenuPointerUp(type));
     };
 
@@ -119,21 +122,32 @@ const WorkflowEditor = () => {
                 : process
         ));
         setDraggedType(null);
+        setDraggedOffset(null);
     };
 
     const handleGridProcessPointerDown = (
         e: React.PointerEvent<HTMLDivElement>,
-        id: string,
-        type: Process["type"],
+        process: Process,
     ) => {
-        setDraggedType(type);
-        handlePointerDown(e, handleGridProcessPointerUp(id));
+        if (!gridContainerRef.current) return;
+
+        setDraggedType(process.type);
+        setDraggedOffset(calcCellOffset(
+            { top: e.clientY, left: e.clientX },
+            { row: process.priority - 1, column: process.step - 1 },
+            gridContainerRef.current.getBoundingClientRect(),
+            cellSize,
+        ));
+        handlePointerDown(e, handleGridProcessPointerUp(process.id));
     };
 
     return (
         <div className="flex size-full">
             {draggedType && (
-                <Ghost size={cellSize}>
+                <Ghost
+                    ghostSize={cellSize}
+                    offset={draggedOffset ?? undefined}
+                >
                     <ProcessIcon type={draggedType} />
                 </Ghost>
             )}
@@ -179,11 +193,11 @@ const WorkflowEditor = () => {
                             <div
                                 key={process.id}
                                 className={[
-                                    "absolute p-2",
+                                    "absolute p-2 cursor-move",
                                     `${process.id === selectedProcessId ? "bg-amber-100" : ""}`
                                 ].join(" ")}
                                 onClick={() => setSelectedProcessId(process.id)}
-                                onPointerDown={(e) => handleGridProcessPointerDown(e, process.id, process.type)}
+                                onPointerDown={(e) => handleGridProcessPointerDown(e, process)}
                                 style={{
                                     ...position,
                                     ...cellSize,
@@ -196,19 +210,19 @@ const WorkflowEditor = () => {
                 </div>
                 <div className="flex items-center h-20 px-8 space-x-4">
                     <div
-                        className="size-16"
+                        className="size-16 cursor-grab active:cursor-grabbing"
                         onPointerDown={(e) => handleMenuProcessPointerDown(e, "create")}
                     >
                         <ProcessIcon type="create" />
                     </div>
                     <div
-                        className="size-16"
+                        className="size-16 cursor-grab active:cursor-grabbing"
                         onPointerDown={(e) => handleMenuProcessPointerDown(e, "request")}
                     >
                         <ProcessIcon type="request" />
                     </div>
                     <div
-                        className="size-16"
+                        className="size-16 cursor-grab active:cursor-grabbing"
                         onPointerDown={(e) => handleMenuProcessPointerDown(e, "approval")}
                     >
                         <ProcessIcon type="approval" />

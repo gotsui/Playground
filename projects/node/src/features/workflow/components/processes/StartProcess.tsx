@@ -4,7 +4,6 @@ const StartProcess = () => {
             className={[
                 "flex flex-col justify-center items-center size-full",
                 "bg-teal-100 border-2 border-teal-300 rounded-full shadow-sm",
-                "cursor-grab active:cursor-grabbing",
                 "hover:border-teal-400",
             ].join(" ")}
         >

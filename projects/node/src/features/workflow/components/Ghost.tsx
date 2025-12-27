@@ -1,27 +1,38 @@
 "use client";
 
 import usePointerPosition from "@/hooks/usePointerPosition";
-import { Size } from "../types";
+import { Position, Size } from "../types";
 
 type Props = {
-    size: Size;
+    ghostSize: Size;
+    offset?: Position;
+    zIndex?: number,
     children: React.ReactNode;
 };
 
 const Ghost = ({
-    size,
+    ghostSize,
+    offset,
+    zIndex = 50,
     children,
 }: Props) => {
     const { pointerPosition } = usePointerPosition();
     if (!pointerPosition) return null;
 
+    const position = offset
+        ? {
+            top: pointerPosition.y + offset.top,
+            left: pointerPosition.x + offset.left,
+        }
+        : { top: pointerPosition.y, left: pointerPosition.x };
+
     return (
         <div
             className="fixed p-2"
             style={{
-                top: pointerPosition.y,
-                left: pointerPosition.x,
-                ...size,
+                ...position,
+                ...ghostSize,
+                zIndex,
             }}
         >
             {children}
