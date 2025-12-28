@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Save } from "lucide-react";
+import { ArrowLeft, Save } from "lucide-react";
 
 import Grid from "@/features/form/components/Grid";
 import { formsSchema } from "@/features/form/schemas/form";
@@ -16,6 +16,7 @@ import {
     coordinatesToAddress,
 } from "../lib/grid";
 import { CellAddress, Position, Process } from "../types";
+import Link from "next/link";
 
 const initialProcesses: Process[] = [
     { id: crypto.randomUUID(), name: "開始", step: 1, priority: 1, type: "start", data: {} },
@@ -212,6 +213,11 @@ const WorkflowEditor = () => {
             )}
             <div className="flex-1 flex flex-col">
                 <div className="flex h-12 px-4 space-x-4">
+                    <div className="flex items-center">
+                        <Link href="/">
+                            <ArrowLeft className="size-full" />
+                        </Link>
+                    </div>
                     <div className="flex items-center">
                         <Save />
                     </div>
