@@ -9,8 +9,13 @@ import { Form } from "@/features/form/types";
 import useDnD, { OnPointerUpAction } from "@/hooks/useDnD";
 import Ghost from "./Ghost";
 import ProcessIcon from "./processes/ProcessIcon";
-import { addressToPosition, calcCellOffset, calcElementOffset, coordinatesToAddress } from "../lib/grid";
-import { Position, Process } from "../types";
+import {
+    addressToPosition,
+    calcCellOffset,
+    calcElementOffset,
+    coordinatesToAddress,
+} from "../lib/grid";
+import { CellAddress, Position, Process } from "../types";
 
 const initialProcesses: Process[] = [
     { id: crypto.randomUUID(), name: "開始", step: 1, priority: 1, type: "start", data: {} },
@@ -25,6 +30,7 @@ const WorkflowEditor = () => {
     const [draggedType, setDraggedType] = useState<Process["type"] | null>(null);
     const [draggedOffset, setDraggedOffset] = useState<Position | null>(null);
     const { handlePointerDown } = useDnD();
+    const areaRef = useRef<HTMLDivElement>(null);
     const gridContainerRef = useRef<HTMLDivElement>(null);
 
     const selectedProcess = processes.find((process) => process.id === selectedProcessId);
@@ -66,6 +72,44 @@ const WorkflowEditor = () => {
         fetchForm();
     }, []);
 
+    const isDuplicatedAddress = (address: CellAddress) => {
+        return processes.some(
+            (process) =>
+                (process.step === address.column + 1)
+                && (process.priority === address.row + 1)
+        );
+    };
+
+    const isWithinArea = (position: Position) => {
+        if (!areaRef.current) return false;
+
+        const areaRect = areaRef.current.getBoundingClientRect();
+
+        if (
+            position.top >= areaRect.top
+            && position.left >= areaRect.left
+            && position.top <= (areaRect.top + areaRect.height)
+            && position.left <= (areaRect.left + areaRect.width)
+        ) {
+            return true;
+        } else {
+            return false;
+        }
+    };
+
+    const isWithinGrid = (address: CellAddress) => {
+        if (
+            address.row >= 0
+            && address.column >= 0
+            && address.row < gridSize.row
+            && address.column < gridSize.column
+        ) {
+            return true;
+        } else {
+            return false;
+        }
+    };
+
     const handleMenuPointerUp = (
         type: Process["type"],
     ): OnPointerUpAction => ({ position }) => {
@@ -77,17 +121,24 @@ const WorkflowEditor = () => {
             cellSize,
         );
 
-        const id = crypto.randomUUID();
+        if (
+            !isDuplicatedAddress(address)
+            && isWithinArea({ top: position.y, left: position.x })
+            && isWithinGrid(address)
+        ) {
+            const id = crypto.randomUUID();
 
-        setProcesses((prev) => prev.concat({
-            id,
-            name: type,
-            step: address.column + 1,
-            priority: address.row + 1,
-            type,
-            data: {},
-        }));
-        setSelectedProcessId(id);
+            setProcesses((prev) => prev.concat({
+                id,
+                name: type,
+                step: address.column + 1,
+                priority: address.row + 1,
+                type,
+                data: {},
+            }));
+            setSelectedProcessId(id);
+        }
+
         setDraggedType(null);
         setDraggedOffset(null);
     };
@@ -112,15 +163,23 @@ const WorkflowEditor = () => {
             cellSize,
         );
 
-        setProcesses((prev) => prev.map(
-            (process) => process.id === id
-                ? {
-                    ...process,
-                    step: address.column + 1,
-                    priority: address.row + 1,
-                }
-                : process
-        ));
+        if (
+            !isDuplicatedAddress(address)
+            && isWithinArea({ top: position.y, left: position.x })
+            && isWithinGrid(address)
+        ) {
+            setProcesses((prev) => prev.map(
+                (process) => process.id === id
+                    ? {
+                        ...process,
+                        step: address.column + 1,
+                        priority: address.row + 1,
+                    }
+                    : process
+            ));
+            setSelectedProcessId(id);
+        }
+
         setDraggedType(null);
         setDraggedOffset(null);
     };
@@ -172,7 +231,7 @@ const WorkflowEditor = () => {
                         </select>
                     </div>
                 </div>
-                <div className="relative flex-1 overflow-auto mx-4">
+                <div ref={areaRef} className="relative flex-1 overflow-auto mx-4">
                     <div
                         ref={gridContainerRef}
                         className="absolute"
