@@ -17,17 +17,25 @@ import {
 } from "../lib/grid";
 import { CellAddress, Position, Process } from "../types";
 import Link from "next/link";
+import SaveDialogButton from "./SaveDialogButton";
 
 const initialProcesses: Process[] = [
     { id: crypto.randomUUID(), name: "開始", step: 1, priority: 1, type: "start", data: {} },
 ];
 
-const WorkflowEditor = () => {
+type Props = {
+    defaultProcesses: Process[];
+};
+
+const WorkflowEditor = ({
+    defaultProcesses,
+}: Props) => {
     const gridSize = { row: 15, column: 25 };
     const cellSize = { width: 80, height: 80 };
     const [processes, setProcesses] = useState<Process[]>(initialProcesses);
     const [selectedProcessId, setSelectedProcessId] = useState<string | null>(null);
     const [forms, setForms] = useState<Form[]>([]);
+    const [selectedFormId, setSelectedFormId] = useState<string>("");
     const [draggedType, setDraggedType] = useState<Process["type"] | null>(null);
     const [draggedOffset, setDraggedOffset] = useState<Position | null>(null);
     const { handlePointerDown } = useDnD();
@@ -214,12 +222,16 @@ const WorkflowEditor = () => {
             <div className="flex-1 flex flex-col">
                 <div className="flex h-12 px-4 space-x-4">
                     <div className="flex items-center">
-                        <Link href="/">
+                        <Link href="/workflow">
                             <ArrowLeft className="size-full" />
                         </Link>
                     </div>
                     <div className="flex items-center">
-                        <Save />
+                        <SaveDialogButton
+                            caption="名前を付けて保存"
+                            processes={processes}
+                            formId={selectedFormId}
+                        />
                     </div>
                     <div className="flex items-center h-full">
                         <p className="mr-2">フォーム</p>
@@ -229,6 +241,8 @@ const WorkflowEditor = () => {
                                 "border border-slate-300 rounded-lg shadow-sm",
                                 "hover:border-slate-400",
                             ].join(" ")}
+                            value={selectedFormId}
+                            onChange={(e) => setSelectedFormId(e.target.value)}
                         >
                             <option></option>
                             {forms.map((form) => (
