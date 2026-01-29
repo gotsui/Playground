@@ -2,26 +2,29 @@
 
 import { useState } from "react";
 
-import { TaskNodeSchema } from "../_lib/schema";
+import { taskNodeSchema } from "../_lib/schema";
 import { EditingRow, TaskNode, TaskWithCalc } from "../_lib/types";
 import { calcTotals, generateId } from "../_lib/utils";
 
-const initialNode: TaskNode = {
-    id: generateId(),
-    name: "新規タスク",
-    status: "新規",
-    effort: 0,
-    buffer: 0,
-    children: [],
+export const createNode = (name?: string): TaskNode => {
+    return {
+        id: generateId(),
+        name: name || "",
+        status: "新規",
+        effort: 0,
+        buffer: 0,
+        children: [],
+    };
 };
 
 export const useWbs = () => {
-    const [wbs, setWbs] = useState<TaskNode>(initialNode);
+    const [wbs, setWbs] = useState<TaskNode>(createNode("新規タスク"));
     const [ccpmMode, setCcpmMode] = useState(false);
     const [expanded, setExpanded] = useState<Set<string>>(new Set());
     const [editingId, setEditingId] = useState<string | null>(null);
     const [editForm, setEditForm] = useState<EditingRow | null>(null);
     const [noteNode, setNoteNode] = useState<TaskNode | null>(null);
+    const [isAdding, setIsAdding] = useState(false);
 
     const calcedRoot = calcTotals(wbs);
 
@@ -54,6 +57,8 @@ export const useWbs = () => {
     };
 
     const startEdit = (node: TaskNode) => {
+        if (editingId || editForm) return;
+
         setEditingId(node.id);
         setEditForm({
             id: node.id,
@@ -83,12 +88,13 @@ export const useWbs = () => {
         }
 
         const newWbs = findAndUpdate(wbs, editingId, updates);
-        const parsed = TaskNodeSchema.safeParse(newWbs);
+        const parsed = taskNodeSchema.safeParse(newWbs);
 
         if (parsed.success) {
             setWbs(parsed.data);
             setEditingId(null);
             setEditForm(null);
+            setIsAdding(false);
         } else {
             alert(parsed.error.issues[0].message || "保存エラー");
         }
@@ -109,12 +115,21 @@ export const useWbs = () => {
     };
 
     const addChild = (parentId: string | null) => {
-        const newNode: TaskNode = { ...initialNode };
+        if (editingId || editForm) return;
+
+        const newNode: TaskNode = createNode();
 
         if (parentId) {
             setWbs((prev) => findAndUpdate(prev, parentId, {
                 children: [...(findNode(prev, parentId)?.children || []), newNode],
             }));
+
+            if (!expanded.has(parentId)) {
+                toggleExpand(parentId);
+            }
+
+            setIsAdding(true);
+            startEdit(newNode);
         } else {
             setWbs((prev) => ({ ...prev, children: [...prev.children, newNode] }));
         }
@@ -132,8 +147,11 @@ export const useWbs = () => {
         );
     };
 
-    const deleteNode = (id: string) => {
-        if (!confirm("削除しますか?")) return;
+    const deleteNode = (id: string, isForced: boolean = false) => {
+        if (!isForced) {
+            if (editingId || editForm) return;
+            if (!confirm("削除しますか?")) return;
+        }
 
         const remove = (nodes: TaskNode[]): TaskNode[] => {
             return nodes
@@ -145,12 +163,17 @@ export const useWbs = () => {
     };
 
     const updateForm = (updates: Partial<EditingRow>) => {
-        setEditForm((prev) => prev ? { ...prev, updates } : null);
+        setEditForm((prev) => prev ? { ...prev, ...updates } : null);
     };
 
     const cancelEdit = () => {
         setEditingId(null);
         setEditForm(null);
+
+        if (isAdding && editingId) {
+            deleteNode(editingId, true);
+            setIsAdding(false);
+        }
     };
 
     return {

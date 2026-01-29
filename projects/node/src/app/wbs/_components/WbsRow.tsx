@@ -1,4 +1,12 @@
-import { ChevronDown, ChevronRight, Plus, StickyNote, Trash2 } from "lucide-react";
+import {
+    ChevronDown,
+    ChevronRight,
+    Dot,
+    Plus,
+    StickyNote,
+    Trash2,
+} from "lucide-react";
+
 import { EditingRow, TaskWithCalc } from "../_lib/types";
 
 type Props = {
@@ -40,6 +48,7 @@ const WbsRow = ({
     const isExpanded = expanded.has(node.id);
     const hasChildren = node.children.length > 0;
     const withBuffer = node.effort + node.buffer;
+    const paddingLeft = depth * 24;
 
     return (
         <>
@@ -49,19 +58,29 @@ const WbsRow = ({
                         isEditing ? "bg-blue-50" : ""
                     }`
                 }
-                style={{ paddingLeft: `${depth * 48 + 32}px` }}
+                onDoubleClick={() => startEdit(node)}
             >
                 <div className="col-span-1">
-                    {hasChildren && (
-                        <button onClick={() => toggleExpand(node.id)} className="p-1 ml-1">
-                            {isExpanded ? <ChevronDown className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
+                    {hasChildren ? (
+                        <button
+                            className="p-1 ml-1"
+                            onClick={() => toggleExpand(node.id)}
+                            style={{ paddingLeft: `${paddingLeft}px` }}
+                        >
+                            {isExpanded ? <ChevronDown className="size-5" /> : <ChevronRight className="size-5" />}
                         </button>
+                    ) : (
+                        <div
+                            style={{ paddingLeft: `${paddingLeft}px` }}
+                        >
+                            <Dot className="size-7" />
+                        </div>
                     )}
                 </div>
                 {isEditing ? (
                     <>
                         <input
-                            className="col-span-5 border rounded-md px-2 py-1"
+                            className="col-span-3 border rounded-md px-2 py-1"
                             value={editForm?.name || ""}
                             onChange={(e) => updateForm({ name: e.target.value })}
                         />
@@ -73,6 +92,7 @@ const WbsRow = ({
                         <select
                             className="col-span-1 border rounded-md px-2 py-1"
                             value={editForm?.status || "新規"}
+                            onChange={(e) => updateForm({ status: e.target.value })}
                         >
                             <option>新規</option>
                             <option>進行中</option>
@@ -90,9 +110,16 @@ const WbsRow = ({
                             onChange={(e) => updateForm({ buffer: e.target.value })}
                         />
                         <div className="col-span-1 text-right font-bold text-green-600">
-                            {withBuffer}h
+                            {withBuffer} h
                         </div>
-                        <div className="col-span-1 flex gap-2 justify-end">
+                        {hasChildren ? (
+                            <div className="col-span-1 text-right text-sm text-gray-600">
+                                計 {node.totalWithBuffer} h
+                            </div>
+                        ) : (
+                            <div className="col-span-1" />
+                        )}
+                        <div className="col-span-2 flex gap-2 justify-end">
                             <button onClick={saveEdit} className="text-green-600 text-sm">
                                 保存
                             </button>
@@ -103,7 +130,14 @@ const WbsRow = ({
                     </>
                 ) : (
                     <>
-                        <div className="col-span-5" onDoubleClick={() => startEdit(node)}>
+                        <div className="col-span-3">
+                            <span className="font-medium">{node.name}</span>
+                            {/* {ccpmMode && isRoot && <span className="ml-3 text-purple-600 font-bold text-sm">[CCPMモード]</span>} */}
+                        </div>
+                        <div className="col-span-1 text-right">
+                            {node.assignee && <span className="text-gray-500 text-sm ml-2">({node.assignee})</span>}
+                        </div>
+                        <div className="col-span-1 text-right">
                             <span className={`inline-block px-2 py-0.5 text-xs rounded-md mr-2 ${
                                 node.status === "完了" ? "bg-green-100 text-green-800" :
                                 node.status === "進行中" ? "bg-yellow-100 text-yellow-800" :
@@ -111,17 +145,22 @@ const WbsRow = ({
                             }`}>
                                 {node.status}
                             </span>
-                            <span className="font-medium">{node.name}</span>
-                            {node.assignee && <span className="text-gray-500 text-sm ml-2">({node.assignee})</span>}
-                            {ccpmMode && isRoot && <span className="ml-3 text-purple-600 font-bold text-sm">[CCPMモード]</span>}
                         </div>
-                        <div className="col-span-2 text-right">
-                            {node.effort}h + {node.buffer}h → <strong className="text-green-600">{withBuffer}h</strong>
+                        <div className="col-span-1 text-right">
+                            {node.effort} h
                         </div>
-                        {hasChildren && (
-                            <div className="col-span-2 text-right text-sm text-gray-600">
-                                合計 {node.totalWithBuffer}h
+                        <div className="col-span-1 text-right">
+                            {node.buffer} h
+                        </div>
+                        <div className="col-span-1 text-right">
+                            <strong className="text-green-600">{withBuffer} h</strong>
+                        </div>
+                        {hasChildren ? (
+                            <div className="col-span-1 text-right text-sm text-gray-600">
+                                計 {node.totalWithBuffer} h
                             </div>
+                        ) : (
+                            <div className="col-span-1" />
                         )}
                         <div className="col-span-2 flex justify-end gap-2">
                             {node.notes && (

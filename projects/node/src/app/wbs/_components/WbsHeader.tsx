@@ -1,3 +1,6 @@
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
+
 type Props = {
     name: string;
     ccpmMode: boolean;
@@ -16,9 +19,14 @@ const WbsHeader = ({
     return (
         <div className="bg-white shadow-sm border-b sticky top-0 z-20">
             <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-                <h1 className="text-2xl font-bold text-gray-800">WBS - {name}</h1>
+                <div className="flex items-center gap-4">
+                    <Link href={"/"}>
+                        <ArrowLeft />
+                    </Link>
+                    <h1 className="text-2xl font-bold text-gray-800">WBS - {name}</h1>
+                </div>
                 <div className="flex items-center gap-10">
-                    <label className="flex items-center gap-3 cursor-pointer select-none">
+                    {/* <label className="flex items-center gap-3 cursor-pointer select-none">
                         <input
                             type="checkbox"
                             checked={ccpmMode}
@@ -28,7 +36,7 @@ const WbsHeader = ({
                         <span className={`text-lg font-bold ${ccpmMode ? "text-purple-600" : "text-gray-500"}`}>
                             {ccpmMode ? "CCPMモード ON" : "従来モード"}
                         </span>
-                    </label>
+                    </label> */}
                     <div className="text-xl font-bold text-blue-600">
                         総工数（バッファ込み）：{totalHours}h
                         {ccpmMode && projectBuffer !== undefined && (
