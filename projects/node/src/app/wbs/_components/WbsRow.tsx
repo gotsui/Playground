@@ -2,6 +2,7 @@ import {
     ChevronDown,
     ChevronRight,
     Dot,
+    Menu,
     Plus,
     StickyNote,
     Trash2,
@@ -50,6 +51,10 @@ const WbsRow = ({
     const withBuffer = node.effort + node.buffer;
     const paddingLeft = depth * 24;
 
+    const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+    };
+
     return (
         <>
             <div
@@ -59,6 +64,8 @@ const WbsRow = ({
                     }`
                 }
                 onDoubleClick={() => startEdit(node)}
+                onDragOver={handleDragOver}
+                draggable={true}
             >
                 <div className="col-span-1">
                     {hasChildren ? (
@@ -162,20 +169,23 @@ const WbsRow = ({
                         ) : (
                             <div className="col-span-1" />
                         )}
-                        <div className="col-span-2 flex justify-end gap-2">
+                        <div className="col-span-2 flex justify-end gap-4">
                             {node.notes && (
                                 <button onClick={() => openNote(node)}>
-                                    <StickyNote className="w-4 h-4 text-gray-500" />
+                                    <StickyNote className="size-4 text-gray-500" />
                                 </button>
                             )}
                             <button onClick={() => addChild(node.id)}>
-                                <Plus className="w-4 h-4 text-blue-600" />
+                                <Plus className="size-4 text-blue-600 cursor-pointer" />
                             </button>
                             {!isRoot && (
                                 <button onClick={() => deleteNode(node.id)}>
-                                    <Trash2 className="w-4 h-4 text-red-600" />
+                                    <Trash2 className="size-4 text-red-600 cursor-pointer" />
                                 </button>
                             )}
+                            <div>
+                                <Menu className="size-4 cursor-grab active:cursor-grabbing" />
+                            </div>
                         </div>
                     </>
                 )}
