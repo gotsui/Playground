@@ -39,8 +39,8 @@ const WbsPage = () => {
             <div className="max-w-7xl mx-auto my-8">
                 <div className="bg-white rounded-xl shadow-lg overflow-hidden">
                     <div className="grid grid-cols-12 gap-4 font-bold text-sm bg-blue-50 py-4 px-8 border-b-2 border-gray-200">
-                        <div className="col-span-1" />
-                        <div className="col-span-3">タスク名</div>
+                        {/* <div className="col-span-1" /> */}
+                        <div className="col-span-4">タスク名</div>
                         <div className="col-span-1 text-center">主担当</div>
                         <div className="col-span-1 text-center">ステータス</div>
                         <div className="col-span-1 text-right">工数</div>

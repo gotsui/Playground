@@ -67,30 +67,29 @@ const WbsRow = ({
                 onDragOver={handleDragOver}
                 draggable={true}
             >
-                <div className="col-span-1">
-                    {hasChildren ? (
-                        <button
-                            className="p-1 ml-1"
-                            onClick={() => toggleExpand(node.id)}
-                            style={{ paddingLeft: `${paddingLeft}px` }}
-                        >
-                            {isExpanded ? <ChevronDown className="size-5" /> : <ChevronRight className="size-5" />}
-                        </button>
-                    ) : (
-                        <div
-                            style={{ paddingLeft: `${paddingLeft}px` }}
-                        >
-                            <Dot className="size-7" />
-                        </div>
-                    )}
-                </div>
                 {isEditing ? (
                     <>
-                        <input
-                            className="col-span-3 border rounded-md px-2 py-1"
-                            value={editForm?.name || ""}
-                            onChange={(e) => updateForm({ name: e.target.value })}
-                        />
+                        <div className="col-span-4 flex items-center">
+                            {hasChildren ? (
+                                <div
+                                    className="p-1 ml-1"
+                                    style={{ paddingLeft: `${paddingLeft}px` }}
+                                >
+                                    {isExpanded ? <ChevronDown className="size-5" /> : <ChevronRight className="size-5" />}
+                                </div>
+                            ) : (
+                                <div
+                                    style={{ paddingLeft: `${paddingLeft}px` }}
+                                >
+                                    <Dot className="size-7" />
+                                </div>
+                            )}
+                            <input
+                                className="size-full border rounded-md px-2 py-1"
+                                value={editForm?.name || ""}
+                                onChange={(e) => updateForm({ name: e.target.value })}
+                            />
+                        </div>
                         <input
                             className="col-span-1 border rounded-md px-2 py-1"
                             value={editForm?.assignee || ""}
@@ -137,7 +136,22 @@ const WbsRow = ({
                     </>
                 ) : (
                     <>
-                        <div className="col-span-3">
+                        <div className="col-span-4 flex items-center">
+                            {hasChildren ? (
+                                <button
+                                    className="p-1 ml-1"
+                                    onClick={() => toggleExpand(node.id)}
+                                    style={{ paddingLeft: `${paddingLeft}px` }}
+                                >
+                                    {isExpanded ? <ChevronDown className="size-5" /> : <ChevronRight className="size-5" />}
+                                </button>
+                            ) : (
+                                <div
+                                    style={{ paddingLeft: `${paddingLeft}px` }}
+                                >
+                                    <Dot className="size-7" />
+                                </div>
+                            )}
                             <span className="font-medium">{node.name}</span>
                             {/* {ccpmMode && isRoot && <span className="ml-3 text-purple-600 font-bold text-sm">[CCPMモード]</span>} */}
                         </div>
