@@ -26,6 +26,10 @@ type Props = {
     addChild: (parentId: string | null) => void;
     deleteNode: (id: string) => void;
     openNote: (node: TaskWithCalc) => void;
+    isDragging: boolean;
+    handlePointerDown: (e: React.PointerEvent<HTMLDivElement>, id: string) => void;
+    handlePointerUp: (e: React.PointerEvent<HTMLDivElement>, id: string) => void;
+    handlePointerMove: (e: React.PointerEvent<HTMLDivElement>, id: string) => void;
 };
 
 const WbsRow = ({
@@ -44,6 +48,10 @@ const WbsRow = ({
     addChild,
     deleteNode,
     openNote,
+    isDragging,
+    handlePointerDown,
+    handlePointerUp,
+    handlePointerMove,
 }: Props) => {
     const isEditing = editingId === node.id;
     const isExpanded = expanded.has(node.id);
@@ -51,21 +59,18 @@ const WbsRow = ({
     const withBuffer = node.effort + node.buffer;
     const paddingLeft = depth * 24;
 
-    const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-        e.preventDefault();
-    };
-
     return (
         <>
             <div
-                className={
-                    `grid grid-cols-12 gap-4 items-center py-3 px-6 border-b hover:bg-gray-50 transition-colors ${
-                        isEditing ? "bg-blue-50" : ""
-                    }`
-                }
+                className={[
+                    "grid grid-cols-12 gap-4 items-center py-3 px-6 border-b",
+                    "hover:bg-gray-50 transition-colors",
+                    `${isEditing ? "bg-blue-50" : ""}`,
+                    `${isDragging ? "select-none" : "select-text"}`,
+                ].join(" ")}
                 onDoubleClick={() => startEdit(node)}
-                onDragOver={handleDragOver}
-                draggable={true}
+                onPointerUp={(e) => handlePointerUp(e, node.id)}
+                onPointerMove={(e) => handlePointerMove(e, node.id)}
             >
                 {isEditing ? (
                     <>
@@ -197,7 +202,9 @@ const WbsRow = ({
                                     <Trash2 className="size-4 text-red-600 cursor-pointer" />
                                 </button>
                             )}
-                            <div>
+                            <div
+                                onPointerDown={(e) => handlePointerDown(e, node.id)}
+                            >
                                 <Menu className="size-4 cursor-grab active:cursor-grabbing" />
                             </div>
                         </div>
@@ -222,6 +229,10 @@ const WbsRow = ({
                     addChild={addChild}
                     deleteNode={deleteNode}
                     openNote={openNote}
+                    isDragging={isDragging}
+                    handlePointerDown={handlePointerDown}
+                    handlePointerUp={handlePointerUp}
+                    handlePointerMove={handlePointerMove}
                 />
             ))}
         </>

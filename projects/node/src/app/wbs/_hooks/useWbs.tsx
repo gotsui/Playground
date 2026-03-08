@@ -166,6 +166,8 @@ export const useWbs = () => {
         setEditForm((prev) => prev ? { ...prev, ...updates } : null);
     };
 
+    // const moveNode = (movingId: string, )
+
     const cancelEdit = () => {
         setEditingId(null);
         setEditForm(null);

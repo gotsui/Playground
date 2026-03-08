@@ -1,11 +1,10 @@
 "use client";
 
-import { Plus } from "lucide-react";
-
 import WbsHeader from "./_components/WbsHeader";
 import WbsNoteModal from "./_components/WbsNoteModal";
 import WbsRow from "./_components/WbsRow";
 import { useWbs } from "./_hooks/useWbs";
+import { useState } from "react";
 
 const WbsPage = () => {
     const {
@@ -27,6 +26,52 @@ const WbsPage = () => {
         closeNote,
     } = useWbs();
 
+    const [draggingId, setDraggingId] = useState("");
+
+    const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>, id: string) => {
+        console.log(id);
+        setDraggingId(id);
+    };
+
+    const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>, id: string) => {
+        if (!draggingId) return;
+
+        e.stopPropagation();
+        const rect = e.currentTarget.getBoundingClientRect();
+        const relativeY = e.clientY - rect.top;
+
+        if (relativeY < rect.height / 3) {
+            console.log("upper");
+        } else if (relativeY < rect.height * 2 / 3) {
+            console.log("middle");
+        } else {
+            console.log("lower");
+        }
+
+        console.log(id);
+        setDraggingId("");
+    };
+
+    const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>, id: string) => {
+        if (!draggingId) return;
+
+        e.stopPropagation();
+        const rect = e.currentTarget.getBoundingClientRect();
+        const relativeY = e.clientY - rect.top;
+
+        if (relativeY < rect.height / 4) {
+            e.currentTarget.style.backgroundColor = "red";
+        } else if (relativeY < rect.height * 3 / 4) {
+            if (id === draggingId) {
+                e.currentTarget.style.backgroundColor = "";
+            } else {
+                e.currentTarget.style.backgroundColor = "yellow";
+            }
+        } else {
+            e.currentTarget.style.backgroundColor = "blue";
+        }
+    }
+
     return (
         <div className="min-h-screen bg-gray-100">
             <WbsHeader
@@ -39,7 +84,6 @@ const WbsPage = () => {
             <div className="max-w-7xl mx-auto my-8">
                 <div className="bg-white rounded-xl shadow-lg overflow-hidden">
                     <div className="grid grid-cols-12 gap-4 font-bold text-sm bg-blue-50 py-4 px-8 border-b-2 border-gray-200">
-                        {/* <div className="col-span-1" /> */}
                         <div className="col-span-4">タスク名</div>
                         <div className="col-span-1 text-center">主担当</div>
                         <div className="col-span-1 text-center">ステータス</div>
@@ -65,6 +109,10 @@ const WbsPage = () => {
                         addChild={addChild}
                         deleteNode={deleteNode}
                         openNote={openNote}
+                        isDragging={draggingId != ""}
+                        handlePointerDown={handlePointerDown}
+                        handlePointerUp={handlePointerUp}
+                        handlePointerMove={handlePointerMove}
                     />
                     {/* <div className="p-8 text-center border-t">
                         <button
