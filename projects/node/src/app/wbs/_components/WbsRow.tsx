@@ -63,7 +63,7 @@ const WbsRow = ({
         <>
             <div
                 className={[
-                    "grid grid-cols-12 gap-4 items-center py-3 px-6 border-b",
+                    "grid grid-cols-12 gap-4 items-center py-3 px-6 border-t",
                     "hover:bg-gray-50 transition-colors",
                     `${isEditing ? "bg-blue-50" : ""}`,
                     `${isDragging ? "select-none" : "select-text"}`,
@@ -93,6 +93,7 @@ const WbsRow = ({
                                 className="size-full border rounded-md px-2 py-1"
                                 value={editForm?.name || ""}
                                 onChange={(e) => updateForm({ name: e.target.value })}
+                                autoFocus
                             />
                         </div>
                         <input
@@ -205,7 +206,12 @@ const WbsRow = ({
                             <div
                                 onPointerDown={(e) => handlePointerDown(e, node.id)}
                             >
-                                <Menu className="size-4 cursor-grab active:cursor-grabbing" />
+                                <Menu
+                                    className={[
+                                        "size-4 active:cursor-grabbing",
+                                        `${isDragging ? "" : "cursor-grab"}`,
+                                    ].join(" ")}
+                                />
                             </div>
                         </div>
                     </>

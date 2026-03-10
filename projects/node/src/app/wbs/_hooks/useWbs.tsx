@@ -166,8 +166,6 @@ export const useWbs = () => {
         setEditForm((prev) => prev ? { ...prev, ...updates } : null);
     };
 
-    // const moveNode = (movingId: string, )
-
     const cancelEdit = () => {
         setEditingId(null);
         setEditForm(null);
@@ -176,6 +174,76 @@ export const useWbs = () => {
             deleteNode(editingId, true);
             setIsAdding(false);
         }
+    };
+
+    const moveNode = (sourceId: string, targetId: string, position: "upper" | "middle" | "lower") => {
+        if (sourceId === targetId) return;
+        const sourceNode = findNode(wbs, sourceId);
+        if (!sourceNode) return;
+
+        if (position === "middle" || targetId === wbs.id) {
+            deleteNode(sourceId, true);
+            setWbs((prev) => findAndUpdate(prev, targetId, {
+                children: [...(findNode(prev, targetId)?.children || []), sourceNode],
+            }));
+
+            if (!expanded.has(targetId)) {
+                toggleExpand(targetId);
+            }
+        } else {
+            const parentNode = findParentNode(wbs, targetId);
+            if (!parentNode) return;
+
+            deleteNode(sourceId, true);
+            setWbs((prev) => findAndUpdate(prev, parentNode.id, {
+                children: [
+                    ...insertChild(
+                        findNode(prev, parentNode.id)?.children || [],
+                        sourceNode,
+                        targetId,
+                        position === "upper",
+                    ),
+                ],
+            }));
+        }
+    };
+
+    const findParentNode = (node: TaskNode, childId: string): TaskNode | null => {
+        if (node.children.some((child) => child.id === childId)) {
+            return node;
+        }
+
+        for (const child of node.children) {
+            const found = findParentNode(child, childId);
+
+            if (found) {
+                return found;
+            }
+        }
+
+        return null;
+    };
+
+    const insertChild = (
+        children: TaskNode[],
+        sourceNode: TaskNode,
+        targetId: string,
+        before: boolean = false,
+    ) => {
+        const filteredChildren = children.filter((child) => child.id !== sourceNode.id);
+        const targetIndex = filteredChildren.findIndex((child) => child.id === targetId);
+
+        if (targetIndex < 0) {
+            return [...children, sourceNode];
+        }
+
+        const sliceIndex = before ? targetIndex : targetIndex + 1;
+
+        return [
+            ...filteredChildren.slice(0, sliceIndex),
+            sourceNode,
+            ...filteredChildren.slice(sliceIndex),
+        ];
     };
 
     return {
@@ -196,5 +264,6 @@ export const useWbs = () => {
         noteNode,
         openNote: setNoteNode,
         closeNote: () => setNoteNode(null),
+        moveNode,
     };
 };

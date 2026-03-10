@@ -24,31 +24,33 @@ const WbsPage = () => {
         noteNode,
         openNote,
         closeNote,
+        moveNode,
     } = useWbs();
 
     const [draggingId, setDraggingId] = useState("");
 
     const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>, id: string) => {
-        console.log(id);
         setDraggingId(id);
     };
 
     const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>, id: string) => {
-        if (!draggingId) return;
+        if (!draggingId || id === draggingId) {
+            setDraggingId("");
+            return;
+        }
 
         e.stopPropagation();
         const rect = e.currentTarget.getBoundingClientRect();
         const relativeY = e.clientY - rect.top;
 
         if (relativeY < rect.height / 3) {
-            console.log("upper");
+            moveNode(draggingId, id, "upper");
         } else if (relativeY < rect.height * 2 / 3) {
-            console.log("middle");
+            moveNode(draggingId, id, "middle");
         } else {
-            console.log("lower");
+            moveNode(draggingId, id, "lower");
         }
 
-        console.log(id);
         setDraggingId("");
     };
 
@@ -59,17 +61,17 @@ const WbsPage = () => {
         const rect = e.currentTarget.getBoundingClientRect();
         const relativeY = e.clientY - rect.top;
 
-        if (relativeY < rect.height / 4) {
-            e.currentTarget.style.backgroundColor = "red";
-        } else if (relativeY < rect.height * 3 / 4) {
-            if (id === draggingId) {
-                e.currentTarget.style.backgroundColor = "";
-            } else {
-                e.currentTarget.style.backgroundColor = "yellow";
-            }
-        } else {
-            e.currentTarget.style.backgroundColor = "blue";
-        }
+        // if (relativeY < rect.height / 4) {
+        //     e.currentTarget.style.backgroundColor = "red";
+        // } else if (relativeY < rect.height * 3 / 4) {
+        //     if (id === draggingId) {
+        //         e.currentTarget.style.backgroundColor = "";
+        //     } else {
+        //         e.currentTarget.style.backgroundColor = "yellow";
+        //     }
+        // } else {
+        //     e.currentTarget.style.backgroundColor = "blue";
+        // }
     }
 
     return (
