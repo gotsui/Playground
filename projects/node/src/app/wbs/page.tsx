@@ -74,6 +74,21 @@ const WbsPage = () => {
         // }
     }
 
+    const handleClickDownload = () => {
+        const fileNameWithJson = `wbs-${calcedRoot.name}.json`;
+        const blobData = new Blob([JSON.stringify(calcedRoot, null, "\t")], { type: "text/json" });
+        const jsonURL = URL.createObjectURL(blobData);
+
+        const linkElement = document.createElement("a");
+        linkElement.href = jsonURL;
+        linkElement.download = fileNameWithJson;
+
+        document.body.appendChild(linkElement);
+        linkElement.click();
+        document.body.removeChild(linkElement);
+        URL.revokeObjectURL(jsonURL);
+    };
+
     return (
         <div className="min-h-screen bg-gray-100">
             <WbsHeader
@@ -82,6 +97,7 @@ const WbsPage = () => {
                 onToggleCcpm={toggleCcpmMode}
                 totalHours={calcedRoot.totalWithBuffer}
                 projectBuffer={ccpmMode ? calcedRoot.buffer : undefined}
+                onClickDownload={handleClickDownload}
             />
             <div className="max-w-7xl mx-auto my-8">
                 <div className="bg-white rounded-xl shadow-lg overflow-hidden">

@@ -1,4 +1,4 @@
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Download, Save } from "lucide-react";
 import Link from "next/link";
 
 type Props = {
@@ -7,6 +7,7 @@ type Props = {
     onToggleCcpm: (enabled: boolean) => void;
     totalHours: number;
     projectBuffer?: number;
+    onClickDownload: () => void;
 };
 
 const WbsHeader = ({
@@ -15,6 +16,7 @@ const WbsHeader = ({
     onToggleCcpm,
     totalHours,
     projectBuffer,
+    onClickDownload,
 }: Props) => {
     return (
         <div className="bg-white shadow-sm border-b sticky top-0 z-20">
@@ -45,6 +47,12 @@ const WbsHeader = ({
                             </span>
                         )}
                     </div>
+                    <button className="cursor-pointer">
+                        <Save />
+                    </button>
+                    <button className="cursor-pointer" onClick={onClickDownload}>
+                        <Download />
+                    </button>
                 </div>
             </div>
         </div>
