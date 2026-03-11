@@ -7,6 +7,7 @@ type Props = {
     onToggleCcpm: (enabled: boolean) => void;
     totalHours: number;
     projectBuffer?: number;
+    onClickSave: () => void;
     onClickDownload: () => void;
 };
 
@@ -16,6 +17,7 @@ const WbsHeader = ({
     onToggleCcpm,
     totalHours,
     projectBuffer,
+    onClickSave,
     onClickDownload,
 }: Props) => {
     return (
@@ -47,7 +49,7 @@ const WbsHeader = ({
                             </span>
                         )}
                     </div>
-                    <button className="cursor-pointer">
+                    <button className="cursor-pointer" onClick={onClickSave}>
                         <Save />
                     </button>
                     <button className="cursor-pointer" onClick={onClickDownload}>

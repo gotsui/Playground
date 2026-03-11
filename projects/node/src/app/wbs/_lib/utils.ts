@@ -15,3 +15,11 @@ export const calcTotals = (node: TaskNode): TaskWithCalc => {
         totalWithBuffer: node.effort + node.buffer + childrenTotalWithBuffer,
     };
 };
+
+export const parseWbsTasks = (node: TaskNode, ) => {
+
+};
+
+export const parseTaskNode = () => {
+
+};

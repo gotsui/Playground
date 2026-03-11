@@ -16,3 +16,5 @@ export const taskNodeSchema: z.ZodType<TaskNode> = z.lazy(() =>
         children: z.array(taskNodeSchema),
     })
 );
+
+export const idSchema = z.uuidv4().nonempty();
