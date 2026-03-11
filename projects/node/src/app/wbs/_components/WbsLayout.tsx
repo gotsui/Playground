@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { Filter } from "lucide-react";
 
 import WbsHeader from "./WbsHeader";
 import { useWbs } from "../_hooks/useWbs";
@@ -11,6 +12,9 @@ import {
 } from "../_lib/schema";
 import WbsRow from "./WbsRow";
 import WbsNoteModal from "./WbsNoteModal";
+import "../style.css";
+import Checkbox from "./Checkbox";
+import { TaskNode } from "../_lib/types";
 
 type Props = {
 
@@ -23,6 +27,7 @@ const WbsLayout = ({
     const wbsId = Array.isArray(id) ? id[0] : id;
 
     const [draggingId, setDraggingId] = useState("");
+    const [filterMap, setFilterMap] = useState<Map<string, Set<string>>>(new Map());
     const router = useRouter();
     const {
         calcedRoot,
@@ -165,6 +170,39 @@ const WbsLayout = ({
         URL.revokeObjectURL(jsonURL);
     };
 
+    const createPropertySet = (node: TaskNode, prop: Exclude<keyof TaskNode, "children">) => {
+        const setList = node.children.map((child) => createPropertySet(child, prop));
+        const propSet = new Set([node[prop]?.toString() || ""]);
+
+        setList.forEach((set) => {
+            set.forEach((value) => {
+                propSet.add(value);
+            });
+        });
+
+        return propSet;
+    };
+
+    const handleChangeFilterAll = (prop: Exclude<keyof TaskNode, "children">) => {
+        setFilterMap(
+            (prev) => new Map(prev).set(prop, (filterMap.get(prop) ?? new Set()).size === 0 ? createPropertySet(calcedRoot, prop) : new Set())
+        );
+    };
+
+    const handleChangeFilterItem = (prop: Exclude<keyof TaskNode, "children">, id: string) => {
+        setFilterMap((prev) => {
+            const fieldSet = new Set(prev.get(prop));
+
+            if (fieldSet && fieldSet.has(id)) {
+                fieldSet.delete(id);
+            } else {
+                fieldSet.add(id);
+            }
+
+            return new Map(prev).set(prop, fieldSet);
+        });
+    };
+
     return (
         <div className="min-h-screen bg-gray-100">
             <WbsHeader
@@ -180,8 +218,86 @@ const WbsLayout = ({
                 <div className="bg-white rounded-xl shadow-lg overflow-hidden">
                     <div className="grid grid-cols-12 gap-4 font-bold text-sm bg-blue-50 py-4 px-8 border-b-2 border-gray-200">
                         <div className="col-span-4">タスク名</div>
-                        <div className="col-span-1 text-center">主担当</div>
-                        <div className="col-span-1 text-center">ステータス</div>
+                        <div className="col-span-1 text-center flex">
+                            <p>主担当</p>
+                            <button
+                                type="button"
+                                className={[
+                                    "relative size-4 cursor-pointer",
+                                    "filter-anchor",
+                                ].join(" ")}
+                                popoverTarget="filter-assignee"
+                            >
+                                <Filter className="size-full" />
+                            </button>
+                            <div
+                                id="filter-assignee"
+                                className={[
+                                    "absolute px-4 py-3 space-y-4 max-h-[50vh]",
+                                    "bg-white border border-slate-300 rounded-md shadow-sm",
+                                    "filter-popover",
+                                ].join(" ")}
+                                popover="auto"
+                            >
+                                <div className="border-b pb-2">
+                                    <Checkbox
+                                        id={`filter-list-all-assignee`}
+                                        label="すべて選択"
+                                        checked={(filterMap.get("assignee") ?? new Set()).size === 0}
+                                        onChange={() => handleChangeFilterAll("assignee")}
+                                    />
+                                </div>
+                                {Array.from(createPropertySet(calcedRoot, "assignee")).sort().map((item) => (
+                                    <Checkbox
+                                        key={item}
+                                        id={`filter-list-${item}`}
+                                        label={String(item)}
+                                        checked={!(filterMap.get("assignee") ?? new Set()).has(item)}
+                                        onChange={() => handleChangeFilterItem("assignee", item)}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                        <div className="col-span-1 text-center flex relative group">
+                            <p>ステータス</p>
+                            <button
+                                type="button"
+                                className={[
+                                    "relative size-4 cursor-pointer",
+                                    "filter-anchor",
+                                ].join(" ")}
+                                popoverTarget="filter-status"
+                            >
+                                <Filter className="size-full" />
+                            </button>
+                            <div
+                                id="filter-status"
+                                className={[
+                                    "absolute px-4 py-3 space-y-4 max-h-[50vh]",
+                                    "bg-white border border-slate-300 rounded-md shadow-sm",
+                                    "filter-popover",
+                                ].join(" ")}
+                                popover="auto"
+                            >
+                                <div className="border-b pb-2">
+                                    <Checkbox
+                                        id={`filter-list-all-status`}
+                                        label="すべて選択"
+                                        checked={(filterMap.get("status") ?? new Set()).size === 0}
+                                        onChange={() => handleChangeFilterAll("status")}
+                                    />
+                                </div>
+                                {Array.from(createPropertySet(calcedRoot, "status")).sort().map((item) => (
+                                    <Checkbox
+                                        key={item}
+                                        id={`filter-list-${item}`}
+                                        label={String(item)}
+                                        checked={!(filterMap.get("status") ?? new Set()).has(item)}
+                                        onChange={() => handleChangeFilterItem("status", item)}
+                                    />
+                                ))}
+                            </div>
+                        </div>
                         <div className="col-span-1 text-right">工数</div>
                         <div className="col-span-1 text-right">バッファ</div>
                         <div className="col-span-1 text-right">バッファ込み</div>
