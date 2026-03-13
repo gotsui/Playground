@@ -1,8 +1,11 @@
+"use client";
+
 import WbsLayout from "../_components/WbsLayout";
+import { createNode } from "../_hooks/useWbs";
 
 const NewWbsPage = () => {
     return (
-        <WbsLayout />
+        <WbsLayout initialTaskNode={createNode("新規タスク")} />
     );
 };
 

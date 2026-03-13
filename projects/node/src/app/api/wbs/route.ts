@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-
+import { desc } from "drizzle-orm";
 import z from "zod";
-import { db } from "@/db";
+
 import { taskNodeSchema } from "@/app/wbs/_lib/schema";
+import { db } from "@/db";
+import { wbs, wbsTasks } from "@/db/wbs-schema";
+import { WbsTask } from "@/app/wbs/_lib/types";
+import { parseWbsTasks } from "@/app/wbs/_lib/utils";
 
 const postSchema = z.object({
     name: z.string().nonempty(),
@@ -11,7 +15,7 @@ const postSchema = z.object({
 
 export const GET = async (_: NextRequest) => {
     try {
-        const allWbs = await db.select();
+        const allWbs = await db.select().from(wbs).orderBy(desc(wbs.updatedAt));
 
         return NextResponse.json(
             { wbs: allWbs },
@@ -37,11 +41,18 @@ export const POST = async (req: NextRequest) => {
         );
     }
 
-
+    let tasks: WbsTask[] = [];
+    parseWbsTasks(parsed.data.nodes, tasks, null);
 
     try {
         const wbsId = await db.transaction(async (tx) => {
-
+            const wbsResults = await tx.insert(wbs).values({ name: parsed.data.name }).returning();
+            const wbsId = wbsResults[0].id;
+            await tx.insert(wbsTasks).values(tasks.map((task) => ({
+                wbsId,
+                ...task,
+            })));
+            return wbsId;
         });
 
         return NextResponse.json(

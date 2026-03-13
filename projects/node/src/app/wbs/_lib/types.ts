@@ -1,13 +1,16 @@
+import z from "zod";
+import { wbsSchema, wbsTaskSchema } from "./schema";
+
 export type Status = "新規" | "進行中" | "完了";
 
 export type TaskNode = {
     id: string;
     name: string;
-    assignee?: string;
+    assignee?: string | null;
     status: Status;
     effort: number;
     buffer: number;
-    notes?: string;
+    notes?: string | null;
     children: TaskNode[];
 };
 
@@ -25,3 +28,7 @@ export type EditingRow = {
     buffer: string;
     notes: string;
 };
+
+export type Wbs = z.infer<typeof wbsSchema>;
+
+export type WbsTask = z.infer<typeof wbsTaskSchema>;

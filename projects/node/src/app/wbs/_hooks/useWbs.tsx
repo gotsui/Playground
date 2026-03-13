@@ -17,8 +17,8 @@ export const createNode = (name?: string): TaskNode => {
     };
 };
 
-export const useWbs = () => {
-    const [wbs, setWbs] = useState<TaskNode>(createNode("新規タスク"));
+export const useWbs = (initialTaskNode: TaskNode) => {
+    const [wbs, setWbs] = useState<TaskNode>(initialTaskNode);
     const [ccpmMode, setCcpmMode] = useState(false);
     const [expanded, setExpanded] = useState<Set<string>>(new Set());
     const [editingId, setEditingId] = useState<string | null>(null);

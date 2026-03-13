@@ -8,6 +8,13 @@
       "when": 1767016659635,
       "tag": "0000_living_lockheed",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1773374092652,
+      "tag": "0001_volatile_living_lightning",
+      "breakpoints": true
     }
   ]
 }

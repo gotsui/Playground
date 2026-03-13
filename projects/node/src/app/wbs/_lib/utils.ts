@@ -1,4 +1,4 @@
-import { TaskNode, TaskWithCalc } from "./types";
+import { TaskNode, TaskWithCalc, WbsTask } from "./types";
 
 export const generateId = () => crypto.randomUUID();
 
@@ -16,10 +16,34 @@ export const calcTotals = (node: TaskNode): TaskWithCalc => {
     };
 };
 
-export const parseWbsTasks = (node: TaskNode, ) => {
+export const parseWbsTasks = (node: TaskNode, wbsTasks: WbsTask[], parentId: string | null) => {
+    wbsTasks.push({ ...node, parentId });
 
+    node.children.forEach((child) => {
+        parseWbsTasks(child, wbsTasks, node.id);
+    });
 };
 
-export const parseTaskNode = () => {
+export const parseTaskNode = (wbsTasks: WbsTask[]): TaskNode | null => {
+    const idNodeMap = new Map<string, TaskNode>(wbsTasks.map((task) => ([
+        task.id,
+        { ...task, children: [] },
+    ])));
 
+    let root: TaskNode | null = null;
+
+    wbsTasks.forEach((task) => {
+        if (task.parentId) {
+            const currentNode = idNodeMap.get(task.id);
+            const parentNode = idNodeMap.get(task.parentId);
+
+            if (currentNode && parentNode) {
+                parentNode.children.push(currentNode);
+            }
+        } else {
+            root = idNodeMap.get(task.id) || null;
+        }
+    });
+
+    return root;
 };

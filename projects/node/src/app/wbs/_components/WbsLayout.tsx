@@ -17,11 +17,11 @@ import Checkbox from "./Checkbox";
 import { TaskNode } from "../_lib/types";
 
 type Props = {
-
+    initialTaskNode: TaskNode;
 };
 
 const WbsLayout = ({
-
+    initialTaskNode,
 }: Props) => {
     const { id } = useParams();
     const wbsId = Array.isArray(id) ? id[0] : id;
@@ -47,7 +47,7 @@ const WbsLayout = ({
         openNote,
         closeNote,
         moveNode,
-    } = useWbs();
+    } = useWbs(initialTaskNode);
 
     const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>, id: string) => {
         setDraggingId(id);
