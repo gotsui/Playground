@@ -9,11 +9,11 @@ export const taskNodeSchema: z.ZodType<TaskNode> = z.lazy(() =>
     z.object({
         id: z.uuidv4(),
         name: z.string().trim().min(1, "タスク名を入力してください"),
-        assignee: z.string().optional(),
+        assignee: z.string().optional().nullable(),
         status: statusSchema,
         effort: z.coerce.number("数値を入力してください").min(0, "マイナスの値は入力できません"),
         buffer: z.coerce.number("数値を入力してください").min(0, "マイナスの値は入力できません"),
-        notes: z.string().optional(),
+        notes: z.string().optional().nullable(),
         children: z.array(taskNodeSchema),
     })
 );

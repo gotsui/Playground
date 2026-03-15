@@ -32,3 +32,6 @@ export type EditingRow = {
 export type Wbs = z.infer<typeof wbsSchema>;
 
 export type WbsTask = z.infer<typeof wbsTaskSchema>;
+
+export type WbsFilterKey = Exclude<keyof TaskNode, "children">;
+export type WbsFilterMap = Map<WbsFilterKey, Set<string>>;

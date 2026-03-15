@@ -1,5 +1,5 @@
-import { ArrowLeft, Download, Save } from "lucide-react";
 import Link from "next/link";
+import { ArrowLeft, Download, Save } from "lucide-react";
 
 type Props = {
     name: string;
@@ -24,7 +24,7 @@ const WbsHeader = ({
         <div className="bg-white shadow-sm border-b sticky top-0 z-20">
             <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
                 <div className="flex items-center gap-4">
-                    <Link href={"/"}>
+                    <Link href={"/wbs"}>
                         <ArrowLeft />
                     </Link>
                     <h1 className="text-2xl font-bold text-gray-800">WBS - {name}</h1>

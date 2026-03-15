@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Plus } from "lucide-react";
+import { ArrowLeft, Edit2, Plus, Trash2 } from "lucide-react";
 
-import { Wbs } from "./_lib/types";
 import { wbsListSchema } from "./_lib/schema";
+import { Wbs } from "./_lib/types";
 
 const WbsHomePage = () => {
     const [wbsList, setWbsList] = useState<Wbs[]>([]);
@@ -65,18 +65,60 @@ const WbsHomePage = () => {
 
     return (
         <div className="min-h-screen bg-gray-100">
-            <Link href={"/wbs/new"}>
-                <Plus />
-            </Link>
+            <div className="flex items-center gap-8 p-4">
+                <Link href={"/"}>
+                    <ArrowLeft />
+                </Link>
+                <div className="text-2xl">WBS</div>
+                <Link
+                    href="/wbs/new"
+                    className={[
+                        "block size-10 p-2",
+                        "bg-indigo-100 rounded-lg border-2 border-indigo-300",
+                        "hover:border-indigo-400",
+                    ].join(" ")}
+                >
+                    <Plus className="size-full" />
+                </Link>
+            </div>
             {isLoading ? (
                 <div className="flex justify-center" aria-label="読み込み中">
                     <div className="animate-ping h-4 w-4 bg-blue-600 rounded-full"></div>
                 </div>
             ) : (
-                <ul>
+                <ul className="m-4">
                     {wbsList.map((wbs) => (
-                        <li key={wbs.id}>
-                            {wbs.name}
+                        <li
+                            key={wbs.id}
+                            className={[
+                                "grid grid-cols-12 items-center",
+                            ].join(" ")}
+                        >
+                            <div className="col-span-6">
+                                {wbs.name}
+                            </div>
+                            <div className="col-span-3">
+                                <Link
+                                    href={`/wbs/${wbs.id}`}
+                                    className={[
+                                        "inline-block rounded-full p-1",
+                                        "hover:bg-indigo-200",
+                                    ].join(" ")}
+                                >
+                                    <Edit2 />
+                                </Link>
+                            </div>
+                            <div className="col-span-3">
+                                <button
+                                    className={[
+                                        "rounded-full p-1 cursor-pointer",
+                                        "hover:bg-red-200",
+                                    ].join(" ")}
+                                    onClick={() => handleClickDelete(wbs.id)}
+                                >
+                                    <Trash2 className="hover:underline" />
+                                </button>
+                            </div>
                         </li>
                     ))}
                 </ul>

@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { notFound, useParams } from "next/navigation";
 
 import WbsLayout from "../_components/WbsLayout";
-import { TaskNode } from "../_lib/types";
 import { wbsTasksSchema } from "../_lib/schema";
+import { TaskNode } from "../_lib/types";
 import { parseTaskNode } from "../_lib/utils";
 
 const WbsPage = () => {
@@ -48,7 +48,7 @@ const WbsPage = () => {
 
     if (isLoading) {
         return (
-            <div className="flex justify-center" aria-label="読み込み中">
+            <div className="flex justify-center mt-8" aria-label="読み込み中">
                 <div className="animate-ping h-4 w-4 bg-blue-600 rounded-full"></div>
             </div>
         );

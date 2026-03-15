@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 import { taskNodeSchema } from "../_lib/schema";
-import { EditingRow, TaskNode, TaskWithCalc } from "../_lib/types";
+import { EditingRow, TaskNode } from "../_lib/types";
 import { calcTotals, generateId } from "../_lib/utils";
 
 export const createNode = (name?: string): TaskNode => {

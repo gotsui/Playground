@@ -8,7 +8,7 @@ import {
     Trash2,
 } from "lucide-react";
 
-import { EditingRow, TaskWithCalc } from "../_lib/types";
+import { EditingRow, TaskNode, TaskWithCalc, WbsFilterMap } from "../_lib/types";
 
 type Props = {
     node: TaskWithCalc;
@@ -30,6 +30,7 @@ type Props = {
     handlePointerDown: (e: React.PointerEvent<HTMLDivElement>, id: string) => void;
     handlePointerUp: (e: React.PointerEvent<HTMLDivElement>, id: string) => void;
     handlePointerMove: (e: React.PointerEvent<HTMLDivElement>, id: string) => void;
+    filterMap: WbsFilterMap;
 };
 
 const WbsRow = ({
@@ -52,12 +53,41 @@ const WbsRow = ({
     handlePointerDown,
     handlePointerUp,
     handlePointerMove,
+    filterMap,
 }: Props) => {
     const isEditing = editingId === node.id;
     const isExpanded = expanded.has(node.id);
     const hasChildren = node.children.length > 0;
     const withBuffer = node.effort + node.buffer;
     const paddingLeft = depth * 24;
+
+    const isFiltered = (node: TaskNode, filterMap: WbsFilterMap) => {
+        for (const [key, value] of filterMap.entries()) {
+            if (value.has(node[key]?.toString() || "")) {
+                return true;
+            }
+        }
+
+        return false;
+    };
+
+    const isHidden = (node: TaskNode, filterMap: WbsFilterMap) => {
+        if (!isFiltered(node, filterMap)) {
+            return false;
+        }
+
+        for (const child of node.children) {
+            if (!isHidden(child, filterMap)) {
+                return false;
+            }
+        }
+
+        return true;
+    };
+
+    if (isHidden(node, filterMap)) {
+        return null;
+    }
 
     return (
         <>
@@ -74,7 +104,7 @@ const WbsRow = ({
             >
                 {isEditing ? (
                     <>
-                        <div className="col-span-4 flex items-center">
+                        <div className="col-span-4 flex items-center size-full">
                             {hasChildren ? (
                                 <div
                                     className="p-1 ml-1"
@@ -102,7 +132,7 @@ const WbsRow = ({
                             onChange={(e) => updateForm({ assignee: e.target.value })}
                         />
                         <select
-                            className="col-span-1 border rounded-md px-2 py-1"
+                            className="col-span-1 size-full border rounded-md px-2 py-1"
                             value={editForm?.status || "新規"}
                             onChange={(e) => updateForm({ status: e.target.value })}
                         >
@@ -111,7 +141,7 @@ const WbsRow = ({
                             <option>完了</option>
                         </select>
                         <input
-                            className={`col-span-1 border rounded-md px-2 y-1 text-right ${ccpmMode && isRoot ? "bg-gray-200" : ""}`}
+                            className={`col-span-1 border rounded-md px-2 py-1 text-right ${ccpmMode && isRoot ? "bg-gray-200" : ""}`}
                             value={ccpmMode && isRoot ? "0" : editForm?.effort}
                             disabled={ccpmMode && isRoot}
                             onChange={(e) => updateForm({ effort: e.target.value })}
@@ -239,6 +269,7 @@ const WbsRow = ({
                     handlePointerDown={handlePointerDown}
                     handlePointerUp={handlePointerUp}
                     handlePointerMove={handlePointerMove}
+                    filterMap={filterMap}
                 />
             ))}
         </>
