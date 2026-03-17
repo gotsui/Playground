@@ -47,3 +47,11 @@ export const parseTaskNode = (wbsTasks: WbsTask[]): TaskNode | null => {
 
     return root;
 };
+
+export function* depthFirstSearch(node: TaskNode): Generator<TaskNode> {
+    yield node;
+
+    for (const child of node.children) {
+        yield* depthFirstSearch(child);
+    }
+}
