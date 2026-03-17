@@ -195,7 +195,7 @@ const WbsRow = ({
                             {node.assignee && <span className="text-gray-500 text-sm ml-2">({node.assignee})</span>}
                         </div>
                         <div className="col-span-1 text-right">
-                            <span className={`inline-block px-2 py-0.5 text-xs rounded-md mr-2 ${
+                            <span className={`inline-block px-1.5 py-0.5 text-xs rounded-md mr-2 ${
                                 node.status === "完了" ? "bg-green-100 text-green-800" :
                                 node.status === "進行中" ? "bg-yellow-100 text-yellow-800" :
                                 "bg-gray-100 text-gray-600"

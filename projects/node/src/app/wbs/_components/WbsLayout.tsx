@@ -14,6 +14,8 @@ import {
 } from "../_lib/schema";
 import { TaskNode, WbsFilterMap } from "../_lib/types";
 import "../style.css";
+import { ChevronDown, ChevronUp, CircleX, Eye, ListFilter, PlusCircle } from "lucide-react";
+import { depthFirstSearch } from "../_lib/utils";
 
 type Props = {
     initialTaskNode: TaskNode;
@@ -180,7 +182,49 @@ const WbsLayout = ({
                 onClickSave={wbsId ? () => handleClickUpdate(wbsId) : handleClickSave}
                 onClickDownload={handleClickDownload}
             />
-            <div className="max-w-7xl mx-auto my-8">
+            <div className="flex items-center max-w-7xl mx-auto px-8 py-1 gap-4">
+                <div className="flex items-center gap-1">
+                    <PlusCircle className="size-4" />
+                    <span>追加</span>
+                </div>
+                <div className="flex items-center gap-1">
+                    <CircleX className="size-4" />
+                    <span>削除</span>
+                </div>
+                <div className="flex items-center gap-1">
+                    <Eye className="size-4" />
+                    <span>表示</span>
+                </div>
+                <div className="flex items-center gap-1">
+                    <ListFilter className="size-4" />
+                    <span>フィルター</span>
+                </div>
+                <button
+                    className="flex items-center gap-1 cursor-pointer"
+                    onClick={() => {
+                        expanded.forEach((id) => {
+                            toggleExpand(id);
+                        });
+                    }}
+                >
+                    <ChevronUp className="size-4" />
+                    <span>折りたたみ</span>
+                </button>
+                <button
+                    className="flex items-center gap-1 cursor-pointer"
+                    onClick={() => {
+                        for (const node of depthFirstSearch(calcedRoot)) {
+                            if (!expanded.has(node.id)) {
+                                toggleExpand(node.id);
+                            }
+                        }
+                    }}
+                >
+                    <ChevronDown className="size-4" />
+                    <span>展開</span>
+                </button>
+            </div>
+            <div className="max-w-7xl mx-auto mb-8">
                 <div className="bg-white rounded-xl shadow-lg overflow-hidden">
                     <div className="grid grid-cols-12 gap-4 font-bold text-sm bg-blue-50 py-4 px-8 border-b-2 border-gray-200">
                         <div className="col-span-4">タスク名</div>
