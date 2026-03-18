@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { ChevronDown, ChevronUp, CircleX, ListFilter, PlusCircle } from "lucide-react";
 
+import ColumnFilter from "./ColumnFilter";
 import WbsFilter from "./WbsFilter";
 import WbsHeader from "./WbsHeader";
 import WbsNoteModal from "./WbsNoteModal";
@@ -12,10 +14,9 @@ import {
     idSchema,
     taskNodeSchema,
 } from "../_lib/schema";
-import { TaskNode, WbsFilterMap } from "../_lib/types";
-import "../style.css";
-import { ChevronDown, ChevronUp, CircleX, Eye, ListFilter, PlusCircle } from "lucide-react";
+import { ColumnFilterKey, TaskNode, WbsFilterMap } from "../_lib/types";
 import { depthFirstSearch } from "../_lib/utils";
+import "../style.css";
 
 type Props = {
     initialTaskNode: TaskNode;
@@ -28,6 +29,7 @@ const WbsLayout = ({
     const wbsId = Array.isArray(id) ? id[0] : id;
 
     const [draggingId, setDraggingId] = useState("");
+    const [hiddenColumnSet, setHiddenColumnSet] = useState<Set<ColumnFilterKey>>(new Set());
     const [filterMap, setFilterMap] = useState<WbsFilterMap>(new Map());
     const router = useRouter();
     const {
@@ -191,10 +193,10 @@ const WbsLayout = ({
                     <CircleX className="size-4" />
                     <span>削除</span>
                 </div>
-                <div className="flex items-center gap-1">
-                    <Eye className="size-4" />
-                    <span>表示</span>
-                </div>
+                <ColumnFilter
+                    hiddenColumnSet={hiddenColumnSet}
+                    setHiddenColumnSet={setHiddenColumnSet}
+                />
                 <div className="flex items-center gap-1">
                     <ListFilter className="size-4" />
                     <span>フィルター</span>
