@@ -5,22 +5,43 @@ export const generateId = () => crypto.randomUUID();
 export const calcTotals = (node: TaskNode): TaskWithCalc => {
     const calcedChildren = node.children.map(calcTotals);
 
-    const childrenEffort = calcedChildren.reduce((acc, child) => acc + child.effort, 0);
+    const childrenEffort = calcedChildren.reduce((acc, child) => acc + child.plannedEffort, 0);
     const childrenTotalWithBuffer = calcedChildren.reduce((acc, child) => acc + child.totalWithBuffer, 0);
 
     return {
         ...node,
         children: calcedChildren,
-        totalEffort: node.effort + childrenEffort,
-        totalWithBuffer: node.effort + node.buffer + childrenTotalWithBuffer,
+        totalEffort: node.plannedEffort + childrenEffort,
+        totalWithBuffer: node.plannedEffort + node.buffer + childrenTotalWithBuffer,
     };
 };
 
-export const parseWbsTasks = (node: TaskNode, wbsTasks: WbsTask[], parentId: string | null) => {
-    wbsTasks.push({ ...node, parentId });
+/**
+ * ツリー構造から隣接リストモデルに変換
+ * @param node 
+ * @param wbsTasks 
+ * @param parentId 
+ * @param logicalParentId 
+ */
+export const parseWbsTasks = (
+    node: TaskNode,
+    wbsTasks: WbsTask[],
+    parentId: string | null,
+    logicalParentId: string | null,
+) => {
+    const { id, ...nodeWithoutId } = node;
+    const physicalId = generateId();
+
+    wbsTasks.push({
+        ...nodeWithoutId,
+        id: physicalId,
+        parentId,
+        logicalId: id,
+        logicalParentId,
+    });
 
     node.children.forEach((child) => {
-        parseWbsTasks(child, wbsTasks, node.id);
+        parseWbsTasks(child, wbsTasks, physicalId, id);
     });
 };
 

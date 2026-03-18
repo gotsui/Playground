@@ -8,8 +8,9 @@ export type TaskNode = {
     name: string;
     assignee?: string | null;
     status: Status;
-    effort: number;
+    plannedEffort: number;
     buffer: number;
+    actualEffort: number;
     notes?: string | null;
     children: TaskNode[];
 };
@@ -24,8 +25,9 @@ export type EditingRow = {
     name: string;
     assignee: string;
     status: string;
-    effort: string;
+    plannedEffort: string;
     buffer: string;
+    actualEffort: string;
     notes: string;
 };
 

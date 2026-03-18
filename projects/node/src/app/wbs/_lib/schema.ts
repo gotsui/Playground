@@ -11,8 +11,9 @@ export const taskNodeSchema: z.ZodType<TaskNode> = z.lazy(() =>
         name: z.string().trim().min(1, "タスク名を入力してください"),
         assignee: z.string().optional().nullable(),
         status: statusSchema,
-        effort: z.coerce.number("数値を入力してください").min(0, "マイナスの値は入力できません"),
+        plannedEffort: z.coerce.number("数値を入力してください").min(0, "マイナスの値は入力できません"),
         buffer: z.coerce.number("数値を入力してください").min(0, "マイナスの値は入力できません"),
+        actualEffort: z.coerce.number("数値を入力してください").min(0, "マイナスの値は入力できません"),
         notes: z.string().optional().nullable(),
         children: z.array(taskNodeSchema),
     })
@@ -31,11 +32,14 @@ export const wbsListSchema = z.array(wbsSchema);
 export const wbsTaskSchema = z.object({
     id: z.uuidv4(),
     parentId: z.uuidv4().nullable(),
+    logicalId: z.uuidv4(),
+    logicalParentId: z.uuidv4().nullable(),
     name: z.string().min(1, "タスク名を入力してください"),
     assignee: z.string().optional().nullable(),
     status: statusSchema,
-    effort: z.coerce.number().min(0),
+    plannedEffort: z.coerce.number().min(0),
     buffer: z.coerce.number().min(0),
+    actualEffort: z.coerce.number().min(0),
     notes: z.string().optional().nullable(),
 });
 

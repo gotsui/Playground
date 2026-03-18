@@ -1,0 +1,2 @@
+ALTER TABLE "wbs_task_histories" ADD COLUMN "createdBy" uuid NOT NULL;--> statement-breakpoint
+ALTER TABLE "wbs_task_histories" ADD CONSTRAINT "wbs_task_histories_createdBy_users_id_fk" FOREIGN KEY ("createdBy") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;

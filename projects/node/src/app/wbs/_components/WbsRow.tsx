@@ -58,7 +58,7 @@ const WbsRow = ({
     const isEditing = editingId === node.id;
     const isExpanded = expanded.has(node.id);
     const hasChildren = node.children.length > 0;
-    const withBuffer = node.effort + node.buffer;
+    const withBuffer = node.plannedEffort + node.buffer;
     const paddingLeft = depth * 24;
 
     const isFiltered = (node: TaskNode, filterMap: WbsFilterMap) => {
@@ -142,9 +142,9 @@ const WbsRow = ({
                         </select>
                         <input
                             className={`col-span-1 border rounded-md px-2 py-1 text-right ${ccpmMode && isRoot ? "bg-gray-200" : ""}`}
-                            value={ccpmMode && isRoot ? "0" : editForm?.effort}
+                            value={ccpmMode && isRoot ? "0" : editForm?.plannedEffort}
                             disabled={ccpmMode && isRoot}
-                            onChange={(e) => updateForm({ effort: e.target.value })}
+                            onChange={(e) => updateForm({ plannedEffort: e.target.value })}
                         />
                         <input
                             className="col-span-1 border rounded-md px-2 py-1 text-right"
@@ -204,7 +204,7 @@ const WbsRow = ({
                             </span>
                         </div>
                         <div className="col-span-1 text-right">
-                            {node.effort} h
+                            {node.plannedEffort} h
                         </div>
                         <div className="col-span-1 text-right">
                             {node.buffer} h

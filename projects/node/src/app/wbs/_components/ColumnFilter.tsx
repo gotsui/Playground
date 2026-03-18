@@ -20,8 +20,9 @@ const ColumnFilter = ({
     const allColumnSet = new Set<ColumnFilterKey>([
         "assignee",
         "status",
-        "effort",
+        "plannedEffort",
         "buffer",
+        "actualEffort",
         "notes",
     ]);
 

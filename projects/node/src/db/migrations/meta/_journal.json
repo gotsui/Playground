@@ -15,6 +15,34 @@
       "when": 1773374092652,
       "tag": "0001_volatile_living_lightning",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1773844485182,
+      "tag": "0002_freezing_shotgun",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1773845264253,
+      "tag": "0003_square_the_hunter",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1773847869382,
+      "tag": "0004_bumpy_titanium_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1773850500233,
+      "tag": "0005_long_loki",
+      "breakpoints": true
     }
   ]
 }

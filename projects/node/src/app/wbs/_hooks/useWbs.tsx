@@ -11,8 +11,9 @@ export const createNode = (name?: string): TaskNode => {
         id: generateId(),
         name: name || "",
         status: "新規",
-        effort: 0,
+        plannedEffort: 0,
         buffer: 0,
+        actualEffort: 0,
         children: [],
     };
 };
@@ -65,8 +66,9 @@ export const useWbs = (initialTaskNode: TaskNode) => {
             name: node.name,
             assignee: node.assignee || "",
             status: node.status,
-            effort: node.effort.toString(),
+            plannedEffort: node.plannedEffort.toString(),
             buffer: node.buffer.toString(),
+            actualEffort: node.actualEffort.toString(),
             notes: node.notes || "",
         });
     };
@@ -78,13 +80,14 @@ export const useWbs = (initialTaskNode: TaskNode) => {
             name: editForm.name,
             assignee: editForm.assignee || undefined,
             status: editForm.status as any,
-            effort: Number(editForm.effort),
+            plannedEffort: Number(editForm.plannedEffort),
             buffer: Number(editForm.buffer),
+            actualEffort: Number(editForm.actualEffort),
             notes: editForm.notes || undefined,
         };
 
         if (ccpmMode && editingId === wbs.id) {
-            updates.effort = 0;
+            updates.plannedEffort = 0;
         }
 
         const newWbs = findAndUpdate(wbs, editingId, updates);
