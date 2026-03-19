@@ -76,3 +76,43 @@ export function* depthFirstSearch(node: TaskNode): Generator<TaskNode> {
         yield* depthFirstSearch(child);
     }
 }
+
+export const hasDifference = (node1: TaskNode, node2: TaskNode) => {
+    const node1List: TaskNode[] = [];
+    depthFirstSearch(node1).forEach((node) => node1List.push(node));
+
+    const node2List: TaskNode[] = [];
+    depthFirstSearch(node2).forEach((node) => node2List.push(node));
+
+    if (node1List.length !== node2List.length) {
+        return true;
+    }
+
+    const checkKeySet = new Set<keyof TaskNode>([
+        "id",
+        "name",
+        "assignee",
+        "status",
+        "plannedEffort",
+        "buffer",
+        "actualEffort",
+        "notes",
+    ]);
+
+    for (let i = 0; i < node1List.length; i++) {
+        for (const key of checkKeySet) {
+            const node1Value = node1List[i][key];
+            const node2Value = node2List[i][key];
+
+            if (!node1Value && !node2Value) {
+                continue;
+            }
+
+            if (node1Value !== node2Value) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+};

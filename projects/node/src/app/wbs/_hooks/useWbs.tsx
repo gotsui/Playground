@@ -21,7 +21,7 @@ export const createNode = (name?: string): TaskNode => {
 export const useWbs = (initialTaskNode: TaskNode) => {
     const [wbs, setWbs] = useState<TaskNode>(initialTaskNode);
     const [ccpmMode, setCcpmMode] = useState(false);
-    const [expanded, setExpanded] = useState<Set<string>>(new Set());
+    const [expanded, setExpanded] = useState<Set<string>>(new Set([initialTaskNode.id]));
     const [editingId, setEditingId] = useState<string | null>(null);
     const [editForm, setEditForm] = useState<EditingRow | null>(null);
     const [noteNode, setNoteNode] = useState<TaskNode | null>(null);
@@ -138,16 +138,13 @@ export const useWbs = (initialTaskNode: TaskNode) => {
         }
     };
 
-    const updateNode = (
-        children: TaskNode[],
-        targetId: string,
-        updates: Partial<TaskNode>,
-    ): TaskNode[] => {
-        return children.map(
-            (node) => node.id === targetId
-                ? { ...node, ...updates }
-                : { ...node, children: updateNode(node.children, targetId, updates) }
-        );
+    const updateNode = (id: string, updates: Partial<TaskNode>) => {
+        const newWbs = findAndUpdate(wbs, id, updates);
+        const parsed = taskNodeSchema.safeParse(newWbs);
+
+        if (parsed.success) {
+            setWbs(parsed.data);
+        }
     };
 
     const deleteNode = (id: string, isForced: boolean = false) => {
@@ -268,5 +265,6 @@ export const useWbs = (initialTaskNode: TaskNode) => {
         openNote: setNoteNode,
         closeNote: () => setNoteNode(null),
         moveNode,
+        updateNode,
     };
 };

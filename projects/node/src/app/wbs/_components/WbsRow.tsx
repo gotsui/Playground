@@ -220,11 +220,9 @@ const WbsRow = ({
                             <div className="col-span-1" />
                         )}
                         <div className="col-span-2 flex justify-end gap-4">
-                            {node.notes && (
-                                <button onClick={() => openNote(node)}>
-                                    <StickyNote className="size-4 text-gray-500" />
-                                </button>
-                            )}
+                            <button onClick={() => openNote(node)}>
+                                <StickyNote className="size-4 text-gray-500" />
+                            </button>
                             <button onClick={() => addChild(node.id)}>
                                 <Plus className="size-4 text-blue-600 cursor-pointer" />
                             </button>

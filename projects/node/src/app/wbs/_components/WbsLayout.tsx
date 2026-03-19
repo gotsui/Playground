@@ -15,7 +15,7 @@ import {
     taskNodeSchema,
 } from "../_lib/schema";
 import { ColumnFilterKey, TaskNode, WbsFilterMap } from "../_lib/types";
-import { depthFirstSearch } from "../_lib/utils";
+import { depthFirstSearch, hasDifference } from "../_lib/utils";
 import "../style.css";
 
 type Props = {
@@ -28,6 +28,7 @@ const WbsLayout = ({
     const { id } = useParams();
     const wbsId = Array.isArray(id) ? id[0] : id;
 
+    const [savedTask, setSavedTask] = useState(initialTaskNode);
     const [draggingId, setDraggingId] = useState("");
     const [hiddenColumnSet, setHiddenColumnSet] = useState<Set<ColumnFilterKey>>(new Set());
     const [filterMap, setFilterMap] = useState<WbsFilterMap>(new Map());
@@ -50,6 +51,7 @@ const WbsLayout = ({
         openNote,
         closeNote,
         moveNode,
+        updateNode,
     } = useWbs(initialTaskNode);
 
     const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>, id: string) => {
@@ -131,6 +133,10 @@ const WbsLayout = ({
     };
 
     const handleClickUpdate = async (wbsId: string) => {
+        if (!hasDifference(savedTask, calcedRoot)) {
+            return;
+        }
+
         const parsedId = idSchema.safeParse(wbsId);
         const parsedTasks = taskNodeSchema.safeParse(calcedRoot);
 
@@ -155,6 +161,7 @@ const WbsLayout = ({
             return;
         }
 
+        setSavedTask(parsedTasks.data);
         alert("保存しました");
     };
 
@@ -174,7 +181,7 @@ const WbsLayout = ({
     };
 
     return (
-        <div className="min-h-screen bg-gray-100">
+        <div className="h-screen bg-gray-100 overflow-auto">
             <WbsHeader
                 name={calcedRoot.name}
                 ccpmMode={ccpmMode}
@@ -207,6 +214,7 @@ const WbsLayout = ({
                         expanded.forEach((id) => {
                             toggleExpand(id);
                         });
+                        toggleExpand(calcedRoot.id);
                     }}
                 >
                     <ChevronUp className="size-4" />
@@ -278,7 +286,7 @@ const WbsLayout = ({
                     />
                 </div>
             </div>
-            <WbsNoteModal node={noteNode} onClose={closeNote} />
+            <WbsNoteModal node={noteNode} updateNode={updateNode} onClose={closeNote} />
         </div>
     );
 };
