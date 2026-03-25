@@ -86,7 +86,6 @@ const WbsFilter = ({
             >
                 <div className="border-b pb-2">
                     <Checkbox
-                        id={`filter-list-all-${prop}`}
                         label="すべて選択"
                         checked={hiddenSet.size === 0}
                         onChange={handleChangeFilterAll}
@@ -95,7 +94,6 @@ const WbsFilter = ({
                 {Array.from(propAllSet).sort().map((item) => (
                     <Checkbox
                         key={item}
-                        id={`filter-list-${item}`}
                         label={String(item)}
                         checked={!hiddenSet.has(item)}
                         onChange={() => handleChangeFilterItem(item)}

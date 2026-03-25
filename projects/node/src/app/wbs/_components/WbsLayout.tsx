@@ -2,9 +2,8 @@
 
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ChevronDown, ChevronUp, CircleX, ListFilter, PlusCircle } from "lucide-react";
+import { ChevronDown, ChevronUp, CircleX, Eye, ListFilter, PlusCircle } from "lucide-react";
 
-import ColumnFilter from "./ColumnFilter";
 import WbsFilter from "./WbsFilter";
 import WbsHeader from "./WbsHeader";
 import WbsNoteModal from "./WbsNoteModal";
@@ -17,6 +16,8 @@ import {
 import { ColumnFilterKey, TaskNode, WbsFilterMap } from "../_lib/types";
 import { depthFirstSearch, hasDifference } from "../_lib/utils";
 import "../style.css";
+import ColumnFilterModal from "./ColumnFilterModal";
+import ItemFilterModal from "./ItemFilterModal";
 
 type Props = {
     initialTaskNode: TaskNode;
@@ -27,12 +28,16 @@ const WbsLayout = ({
 }: Props) => {
     const { id } = useParams();
     const wbsId = Array.isArray(id) ? id[0] : id;
+    const router = useRouter();
 
     const [savedTask, setSavedTask] = useState(initialTaskNode);
     const [draggingId, setDraggingId] = useState("");
+
+    const [hiddenColumnFilterModal, setHiddenColumnModal] = useState(true);
     const [hiddenColumnSet, setHiddenColumnSet] = useState<Set<ColumnFilterKey>>(new Set());
+    const [hiddenItenFilterModal, setHiddenItemModal] = useState(true);
     const [filterMap, setFilterMap] = useState<WbsFilterMap>(new Map());
-    const router = useRouter();
+
     const {
         calcedRoot,
         ccpmMode,
@@ -200,14 +205,20 @@ const WbsLayout = ({
                     <CircleX className="size-4" />
                     <span>削除</span>
                 </div>
-                <ColumnFilter
-                    hiddenColumnSet={hiddenColumnSet}
-                    setHiddenColumnSet={setHiddenColumnSet}
-                />
-                <div className="flex items-center gap-1">
+                <button
+                    className="flex items-center gap-1 cursor-pointer"
+                    onClick={() => setHiddenColumnModal(false)}
+                >
+                    <Eye className="size-4" />
+                    <span>表示</span>
+                </button>
+                <button
+                    className="flex items-center gap-1 cursor-pointer"
+                    onClick={() => setHiddenItemModal(false)}
+                >
                     <ListFilter className="size-4" />
                     <span>フィルター</span>
-                </div>
+                </button>
                 <button
                     className="flex items-center gap-1 cursor-pointer"
                     onClick={() => {
@@ -238,25 +249,9 @@ const WbsLayout = ({
                 <div className="bg-white rounded-xl shadow-lg overflow-hidden">
                     <div className="grid grid-cols-12 gap-4 font-bold text-sm bg-blue-50 py-4 px-8 border-b-2 border-gray-200">
                         <div className="col-span-4">タスク名</div>
-                        <div className="col-span-1 text-center flex">
-                            <p>主担当</p>
-                            <WbsFilter
-                                calcedRoot={calcedRoot}
-                                prop="assignee"
-                                filterMap={filterMap}
-                                setFilterMap={setFilterMap}
-                            />
-                        </div>
-                        <div className="col-span-1 text-center flex relative group">
-                            <p>ステータス</p>
-                            <WbsFilter
-                                calcedRoot={calcedRoot}
-                                prop="status"
-                                filterMap={filterMap}
-                                setFilterMap={setFilterMap}
-                            />
-                        </div>
-                        <div className="col-span-1 text-right">工数</div>
+                        <div className="col-span-1 text-right">主担当</div>
+                        <div className="col-span-1 text-right">ステータス</div>
+                        <div className="col-span-1 text-right">予定工数</div>
                         <div className="col-span-1 text-right">バッファ</div>
                         <div className="col-span-1 text-right">バッファ込み</div>
                         <div className="col-span-1 text-right">小計</div>
@@ -287,6 +282,21 @@ const WbsLayout = ({
                 </div>
             </div>
             <WbsNoteModal node={noteNode} updateNode={updateNode} onClose={closeNote} />
+            {!hiddenColumnFilterModal && (
+                <ColumnFilterModal
+                    hiddenColumnSet={hiddenColumnSet}
+                    setHiddenColumnSet={setHiddenColumnSet}
+                    onClose={() => setHiddenColumnModal(true)}
+                />
+            )}
+            {!hiddenItenFilterModal && (
+                <ItemFilterModal
+                    node={calcedRoot}
+                    filterMap={filterMap}
+                    setFilterMap={setFilterMap}
+                    onClose={() => setHiddenItemModal(true)}
+                />
+            )}
         </div>
     );
 };
