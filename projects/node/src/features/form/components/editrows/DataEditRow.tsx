@@ -8,7 +8,7 @@ const DataEditRow = ({
     children,
 }: Props) => {
     return (
-        <div className="flex w-full">
+        <div className="flex items-center w-full">
             <p className="w-2/5 text-sm">{lable}</p>
             <div className="w-3/5">
                 {children}
