@@ -197,14 +197,14 @@ const WbsLayout = ({
                 onClickDownload={handleClickDownload}
             />
             <div className="flex items-center max-w-7xl w-full mx-auto px-12 py-1 gap-4">
-                <div className="flex items-center gap-1">
+                {/* <div className="flex items-center gap-1">
                     <PlusCircle className="size-4" />
                     <span>追加</span>
                 </div>
                 <div className="flex items-center gap-1">
                     <CircleX className="size-4" />
                     <span>削除</span>
-                </div>
+                </div> */}
                 <button
                     className="flex items-center gap-1 cursor-pointer"
                     onClick={() => setHiddenColumnModal(false)}
@@ -246,7 +246,7 @@ const WbsLayout = ({
                 </button>
             </div>
             <div className="flex-1 flex flex-col max-w-7xl w-full mx-auto overflow-hidden px-4">
-                <div className="flex-1 bg-white rounded-xl shadow-lg overflow-auto">
+                <div className="bg-white rounded-xl shadow-lg overflow-auto">
                     <div className="sticky top-0 flex gap-4 font-bold text-sm bg-blue-50 py-4 px-8 border-b-2 border-gray-200">
                         <div className="flex-4">タスク名</div>
                         {!hiddenColumnSet.has("assignee") && (
