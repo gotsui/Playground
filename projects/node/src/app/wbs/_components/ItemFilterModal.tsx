@@ -7,14 +7,14 @@ import { TaskNode, WbsFilterKey, WbsFilterMap } from "../_lib/types";
 import { Filter } from "lucide-react";
 
 type Props = {
-    node: TaskNode;
+    rootNode: TaskNode;
     filterMap: WbsFilterMap;
     setFilterMap: React.Dispatch<React.SetStateAction<WbsFilterMap>>;
     onClose: () => void;
 };
 
 const ItemFilterModal = ({
-    node,
+    rootNode,
     filterMap,
     setFilterMap,
     onClose,
@@ -39,7 +39,7 @@ const ItemFilterModal = ({
         return propSet;
     };
 
-    const propAllSet = createPropertySet(node);
+    const propAllSet = createPropertySet(rootNode);
 
     const handleChangeFilterAll = () => {
         setHiddenSet((prev) => prev.size === 0 ? propAllSet : new Set());

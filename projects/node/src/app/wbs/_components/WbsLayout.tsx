@@ -186,7 +186,7 @@ const WbsLayout = ({
     };
 
     return (
-        <div className="h-screen bg-gray-100 overflow-auto">
+        <div className="size-full flex flex-col bg-gray-100 pb-4">
             <WbsHeader
                 name={calcedRoot.name}
                 ccpmMode={ccpmMode}
@@ -196,7 +196,7 @@ const WbsLayout = ({
                 onClickSave={wbsId ? () => handleClickUpdate(wbsId) : handleClickSave}
                 onClickDownload={handleClickDownload}
             />
-            <div className="flex items-center max-w-7xl mx-auto px-8 py-1 gap-4">
+            <div className="flex items-center max-w-7xl w-full mx-auto px-12 py-1 gap-4">
                 <div className="flex items-center gap-1">
                     <PlusCircle className="size-4" />
                     <span>追加</span>
@@ -245,9 +245,9 @@ const WbsLayout = ({
                     <span>展開</span>
                 </button>
             </div>
-            <div className="max-w-7xl mx-auto">
-                <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-                    <div className="flex gap-4 font-bold text-sm bg-blue-50 py-4 px-8 border-b-2 border-gray-200">
+            <div className="flex-1 flex flex-col max-w-7xl w-full mx-auto overflow-hidden px-4">
+                <div className="flex-1 bg-white rounded-xl shadow-lg overflow-auto">
+                    <div className="sticky top-0 flex gap-4 font-bold text-sm bg-blue-50 py-4 px-8 border-b-2 border-gray-200">
                         <div className="flex-4">タスク名</div>
                         {!hiddenColumnSet.has("assignee") && (
                             <div className="flex-1 text-right">主担当</div>
@@ -307,7 +307,7 @@ const WbsLayout = ({
             )}
             {!hiddenItenFilterModal && (
                 <ItemFilterModal
-                    node={calcedRoot}
+                    rootNode={calcedRoot}
                     filterMap={filterMap}
                     setFilterMap={setFilterMap}
                     onClose={() => setHiddenItemModal(true)}

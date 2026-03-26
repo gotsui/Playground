@@ -21,7 +21,7 @@ const WbsHeader = ({
     onClickDownload,
 }: Props) => {
     return (
-        <div className="bg-white shadow-sm border-b sticky top-0 z-20">
+        <div className="bg-white shadow-sm border-b">
             <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
                 <div className="flex items-center gap-4">
                     <Link href={"/wbs"}>

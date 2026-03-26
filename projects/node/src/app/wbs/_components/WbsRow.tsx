@@ -228,7 +228,7 @@ const WbsRow = ({
                         )}
                         {!hiddenColumnSet.has("status") && (
                             <div className="flex-1 text-right">
-                                <span className={`inline-block px-1.5 py-0.5 rounded-md mr-2 ${
+                                <span className={`inline-block w-4/5 text-center px-1.5 py-0.5 rounded-md ${
                                     node.status === "完了" ? "bg-green-100 text-green-800" :
                                     node.status === "進行中" ? "bg-yellow-100 text-yellow-800" :
                                     "bg-gray-100 text-gray-600"
