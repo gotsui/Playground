@@ -8,7 +8,7 @@ import {
     Trash2,
 } from "lucide-react";
 
-import { EditingRow, TaskNode, TaskWithCalc, WbsFilterMap } from "../_lib/types";
+import { ColumnFilterKey, EditingRow, TaskNode, TaskWithCalc, WbsFilterMap } from "../_lib/types";
 
 type Props = {
     node: TaskWithCalc;
@@ -31,6 +31,7 @@ type Props = {
     handlePointerUp: (e: React.PointerEvent<HTMLDivElement>, id: string) => void;
     handlePointerMove: (e: React.PointerEvent<HTMLDivElement>, id: string) => void;
     filterMap: WbsFilterMap;
+    hiddenColumnSet: Set<ColumnFilterKey>;
 };
 
 const WbsRow = ({
@@ -54,6 +55,7 @@ const WbsRow = ({
     handlePointerUp,
     handlePointerMove,
     filterMap,
+    hiddenColumnSet,
 }: Props) => {
     const isEditing = editingId === node.id;
     const isExpanded = expanded.has(node.id);
@@ -93,7 +95,7 @@ const WbsRow = ({
         <>
             <div
                 className={[
-                    "grid grid-cols-12 gap-4 items-center py-3 px-6 border-t",
+                    "flex gap-4 items-center py-3 px-6 border-t text-sm",
                     "hover:bg-gray-50 transition-colors",
                     `${isEditing ? "bg-blue-50" : ""}`,
                     `${isDragging ? "select-none" : "select-text"}`,
@@ -104,7 +106,7 @@ const WbsRow = ({
             >
                 {isEditing ? (
                     <>
-                        <div className="col-span-4 flex items-center size-full">
+                        <div className="flex-4 flex items-center">
                             {hasChildren ? (
                                 <div
                                     className="p-1 ml-1"
@@ -120,48 +122,76 @@ const WbsRow = ({
                                 </div>
                             )}
                             <input
-                                className="size-full border rounded-md px-2 py-1"
+                                className="w-full border rounded-md px-2 py-1"
                                 value={editForm?.name || ""}
                                 onChange={(e) => updateForm({ name: e.target.value })}
                                 autoFocus
                             />
                         </div>
-                        <input
-                            className="col-span-1 border rounded-md px-2 py-1"
-                            value={editForm?.assignee || ""}
-                            onChange={(e) => updateForm({ assignee: e.target.value })}
-                        />
-                        <select
-                            className="col-span-1 size-full border rounded-md px-2 py-1"
-                            value={editForm?.status || "新規"}
-                            onChange={(e) => updateForm({ status: e.target.value })}
-                        >
-                            <option>新規</option>
-                            <option>進行中</option>
-                            <option>完了</option>
-                        </select>
-                        <input
-                            className={`col-span-1 border rounded-md px-2 py-1 text-right ${ccpmMode && isRoot ? "bg-gray-200" : ""}`}
-                            value={ccpmMode && isRoot ? "0" : editForm?.plannedEffort}
-                            disabled={ccpmMode && isRoot}
-                            onChange={(e) => updateForm({ plannedEffort: e.target.value })}
-                        />
-                        <input
-                            className="col-span-1 border rounded-md px-2 py-1 text-right"
-                            value={editForm?.buffer || ""}
-                            onChange={(e) => updateForm({ buffer: e.target.value })}
-                        />
-                        <div className="col-span-1 text-right font-bold text-green-600">
-                            {withBuffer} h
-                        </div>
-                        {hasChildren ? (
-                            <div className="col-span-1 text-right text-sm text-gray-600">
+                        {!hiddenColumnSet.has("assignee") && (
+                            <div className="flex-1">
+                                <input
+                                    className="w-full border rounded-md px-2 py-1"
+                                    value={editForm?.assignee || ""}
+                                    onChange={(e) => updateForm({ assignee: e.target.value })}
+                                />
+                            </div>
+                        )}
+                        {!hiddenColumnSet.has("status") && (
+                            <div className="flex-1">
+                                <select
+                                    className="w-full border rounded-md px-2 py-1.5"
+                                    value={editForm?.status || "新規"}
+                                    onChange={(e) => updateForm({ status: e.target.value })}
+                                >
+                                    <option>新規</option>
+                                    <option>進行中</option>
+                                    <option>完了</option>
+                                </select>
+                            </div>
+                        )}
+                        {!hiddenColumnSet.has("plannedEffort") && (
+                            <div className="flex-1">
+                                <input
+                                    className={`w-full border rounded-md px-2 py-1 text-right ${ccpmMode && isRoot ? "bg-gray-200" : ""}`}
+                                    value={ccpmMode && isRoot ? "0" : editForm?.plannedEffort}
+                                    disabled={ccpmMode && isRoot}
+                                    onChange={(e) => updateForm({ plannedEffort: e.target.value })}
+                                />
+                            </div>
+                        )}
+                        {!hiddenColumnSet.has("buffer") && (
+                            <div className="flex-1">
+                                <input
+                                    className="w-full border rounded-md px-2 py-1 text-right"
+                                    value={editForm?.buffer || ""}
+                                    onChange={(e) => updateForm({ buffer: e.target.value })}
+                                />
+                            </div>
+                        )}
+                        {!hiddenColumnSet.has("withBuffer") && (
+                            <div className="flex-1 text-right font-bold text-green-600">
+                                {withBuffer} h
+                            </div>
+                        )}
+                        {!hiddenColumnSet.has("totalWithBuffer") && hasChildren && (
+                            <div className="flex-1 text-right text-gray-600">
                                 計 {node.totalWithBuffer} h
                             </div>
-                        ) : (
-                            <div className="col-span-1" />
                         )}
-                        <div className="col-span-2 flex gap-2 justify-end">
+                        {!hiddenColumnSet.has("totalWithBuffer") && !hasChildren && (
+                            <div className="flex-1" />
+                        )}
+                        {!hiddenColumnSet.has("actualEffort") && (
+                            <div className="flex-1">
+                                <input
+                                    className="w-full border rounded-md px-2 py-1 text-right"
+                                    value={editForm?.actualEffort || ""}
+                                    onChange={(e) => updateForm({ actualEffort: e.target.value })}
+                                />
+                            </div>
+                        )}
+                        <div className="flex-2 flex gap-2 justify-end">
                             <button onClick={saveEdit} className="text-green-600 text-sm">
                                 保存
                             </button>
@@ -172,7 +202,7 @@ const WbsRow = ({
                     </>
                 ) : (
                     <>
-                        <div className="col-span-4 flex items-center">
+                        <div className="flex-4 flex items-center">
                             {hasChildren ? (
                                 <button
                                     className="p-1 ml-1"
@@ -189,37 +219,53 @@ const WbsRow = ({
                                 </div>
                             )}
                             <span className="font-medium">{node.name}</span>
-                            {/* {ccpmMode && isRoot && <span className="ml-3 text-purple-600 font-bold text-sm">[CCPMモード]</span>} */}
+                            {/* {ccpmMode && isRoot && <span className="ml-3 text-purple-600 font-bold">[CCPMモード]</span>} */}
                         </div>
-                        <div className="col-span-1 text-right">
-                            {node.assignee && <span className="text-gray-500 text-sm ml-2">({node.assignee})</span>}
-                        </div>
-                        <div className="col-span-1 text-right">
-                            <span className={`inline-block px-1.5 py-0.5 text-xs rounded-md mr-2 ${
-                                node.status === "完了" ? "bg-green-100 text-green-800" :
-                                node.status === "進行中" ? "bg-yellow-100 text-yellow-800" :
-                                "bg-gray-100 text-gray-600"
-                            }`}>
-                                {node.status}
-                            </span>
-                        </div>
-                        <div className="col-span-1 text-right">
-                            {node.plannedEffort} h
-                        </div>
-                        <div className="col-span-1 text-right">
-                            {node.buffer} h
-                        </div>
-                        <div className="col-span-1 text-right">
-                            <strong className="text-green-600">{withBuffer} h</strong>
-                        </div>
-                        {hasChildren ? (
-                            <div className="col-span-1 text-right text-sm text-gray-600">
+                        {!hiddenColumnSet.has("assignee") && (
+                            <div className="flex-1 text-right">
+                                {node.assignee && <span className="text-gray-500 ml-2">{node.assignee}</span>}
+                            </div>
+                        )}
+                        {!hiddenColumnSet.has("status") && (
+                            <div className="flex-1 text-right">
+                                <span className={`inline-block px-1.5 py-0.5 rounded-md mr-2 ${
+                                    node.status === "完了" ? "bg-green-100 text-green-800" :
+                                    node.status === "進行中" ? "bg-yellow-100 text-yellow-800" :
+                                    "bg-gray-100 text-gray-600"
+                                }`}>
+                                    {node.status}
+                                </span>
+                            </div>
+                        )}
+                        {!hiddenColumnSet.has("plannedEffort") && (
+                            <div className="flex-1 text-right">
+                                {node.plannedEffort} h
+                            </div>
+                        )}
+                        {!hiddenColumnSet.has("buffer") && (
+                            <div className="flex-1 text-right">
+                                {node.buffer} h
+                            </div>
+                        )}
+                        {!hiddenColumnSet.has("withBuffer") && (
+                            <div className="flex-1 text-right">
+                                <strong className="text-green-600">{withBuffer} h</strong>
+                            </div>
+                        )}
+                        {!hiddenColumnSet.has("totalWithBuffer") && hasChildren && (
+                            <div className="flex-1 text-right text-gray-600">
                                 計 {node.totalWithBuffer} h
                             </div>
-                        ) : (
-                            <div className="col-span-1" />
                         )}
-                        <div className="col-span-2 flex justify-end gap-4">
+                        {!hiddenColumnSet.has("totalWithBuffer") && !hasChildren && (
+                            <div className="flex-1" />
+                        )}
+                        {!hiddenColumnSet.has("actualEffort") && (
+                            <div className="flex-1 text-right">
+                                {node.actualEffort} h
+                            </div>
+                        )}
+                        <div className="flex-2 flex justify-end gap-4">
                             <button onClick={() => openNote(node)}>
                                 <StickyNote className="size-4 text-gray-500" />
                             </button>
@@ -268,6 +314,7 @@ const WbsRow = ({
                     handlePointerUp={handlePointerUp}
                     handlePointerMove={handlePointerMove}
                     filterMap={filterMap}
+                    hiddenColumnSet={hiddenColumnSet}
                 />
             ))}
         </>

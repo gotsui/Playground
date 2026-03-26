@@ -37,4 +37,7 @@ export type WbsTask = z.infer<typeof wbsTaskSchema>;
 
 export type WbsFilterKey = Exclude<keyof TaskNode, "children">;
 export type WbsFilterMap = Map<WbsFilterKey, Set<string>>;
-export type ColumnFilterKey = Exclude<keyof TaskNode, "id" | "name" | "children">;
+export type ColumnFilterKey = Exclude<keyof TaskNode, "id" | "name" | "children">
+    | "withBuffer"
+    | "totalWithBuffer"
+;

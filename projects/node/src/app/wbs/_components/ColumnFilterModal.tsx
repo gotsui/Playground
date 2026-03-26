@@ -22,8 +22,10 @@ const ColumnFilterModal = ({
         ["assignee", "主担当"],
         ["status", "ステータス"],
         ["plannedEffort", "予定工数"],
-        ["buffer", "バッファー"],
+        ["buffer", "バッファ"],
+        ["withBuffer", "バッファ込み"],
         ["actualEffort", "実績工数"],
+        ["totalWithBuffer", "小計"],
         ["notes", "備考"],
     ]);
 
@@ -98,11 +100,6 @@ const ColumnFilterModal = ({
                         </button>
                     </div>
                 </div>
-                {/* <div className="mt-6 text-right">
-                    <button className="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300" onClick={onClose}>
-                        閉じる
-                    </button>
-                </div> */}
             </div>
         </div>
     );

@@ -34,7 +34,7 @@ const WbsLayout = ({
     const [draggingId, setDraggingId] = useState("");
 
     const [hiddenColumnFilterModal, setHiddenColumnModal] = useState(true);
-    const [hiddenColumnSet, setHiddenColumnSet] = useState<Set<ColumnFilterKey>>(new Set());
+    const [hiddenColumnSet, setHiddenColumnSet] = useState<Set<ColumnFilterKey>>(new Set(["totalWithBuffer"]));
     const [hiddenItenFilterModal, setHiddenItemModal] = useState(true);
     const [filterMap, setFilterMap] = useState<WbsFilterMap>(new Map());
 
@@ -245,17 +245,32 @@ const WbsLayout = ({
                     <span>展開</span>
                 </button>
             </div>
-            <div className="max-w-7xl mx-auto mb-8">
+            <div className="max-w-7xl mx-auto">
                 <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-                    <div className="grid grid-cols-12 gap-4 font-bold text-sm bg-blue-50 py-4 px-8 border-b-2 border-gray-200">
-                        <div className="col-span-4">タスク名</div>
-                        <div className="col-span-1 text-right">主担当</div>
-                        <div className="col-span-1 text-right">ステータス</div>
-                        <div className="col-span-1 text-right">予定工数</div>
-                        <div className="col-span-1 text-right">バッファ</div>
-                        <div className="col-span-1 text-right">バッファ込み</div>
-                        <div className="col-span-1 text-right">小計</div>
-                        <div className="col-span-2 text-right" />
+                    <div className="flex gap-4 font-bold text-sm bg-blue-50 py-4 px-8 border-b-2 border-gray-200">
+                        <div className="flex-4">タスク名</div>
+                        {!hiddenColumnSet.has("assignee") && (
+                            <div className="flex-1 text-right">主担当</div>
+                        )}
+                        {!hiddenColumnSet.has("status") && (
+                            <div className="flex-1 text-right">ステータス</div>
+                        )}
+                        {!hiddenColumnSet.has("plannedEffort") && (
+                            <div className="flex-1 text-right">予定工数</div>
+                        )}
+                        {!hiddenColumnSet.has("buffer") && (
+                            <div className="flex-1 text-right">バッファ</div>
+                        )}
+                        {!hiddenColumnSet.has("withBuffer") && (
+                            <div className="flex-1 text-right">バッファ込み</div>
+                        )}
+                        {!hiddenColumnSet.has("totalWithBuffer") && (
+                            <div className="flex-1 text-right">小計</div>
+                        )}
+                        {!hiddenColumnSet.has("actualEffort") && (
+                            <div className="flex-1 text-right">実績工数</div>
+                        )}
+                        <div className="flex-2 text-right" />
                     </div>
                     <WbsRow
                         node={calcedRoot}
@@ -278,6 +293,7 @@ const WbsLayout = ({
                         handlePointerUp={handlePointerUp}
                         handlePointerMove={handlePointerMove}
                         filterMap={filterMap}
+                        hiddenColumnSet={hiddenColumnSet}
                     />
                 </div>
             </div>

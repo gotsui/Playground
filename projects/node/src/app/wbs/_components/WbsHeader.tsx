@@ -42,7 +42,7 @@ const WbsHeader = ({
                         </span>
                     </label> */}
                     <div className="text-xl font-bold text-blue-600">
-                        総工数（バッファ込み）：{totalHours}h
+                        総予定工数（バッファ込み）：{totalHours}h
                         {ccpmMode && projectBuffer !== undefined && (
                             <span className="ml-4 text-purple-600">
                                 プロジェクトバッファ：{projectBuffer}h
