@@ -53,11 +53,11 @@ const ColumnFilterModal = ({
 
     return (
         <div className="fixed inset-0 bg-gray-900/50 flex items-center justify-center z-50" onClick={onClose}>
-            <div className="bg-white rounded-lg p-8 max-w-2xl w-full max-h-2/3 overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="bg-white rounded-lg p-8 max-w-2xl w-full h-2/3 overflow-y-auto" onClick={(e) => e.stopPropagation()}>
                 <div
                     id="filter-column"
                     className={[
-                        "px-4 py-3 space-y-4 max-h-[50vh]",
+                        "flex flex-col size-full px-4 py-3 space-y-4 overflow-hidden",
                         "bg-white border border-slate-300 rounded-md shadow-sm",
                     ].join(" ")}
                 >
@@ -68,14 +68,16 @@ const ColumnFilterModal = ({
                             onChange={handleChangeFilterAll}
                         />
                     </div>
-                    {Array.from(allColumnMap.keys()).map((column) => (
-                        <Checkbox
-                            key={column}
-                            label={allColumnMap.get(column) || column}
-                            checked={!hiddenSet.has(column)}
-                            onChange={() => handleChangeFilterColumn(column)}
-                        />
-                    ))}
+                    <div className="flex-1 flex flex-col gap-2 overflow-auto">
+                        {Array.from(allColumnMap.keys()).map((column) => (
+                            <Checkbox
+                                key={column}
+                                label={allColumnMap.get(column) || column}
+                                checked={!hiddenSet.has(column)}
+                                onChange={() => handleChangeFilterColumn(column)}
+                            />
+                        ))}
+                    </div>
                     <div className="flex justify-end gap-4 border-t pt-2">
                         <button
                             className={[
