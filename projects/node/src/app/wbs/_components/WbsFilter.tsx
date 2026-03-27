@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Filter } from "lucide-react";
 
 import Checkbox from "./Checkbox";
-import { TaskNode, TaskWithCalc, WbsFilterKey, WbsFilterMap } from "../_lib/types";
+import type { TaskNode, TaskWithCalc, WbsFilterKey, WbsFilterMap } from "../_lib/types";
 
 type Props = {
     calcedRoot: TaskWithCalc;
@@ -101,6 +101,7 @@ const WbsFilter = ({
                 ))}
                 <div className="flex justify-end gap-4 border-t pt-2">
                     <button
+                        type="button"
                         className={[
                             "p-1 bg-blue-500 text-white text-xs rounded-md",
                             "hover:bg-blue-600",

@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ChevronDown, ChevronUp, CircleX, Eye, ListFilter, PlusCircle } from "lucide-react";
+import { ChevronDown, ChevronUp, Eye, ListFilter } from "lucide-react";
 
-import WbsFilter from "./WbsFilter";
+import ColumnFilterModal from "./ColumnFilterModal";
+import ItemFilterModal from "./ItemFilterModal";
 import WbsHeader from "./WbsHeader";
 import WbsNoteModal from "./WbsNoteModal";
 import WbsRow from "./WbsRow";
@@ -13,11 +14,9 @@ import {
     idSchema,
     taskNodeSchema,
 } from "../_lib/schema";
-import { ColumnFilterKey, TaskNode, WbsFilterMap } from "../_lib/types";
+import type { ColumnFilterKey, TaskNode, WbsFilterMap } from "../_lib/types";
 import { depthFirstSearch, hasDifference } from "../_lib/utils";
 import "../style.css";
-import ColumnFilterModal from "./ColumnFilterModal";
-import ItemFilterModal from "./ItemFilterModal";
 
 type Props = {
     initialTaskNode: TaskNode;
@@ -59,7 +58,7 @@ const WbsLayout = ({
         updateNode,
     } = useWbs(initialTaskNode);
 
-    const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>, id: string) => {
+    const handlePointerDown = (_e: React.PointerEvent<HTMLDivElement>, id: string) => {
         setDraggingId(id);
     };
 
@@ -84,12 +83,12 @@ const WbsLayout = ({
         setDraggingId("");
     };
 
-    const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>, id: string) => {
+    const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>, _id: string) => {
         if (!draggingId) return;
 
         e.stopPropagation();
-        const rect = e.currentTarget.getBoundingClientRect();
-        const relativeY = e.clientY - rect.top;
+        // const rect = e.currentTarget.getBoundingClientRect();
+        // const relativeY = e.clientY - rect.top;
 
         // if (relativeY < rect.height / 4) {
         //     e.currentTarget.style.backgroundColor = "red";
@@ -197,15 +196,8 @@ const WbsLayout = ({
                 onClickDownload={handleClickDownload}
             />
             <div className="flex items-center max-w-7xl w-full mx-auto px-12 py-1 gap-4">
-                {/* <div className="flex items-center gap-1">
-                    <PlusCircle className="size-4" />
-                    <span>追加</span>
-                </div>
-                <div className="flex items-center gap-1">
-                    <CircleX className="size-4" />
-                    <span>削除</span>
-                </div> */}
                 <button
+                    type="button"
                     className="flex items-center gap-1 cursor-pointer"
                     onClick={() => setHiddenColumnModal(false)}
                 >
@@ -213,6 +205,7 @@ const WbsLayout = ({
                     <span>表示</span>
                 </button>
                 <button
+                    type="button"
                     className="flex items-center gap-1 cursor-pointer"
                     onClick={() => setHiddenItemModal(false)}
                 >
@@ -220,6 +213,7 @@ const WbsLayout = ({
                     <span>フィルター</span>
                 </button>
                 <button
+                    type="button"
                     className="flex items-center gap-1 cursor-pointer"
                     onClick={() => {
                         expanded.forEach((id) => {
@@ -232,6 +226,7 @@ const WbsLayout = ({
                     <span>折りたたみ</span>
                 </button>
                 <button
+                    type="button"
                     className="flex items-center gap-1 cursor-pointer"
                     onClick={() => {
                         for (const node of depthFirstSearch(calcedRoot)) {
@@ -288,7 +283,7 @@ const WbsLayout = ({
                         addChild={addChild}
                         deleteNode={deleteNode}
                         openNote={openNote}
-                        isDragging={draggingId != ""}
+                        isDragging={draggingId !== ""}
                         handlePointerDown={handlePointerDown}
                         handlePointerUp={handlePointerUp}
                         handlePointerMove={handlePointerMove}
@@ -297,7 +292,9 @@ const WbsLayout = ({
                     />
                 </div>
             </div>
-            <WbsNoteModal node={noteNode} updateNode={updateNode} onClose={closeNote} />
+            {noteNode && (
+                <WbsNoteModal node={noteNode} updateNode={updateNode} onClose={closeNote} />
+            )}
             {!hiddenColumnFilterModal && (
                 <ColumnFilterModal
                     hiddenColumnSet={hiddenColumnSet}

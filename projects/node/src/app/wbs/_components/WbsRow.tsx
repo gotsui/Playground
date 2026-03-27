@@ -8,7 +8,7 @@ import {
     Trash2,
 } from "lucide-react";
 
-import { ColumnFilterKey, EditingRow, TaskNode, TaskWithCalc, WbsFilterMap } from "../_lib/types";
+import type { ColumnFilterKey, EditingRow, TaskNode, TaskWithCalc, WbsFilterMap } from "../_lib/types";
 
 type Props = {
     node: TaskWithCalc;
@@ -93,6 +93,7 @@ const WbsRow = ({
 
     return (
         <>
+            {/* biome-ignore lint/a11y/noStaticElementInteractions: ドラッグ操作による機能のため */}
             <div
                 className={[
                     "flex gap-4 items-center py-3 px-6 border-t text-sm",
@@ -125,7 +126,6 @@ const WbsRow = ({
                                 className="w-full border rounded-md px-2 py-1"
                                 value={editForm?.name || ""}
                                 onChange={(e) => updateForm({ name: e.target.value })}
-                                autoFocus
                             />
                         </div>
                         {!hiddenColumnSet.has("assignee") && (
@@ -192,10 +192,10 @@ const WbsRow = ({
                             </div>
                         )}
                         <div className="flex-2 flex gap-2 justify-end">
-                            <button onClick={saveEdit} className="text-green-600 text-sm">
+                            <button type="button" onClick={saveEdit} className="text-green-600 text-sm">
                                 保存
                             </button>
-                            <button onClick={cancelEdit} className="text-gray-500 text-sm">
+                            <button type="button" onClick={cancelEdit} className="text-gray-500 text-sm">
                                 キャンセル
                             </button>
                         </div>
@@ -205,7 +205,8 @@ const WbsRow = ({
                         <div className="flex-4 flex items-center">
                             {hasChildren ? (
                                 <button
-                                    className="p-1 ml-1"
+                                    type="button"
+                                    className="p-1 ml-1 cursor-pointer"
                                     onClick={() => toggleExpand(node.id)}
                                     style={{ paddingLeft: `${paddingLeft}px` }}
                                 >
@@ -219,7 +220,6 @@ const WbsRow = ({
                                 </div>
                             )}
                             <span className="font-medium">{node.name}</span>
-                            {/* {ccpmMode && isRoot && <span className="ml-3 text-purple-600 font-bold">[CCPMモード]</span>} */}
                         </div>
                         {!hiddenColumnSet.has("assignee") && (
                             <div className="flex-1 text-right">
@@ -266,20 +266,18 @@ const WbsRow = ({
                             </div>
                         )}
                         <div className="flex-2 flex justify-end gap-4">
-                            <button onClick={() => openNote(node)}>
-                                <StickyNote className="size-4 text-gray-500" />
+                            <button type="button" onClick={() => openNote(node)}>
+                                <StickyNote className="size-4 text-gray-500 cursor-pointer" />
                             </button>
-                            <button onClick={() => addChild(node.id)}>
+                            <button type="button" onClick={() => addChild(node.id)}>
                                 <Plus className="size-4 text-blue-600 cursor-pointer" />
                             </button>
                             {!isRoot && (
-                                <button onClick={() => deleteNode(node.id)}>
+                                <button type="button" onClick={() => deleteNode(node.id)}>
                                     <Trash2 className="size-4 text-red-600 cursor-pointer" />
                                 </button>
                             )}
-                            <div
-                                onPointerDown={(e) => handlePointerDown(e, node.id)}
-                            >
+                            <div onPointerDown={(e) => handlePointerDown(e, node.id)}>
                                 <Menu
                                     className={[
                                         "size-4 active:cursor-grabbing",

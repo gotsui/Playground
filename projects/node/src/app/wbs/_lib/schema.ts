@@ -1,9 +1,10 @@
 import { z } from "zod";
 
-import { TaskNode } from "./types";
+import type { TaskNode } from "./types";
 
 const dateToStringSchema = z.coerce.date().transform((date) => date.toLocaleDateString("ja-JP", { timeZone: "Asia/Tokyo" }));
-const statusSchema = z.enum(["新規", "進行中", "完了"]);
+
+export const statusSchema = z.enum(["新規", "進行中", "完了"]);
 
 export const taskNodeSchema: z.ZodType<TaskNode> = z.lazy(() =>
     z.object({

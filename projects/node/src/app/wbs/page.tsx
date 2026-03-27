@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ArrowLeft, Edit2, Plus, Trash2 } from "lucide-react";
 
 import { wbsListSchema } from "./_lib/schema";
-import { Wbs } from "./_lib/types";
+import type { Wbs } from "./_lib/types";
 
 const WbsHomePage = () => {
     const [wbsList, setWbsList] = useState<Wbs[]>([]);
@@ -82,7 +82,7 @@ const WbsHomePage = () => {
                 </Link>
             </div>
             {isLoading ? (
-                <div className="flex justify-center" aria-label="読み込み中">
+                <div className="flex justify-center">
                     <div className="animate-ping h-4 w-4 bg-blue-600 rounded-full"></div>
                 </div>
             ) : (
@@ -110,6 +110,7 @@ const WbsHomePage = () => {
                             </div>
                             <div className="col-span-3">
                                 <button
+                                    type="button"
                                     className={[
                                         "rounded-full p-1 cursor-pointer",
                                         "hover:bg-red-200",

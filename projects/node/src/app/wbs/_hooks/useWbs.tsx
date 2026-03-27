@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 
-import { taskNodeSchema } from "../_lib/schema";
-import { EditingRow, TaskNode } from "../_lib/types";
+import { statusSchema, taskNodeSchema } from "../_lib/schema";
+import type { EditingRow, TaskNode } from "../_lib/types";
 import { calcTotals, generateId } from "../_lib/utils";
 
 export const createNode = (name?: string): TaskNode => {
@@ -49,11 +49,11 @@ export const useWbs = (initialTaskNode: TaskNode) => {
     const findAndUpdate = (node: TaskNode, id: string, updates: Partial<TaskNode>): TaskNode => {
         if (node.id === id) {
             return { ...node, ...updates };
-        } else {
-            return {
-                ...node,
-                children: node.children.map((child) => findAndUpdate(child, id, updates)),
-            };
+        }
+
+        return {
+            ...node,
+            children: node.children.map((child) => findAndUpdate(child, id, updates)),
         };
     };
 
@@ -79,7 +79,7 @@ export const useWbs = (initialTaskNode: TaskNode) => {
         const updates: Partial<TaskNode> = {
             name: editForm.name,
             assignee: editForm.assignee || undefined,
-            status: editForm.status as any,
+            status: statusSchema.safeParse(editForm.status).data || undefined,
             plannedEffort: Number(editForm.plannedEffort),
             buffer: Number(editForm.buffer),
             actualEffort: Number(editForm.actualEffort),

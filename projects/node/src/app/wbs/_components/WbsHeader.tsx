@@ -14,7 +14,6 @@ type Props = {
 const WbsHeader = ({
     name,
     ccpmMode,
-    onToggleCcpm,
     totalHours,
     projectBuffer,
     onClickSave,
@@ -30,17 +29,6 @@ const WbsHeader = ({
                     <h1 className="text-2xl font-bold text-gray-800">WBS - {name}</h1>
                 </div>
                 <div className="flex items-center gap-10">
-                    {/* <label className="flex items-center gap-3 cursor-pointer select-none">
-                        <input
-                            type="checkbox"
-                            checked={ccpmMode}
-                            onChange={(e) => onToggleCcpm(e.target.checked)}
-                            className="w-6 h-6 text-purple-600"
-                        />
-                        <span className={`text-lg font-bold ${ccpmMode ? "text-purple-600" : "text-gray-500"}`}>
-                            {ccpmMode ? "CCPMモード ON" : "従来モード"}
-                        </span>
-                    </label> */}
                     <div className="text-xl font-bold text-blue-600">
                         総予定工数（バッファ込み）：{totalHours}h
                         {ccpmMode && projectBuffer !== undefined && (
@@ -49,10 +37,10 @@ const WbsHeader = ({
                             </span>
                         )}
                     </div>
-                    <button className="cursor-pointer" onClick={onClickSave}>
+                    <button type="button" className="cursor-pointer" onClick={onClickSave}>
                         <Save />
                     </button>
-                    <button className="cursor-pointer" onClick={onClickDownload}>
+                    <button type="button" className="cursor-pointer" onClick={onClickDownload}>
                         <Download />
                     </button>
                 </div>

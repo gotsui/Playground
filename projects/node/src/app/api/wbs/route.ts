@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { and, eq, isNull, max } from "drizzle-orm";
 import z from "zod";
 
 import { taskNodeSchema } from "@/app/wbs/_lib/schema";
-import { WbsTask } from "@/app/wbs/_lib/types";
+import type { WbsTask } from "@/app/wbs/_lib/types";
 import { parseWbsTasks } from "@/app/wbs/_lib/utils";
 import { db } from "@/db";
 import { wbsTaskHistories, wbsTasks } from "@/db/wbs-schema";
@@ -81,7 +81,7 @@ export const POST = async (req: NextRequest) => {
         );
     }
 
-    let parsedWbsTasks: WbsTask[] = [];
+    const parsedWbsTasks: WbsTask[] = [];
     parseWbsTasks(parsed.data.nodes, parsedWbsTasks, null, null);
 
     try {

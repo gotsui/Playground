@@ -1,4 +1,4 @@
-import { TaskNode, TaskWithCalc, WbsTask } from "./types";
+import type { TaskNode, TaskWithCalc, WbsTask } from "./types";
 
 export const generateId = () => crypto.randomUUID();
 
@@ -78,11 +78,8 @@ export function* depthFirstSearch(node: TaskNode): Generator<TaskNode> {
 }
 
 export const hasDifference = (node1: TaskNode, node2: TaskNode) => {
-    const node1List: TaskNode[] = [];
-    depthFirstSearch(node1).forEach((node) => node1List.push(node));
-
-    const node2List: TaskNode[] = [];
-    depthFirstSearch(node2).forEach((node) => node2List.push(node));
+    const node1List = [...depthFirstSearch(node1)];
+    const node2List = [...depthFirstSearch(node2)];
 
     if (node1List.length !== node2List.length) {
         return true;

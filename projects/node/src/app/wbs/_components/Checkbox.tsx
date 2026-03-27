@@ -1,10 +1,12 @@
 type CheckboxProps = {
+    id?: string;
     label: string;
     checked: boolean;
     onChange: () => void;
 };
 
 const Checkbox = ({
+    id,
     label,
     checked,
     onChange,
@@ -14,6 +16,7 @@ const Checkbox = ({
             className="flex items-center gap-1 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
         >
             <input
+                id={id}
                 type="checkbox"
                 value=""
                 className={[

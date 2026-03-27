@@ -1,11 +1,11 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
+import { eq } from "drizzle-orm";
 import z from "zod";
 
 import { fieldsSchema } from "@/features/form/schemas/field";
 import { idSchema } from "@/features/form/schemas/form";
 import { db } from "@/db";
 import { fields } from "@/db/schema";
-import { eq } from "drizzle-orm";
 
 const putSchema = z.object({
     id: idSchema,

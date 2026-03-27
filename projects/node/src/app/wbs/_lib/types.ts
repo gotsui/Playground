@@ -1,5 +1,6 @@
-import z from "zod";
-import { wbsSchema, wbsTaskSchema } from "./schema";
+import type z from "zod";
+
+import type { wbsSchema, wbsTaskSchema } from "./schema";
 
 export type Status = "新規" | "進行中" | "完了";
 
