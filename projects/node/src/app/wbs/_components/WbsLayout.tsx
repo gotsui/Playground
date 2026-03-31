@@ -4,16 +4,15 @@ import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ChevronDown, ChevronUp, Eye, ListFilter } from "lucide-react";
 
-import ColumnFilterModal from "./ColumnFilterModal";
 import ItemFilterModal from "./ItemFilterModal";
 import WbsHeader from "./WbsHeader";
 import WbsNoteModal from "./WbsNoteModal";
 import WbsRow from "./WbsRow";
+import ColumnFilter from "./modal/ColumnFilter";
+import Dialog from "./modal/Dialog";
+import { useBoolean } from "../_hooks/useBoolean";
 import { useWbs } from "../_hooks/useWbs";
-import {
-    idSchema,
-    taskNodeSchema,
-} from "../_lib/schema";
+import { idSchema, taskNodeSchema } from "../_lib/schema";
 import type { ColumnFilterKey, TaskNode, WbsFilterMap } from "../_lib/types";
 import { depthFirstSearch, hasDifference } from "../_lib/utils";
 import "../style.css";
@@ -32,10 +31,11 @@ const WbsLayout = ({
     const [savedTask, setSavedTask] = useState(initialTaskNode);
     const [draggingId, setDraggingId] = useState("");
 
-    const [hiddenColumnFilterModal, setHiddenColumnModal] = useState(true);
     const [hiddenColumnSet, setHiddenColumnSet] = useState<Set<ColumnFilterKey>>(new Set(["totalWithBuffer"]));
     const [hiddenItenFilterModal, setHiddenItemModal] = useState(true);
     const [filterMap, setFilterMap] = useState<WbsFilterMap>(new Map());
+
+    const [isOpenColumnFilter, columnFilterHandler] = useBoolean();
 
     const {
         calcedRoot,
@@ -199,11 +199,18 @@ const WbsLayout = ({
                 <button
                     type="button"
                     className="flex items-center gap-1 cursor-pointer"
-                    onClick={() => setHiddenColumnModal(false)}
+                    onClick={columnFilterHandler.setTrue}
                 >
                     <Eye className="size-4" />
                     <span>表示</span>
                 </button>
+                <Dialog isOpen={isOpenColumnFilter} close={columnFilterHandler.setFalse}>
+                    <ColumnFilter
+                        closeDialog={columnFilterHandler.setFalse}
+                        hiddenColumnSet={hiddenColumnSet}
+                        setHiddenColumnSet={setHiddenColumnSet}
+                    />
+                </Dialog>
                 <button
                     type="button"
                     className="flex items-center gap-1 cursor-pointer"
@@ -245,10 +252,10 @@ const WbsLayout = ({
                     <div className="sticky top-0 flex gap-4 font-bold text-sm bg-blue-50 py-4 px-8 border-b-2 border-gray-200">
                         <div className="flex-4">タスク名</div>
                         {!hiddenColumnSet.has("assignee") && (
-                            <div className="flex-1 text-right">主担当</div>
+                            <div className="flex-1 text-center">主担当</div>
                         )}
                         {!hiddenColumnSet.has("status") && (
-                            <div className="flex-1 text-right">ステータス</div>
+                            <div className="flex-1 text-center">ステータス</div>
                         )}
                         {!hiddenColumnSet.has("plannedEffort") && (
                             <div className="flex-1 text-right">予定工数</div>
@@ -294,13 +301,6 @@ const WbsLayout = ({
             </div>
             {noteNode && (
                 <WbsNoteModal node={noteNode} updateNode={updateNode} onClose={closeNote} />
-            )}
-            {!hiddenColumnFilterModal && (
-                <ColumnFilterModal
-                    hiddenColumnSet={hiddenColumnSet}
-                    setHiddenColumnSet={setHiddenColumnSet}
-                    onClose={() => setHiddenColumnModal(true)}
-                />
             )}
             {!hiddenItenFilterModal && (
                 <ItemFilterModal

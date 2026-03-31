@@ -222,12 +222,12 @@ const WbsRow = ({
                             <span className="font-medium">{node.name}</span>
                         </div>
                         {!hiddenColumnSet.has("assignee") && (
-                            <div className="flex-1 text-right">
+                            <div className="flex-1 text-center">
                                 {node.assignee && <span className="text-gray-500 ml-2">{node.assignee}</span>}
                             </div>
                         )}
                         {!hiddenColumnSet.has("status") && (
-                            <div className="flex-1 text-right">
+                            <div className="flex-1 text-center">
                                 <span className={`inline-block w-4/5 text-center text-nowrap py-0.5 rounded-md ${
                                     node.status === "完了" ? "bg-green-100 text-green-800" :
                                     node.status === "進行中" ? "bg-yellow-100 text-yellow-800" :
