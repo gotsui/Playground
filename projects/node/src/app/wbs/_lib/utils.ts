@@ -19,30 +19,27 @@ export const calcTotals = (node: TaskNode): TaskWithCalc => {
 /**
  * ツリー構造から隣接リストモデルに変換
  * @param node 
- * @param wbsTasks 
  * @param parentId 
  * @param logicalParentId 
+ * @returns 
  */
 export const parseWbsTasks = (
     node: TaskNode,
-    wbsTasks: WbsTask[],
     parentId: string | null,
     logicalParentId: string | null,
-) => {
-    const { id, ...nodeWithoutId } = node;
+): WbsTask[] => {
+    const { id, children, ...rest } = node;
     const physicalId = generateId();
 
-    wbsTasks.push({
-        ...nodeWithoutId,
+    const parsedChildren = children.flatMap((child) => parseWbsTasks(child, physicalId, id));
+
+    return [{
+        ...rest,
         id: physicalId,
         parentId,
         logicalId: id,
         logicalParentId,
-    });
-
-    node.children.forEach((child) => {
-        parseWbsTasks(child, wbsTasks, physicalId, id);
-    });
+    }].concat(parsedChildren);
 };
 
 export const parseTaskNode = (wbsTasks: WbsTask[]): TaskNode | null => {

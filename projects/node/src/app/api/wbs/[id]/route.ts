@@ -3,7 +3,6 @@ import { eq, sql } from "drizzle-orm";
 import z from "zod";
 
 import { taskNodeSchema } from "@/app/wbs/_lib/schema";
-import type { WbsTask } from "@/app/wbs/_lib/types";
 import { parseWbsTasks } from "@/app/wbs/_lib/utils";
 import { db } from "@/db";
 import { wbsTaskHistories, wbsTasks } from "@/db/wbs-schema";
@@ -131,8 +130,7 @@ export const POST = async (req: NextRequest, { params }: { params: { id: string 
         );
     }
 
-    const parsedWbsTasks: WbsTask[] = [];
-    parseWbsTasks(parsedBody.data.nodes, parsedWbsTasks, null, null);
+    const parsedWbsTasks = parseWbsTasks(parsedBody.data.nodes, null, null);
 
     try {
         await db.insert(wbsTaskHistories).values(parsedWbsTasks.map((task) => ({
