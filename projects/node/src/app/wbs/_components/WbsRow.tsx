@@ -104,15 +104,6 @@ const WbsRow = ({
                                 onChange={(e) => updateForm({ name: e.target.value })}
                             />
                         </div>
-                        {!hiddenColumnSet.has("assignee") && (
-                            <div className="flex-1">
-                                <input
-                                    className="w-full border rounded-md px-2 py-1"
-                                    value={editForm?.assignee || ""}
-                                    onChange={(e) => updateForm({ assignee: e.target.value })}
-                                />
-                            </div>
-                        )}
                         {!hiddenColumnSet.has("status") && (
                             <div className="flex-1">
                                 <select
@@ -167,6 +158,33 @@ const WbsRow = ({
                                 />
                             </div>
                         )}
+                        {!hiddenColumnSet.has("assignee") && (
+                            <div className="flex-1">
+                                <input
+                                    className="w-full border rounded-md px-2 py-1"
+                                    value={editForm?.assignee || ""}
+                                    onChange={(e) => updateForm({ assignee: e.target.value })}
+                                />
+                            </div>
+                        )}
+                        {!hiddenColumnSet.has("startDate") && (
+                            <div className="flex-1">
+                                <input
+                                    className="w-full border rounded-md px-2 py-1"
+                                    value={editForm?.startDate || ""}
+                                    onChange={(e) => updateForm({ startDate: e.target.value })}
+                                />
+                            </div>
+                        )}
+                        {!hiddenColumnSet.has("endDate") && (
+                            <div className="flex-1">
+                                <input
+                                    className="w-full border rounded-md px-2 py-1"
+                                    value={editForm?.endDate || ""}
+                                    onChange={(e) => updateForm({ endDate: e.target.value })}
+                                />
+                            </div>
+                        )}
                         <div className="flex-2 flex gap-2 justify-end">
                             <button type="button" onClick={saveEdit} className="text-green-600 text-sm">
                                 保存
@@ -197,11 +215,6 @@ const WbsRow = ({
                             )}
                             <span className="font-medium">{node.name}</span>
                         </div>
-                        {!hiddenColumnSet.has("assignee") && (
-                            <div className="flex-1 text-center">
-                                {node.assignee && <span className="text-gray-500 ml-2">{node.assignee}</span>}
-                            </div>
-                        )}
                         {!hiddenColumnSet.has("status") && (
                             <div className="flex-1 text-center">
                                 <span className={`inline-block w-4/5 text-center text-nowrap py-0.5 rounded-md ${
@@ -239,6 +252,39 @@ const WbsRow = ({
                         {!hiddenColumnSet.has("actualEffort") && (
                             <div className="flex-1 text-right">
                                 {node.actualEffort} h
+                            </div>
+                        )}
+                        {!hiddenColumnSet.has("assignee") && (
+                            <div className="flex-1 text-center">
+                                {node.assignee && <span className="text-gray-500 ml-2">{node.assignee}</span>}
+                            </div>
+                        )}
+                        {!hiddenColumnSet.has("startDate") && (
+                            <div className="flex-1 text-center">
+                                {node.assignee && (
+                                    <span className="text-gray-500 ml-2">
+                                        {node.startDate?.toLocaleDateString("ja-JP", {
+                                            timeZone: "Asia/Tokyo",
+                                            year: "numeric",
+                                            month: "2-digit",
+                                            day: "2-digit",
+                                        })}
+                                    </span>
+                                )}
+                            </div>
+                        )}
+                        {!hiddenColumnSet.has("endDate") && (
+                            <div className="flex-1 text-center">
+                                {node.assignee && (
+                                    <span className="text-gray-500 ml-2">
+                                        {node.endDate?.toLocaleDateString("ja-JP", {
+                                            timeZone: "Asia/Tokyo",
+                                            year: "numeric",
+                                            month: "2-digit",
+                                            day: "2-digit",
+                                        })}
+                                    </span>
+                                )}
                             </div>
                         )}
                         <div className="flex-2 flex justify-end gap-4">

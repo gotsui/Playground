@@ -19,13 +19,15 @@ const ColumnFilter = ({
     const [hiddenSet, setHiddenSet] = useState<Set<ColumnFilterKey>>(hiddenColumnSet);
 
     const allColumnMap = new Map<ColumnFilterKey, string>([
-        ["assignee", "主担当"],
         ["status", "ステータス"],
         ["plannedEffort", "予定工数"],
         ["buffer", "バッファ"],
         ["withBuffer", "バッファ込み"],
         ["actualEffort", "実績工数"],
         ["totalWithBuffer", "小計"],
+        ["assignee", "主担当"],
+        ["startDate", "開始日"],
+        ["endDate", "終了日"],
     ]);
 
     const handleChangeFilterAll = () => {

@@ -88,11 +88,13 @@ export const hasDifference = (node1: TaskNode, node2: TaskNode) => {
     const checkKeySet = new Set<keyof TaskNode>([
         "id",
         "name",
-        "assignee",
         "status",
         "plannedEffort",
         "buffer",
         "actualEffort",
+        "assignee",
+        // "startDate",
+        // "endDate",
         "notes",
     ]);
 

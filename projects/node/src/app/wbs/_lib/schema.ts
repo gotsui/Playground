@@ -6,18 +6,23 @@ const dateToStringSchema = z.coerce.date().transform((date) => date.toLocaleDate
 
 export const statusSchema = z.enum(["新規", "進行中", "完了"]);
 
+const baseNodeSchema = z.object({
+    id: z.uuidv4(),
+    name: z.string().min(1, "タスク名を入力してください"),
+    status: statusSchema,
+    plannedEffort: z.coerce.number("数値を入力してください").min(0, "マイナスの値は入力できません"),
+    buffer: z.coerce.number("数値を入力してください").min(0, "マイナスの値は入力できません"),
+    actualEffort: z.coerce.number("数値を入力してください").min(0, "マイナスの値は入力できません"),
+    assignee: z.string().optional().nullable(),
+    startDate: z.coerce.date().optional().nullable(),
+    endDate: z.coerce.date().optional().nullable(),
+    notes: z.string().optional().nullable(),
+});
+
 export const taskNodeSchema: z.ZodType<TaskNode> = z.lazy(() =>
-    z.object({
-        id: z.uuidv4(),
-        name: z.string().trim().min(1, "タスク名を入力してください"),
-        assignee: z.string().optional().nullable(),
-        status: statusSchema,
-        plannedEffort: z.coerce.number("数値を入力してください").min(0, "マイナスの値は入力できません"),
-        buffer: z.coerce.number("数値を入力してください").min(0, "マイナスの値は入力できません"),
-        actualEffort: z.coerce.number("数値を入力してください").min(0, "マイナスの値は入力できません"),
-        notes: z.string().optional().nullable(),
+    baseNodeSchema.and(z.object({
         children: z.array(taskNodeSchema),
-    })
+    }))
 );
 
 export const idSchema = z.uuidv4().nonempty();
@@ -30,18 +35,10 @@ export const wbsSchema = z.object({
 
 export const wbsListSchema = z.array(wbsSchema);
 
-export const wbsTaskSchema = z.object({
-    id: z.uuidv4(),
+export const wbsTaskSchema = baseNodeSchema.and(z.object({
     parentId: z.uuidv4().nullable(),
     logicalId: z.uuidv4(),
     logicalParentId: z.uuidv4().nullable(),
-    name: z.string().min(1, "タスク名を入力してください"),
-    assignee: z.string().optional().nullable(),
-    status: statusSchema,
-    plannedEffort: z.coerce.number().min(0),
-    buffer: z.coerce.number().min(0),
-    actualEffort: z.coerce.number().min(0),
-    notes: z.string().optional().nullable(),
-});
+}));
 
 export const wbsTasksSchema = z.array(wbsTaskSchema);

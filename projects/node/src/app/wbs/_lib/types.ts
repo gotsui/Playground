@@ -7,11 +7,13 @@ export type Status = "新規" | "進行中" | "完了";
 export type TaskNode = {
     id: string;
     name: string;
-    assignee?: string | null;
     status: Status;
     plannedEffort: number;
     buffer: number;
     actualEffort: number;
+    assignee?: string | null;
+    startDate?: Date | null;
+    endDate?: Date | null;
     notes?: string | null;
     children: TaskNode[];
 };
@@ -24,11 +26,13 @@ export type TaskWithCalc = TaskNode & {
 export type EditingRow = {
     id: string;
     name: string;
-    assignee: string;
     status: string;
     plannedEffort: string;
     buffer: string;
     actualEffort: string;
+    assignee: string;
+    startDate: string;
+    endDate: string;
     notes: string;
 };
 

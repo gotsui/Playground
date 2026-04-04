@@ -64,11 +64,23 @@ export const useWbs = (initialTaskNode: TaskNode) => {
         setEditForm({
             id: node.id,
             name: node.name,
-            assignee: node.assignee || "",
             status: node.status,
             plannedEffort: node.plannedEffort.toString(),
             buffer: node.buffer.toString(),
             actualEffort: node.actualEffort.toString(),
+            assignee: node.assignee || "",
+            startDate: node.startDate?.toLocaleDateString("ja-JP", {
+                timeZone: "Asia/Tokyo",
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+            }) || "",
+            endDate: node.endDate?.toLocaleDateString("ja-JP", {
+                timeZone: "Asia/Tokyo",
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+            }) || "",
             notes: node.notes || "",
         });
     };
@@ -78,11 +90,13 @@ export const useWbs = (initialTaskNode: TaskNode) => {
 
         const updates: Partial<TaskNode> = {
             name: editForm.name,
-            assignee: editForm.assignee || undefined,
             status: statusSchema.safeParse(editForm.status).data || undefined,
             plannedEffort: Number(editForm.plannedEffort),
             buffer: Number(editForm.buffer),
             actualEffort: Number(editForm.actualEffort),
+            assignee: editForm.assignee || undefined,
+            startDate: editForm.startDate ? new Date(editForm.startDate) : undefined,
+            endDate: editForm.endDate ? new Date(editForm.endDate) : undefined,
             notes: editForm.notes || undefined,
         };
 
