@@ -8,7 +8,7 @@ import {
     Trash2,
 } from "lucide-react";
 
-import type { ColumnFilterKey, EditingRow, TaskNode, TaskWithCalc, WbsFilterMap } from "../_lib/types";
+import type { ColumnFilterKey, EditingRow, TaskWithCalc } from "../_lib/types";
 
 type Props = {
     node: TaskWithCalc;
@@ -30,7 +30,7 @@ type Props = {
     handlePointerDown: (e: React.PointerEvent<HTMLDivElement>, id: string) => void;
     handlePointerUp: (e: React.PointerEvent<HTMLDivElement>, id: string) => void;
     handlePointerMove: (e: React.PointerEvent<HTMLDivElement>, id: string) => void;
-    filterMap: WbsFilterMap;
+    hiddenNodeIdSet: Set<string>;
     hiddenColumnSet: Set<ColumnFilterKey>;
 };
 
@@ -54,42 +54,18 @@ const WbsRow = ({
     handlePointerDown,
     handlePointerUp,
     handlePointerMove,
-    filterMap,
+    hiddenNodeIdSet,
     hiddenColumnSet,
 }: Props) => {
+    if (hiddenNodeIdSet.has(node.id)) {
+        return null;
+    }
+
     const isEditing = editingId === node.id;
     const isExpanded = expanded.has(node.id);
     const hasChildren = node.children.length > 0;
     const withBuffer = node.plannedEffort + node.buffer;
     const paddingLeft = depth * 24;
-
-    const isFiltered = (node: TaskNode, filterMap: WbsFilterMap) => {
-        for (const [key, value] of filterMap.entries()) {
-            if (value.has(node[key]?.toString() || "")) {
-                return true;
-            }
-        }
-
-        return false;
-    };
-
-    const isHidden = (node: TaskNode, filterMap: WbsFilterMap) => {
-        if (!isFiltered(node, filterMap)) {
-            return false;
-        }
-
-        for (const child of node.children) {
-            if (!isHidden(child, filterMap)) {
-                return false;
-            }
-        }
-
-        return true;
-    };
-
-    if (isHidden(node, filterMap)) {
-        return null;
-    }
 
     return (
         <>
@@ -266,8 +242,17 @@ const WbsRow = ({
                             </div>
                         )}
                         <div className="flex-2 flex justify-end gap-4">
-                            <button type="button" onClick={() => openNote(node)}>
+                            <button type="button" className="relative" onClick={() => openNote(node)}>
                                 <StickyNote className="size-4 text-gray-500 cursor-pointer" />
+                                {node.notes && (
+                                    <span
+                                        className={[
+                                            "top-[-3] start-2.5 absolute w-2.5 h-2.5",
+                                            "bg-green-500 border-2 border-white rounded-full",
+                                            "dark:border-gray-800",
+                                        ].join(" ")}
+                                    />
+                                )}
                             </button>
                             <button type="button" onClick={() => addChild(node.id)}>
                                 <Plus className="size-4 text-blue-600 cursor-pointer" />
@@ -311,7 +296,7 @@ const WbsRow = ({
                     handlePointerDown={handlePointerDown}
                     handlePointerUp={handlePointerUp}
                     handlePointerMove={handlePointerMove}
-                    filterMap={filterMap}
+                    hiddenNodeIdSet={hiddenNodeIdSet}
                     hiddenColumnSet={hiddenColumnSet}
                 />
             ))}

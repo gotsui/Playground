@@ -113,3 +113,31 @@ export const hasDifference = (node1: TaskNode, node2: TaskNode) => {
 
     return false;
 };
+
+export const filterNode = (
+    node: TaskNode,
+    predicate: (node: TaskNode) => boolean,
+    ignoreChildren: boolean = false,
+): TaskNode | undefined => {
+    if (ignoreChildren) {
+        if (!predicate(node)) {
+            return undefined;
+        }
+
+        const filteredChildren = node.children
+            .map((child) => filterNode(child, predicate, ignoreChildren))
+            .flatMap((n) => n ? n : []);
+
+        return { ...node, children: filteredChildren };
+    } else {
+        const filteredChildren = node.children
+            .map((child) => filterNode(child, predicate, ignoreChildren))
+            .flatMap((n) => n ? n : []);
+
+        if (filteredChildren.length === 0 && !predicate(node)) {
+            return undefined;
+        }
+
+        return { ...node, children: filteredChildren };
+    }
+};

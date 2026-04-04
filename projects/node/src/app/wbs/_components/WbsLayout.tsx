@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ChevronDown, ChevronUp, Eye, ListFilter } from "lucide-react";
 
@@ -14,8 +14,8 @@ import { useBoolean } from "../_hooks/useBoolean";
 import { useWbs } from "../_hooks/useWbs";
 import { idSchema, taskNodeSchema } from "../_lib/schema";
 import type { ColumnFilterKey, TaskNode, WbsFilterMap } from "../_lib/types";
-import { depthFirstSearch, hasDifference } from "../_lib/utils";
-import "../style.css";
+import { depthFirstSearch, filterNode, hasDifference } from "../_lib/utils";
+import ItemFilter from "./modal/ItemFilter";
 
 type Props = {
     initialTaskNode: TaskNode;
@@ -32,10 +32,10 @@ const WbsLayout = ({
     const [draggingId, setDraggingId] = useState("");
 
     const [hiddenColumnSet, setHiddenColumnSet] = useState<Set<ColumnFilterKey>>(new Set(["totalWithBuffer"]));
-    const [hiddenItenFilterModal, setHiddenItemModal] = useState(true);
     const [filterMap, setFilterMap] = useState<WbsFilterMap>(new Map());
 
     const [isOpenColumnFilter, columnFilterHandler] = useBoolean();
+    const [isOpenItemFilter, itemFilterHandler] = useBoolean();
 
     const {
         calcedRoot,
@@ -57,6 +57,33 @@ const WbsLayout = ({
         moveNode,
         updateNode,
     } = useWbs(initialTaskNode);
+
+    const isShownNode = useCallback(
+        (node: TaskNode) => {
+            for (const [key, value] of filterMap.entries()) {
+                if (value.has(node[key]?.toString() || "")) {
+                    return false;
+                }
+            }
+
+            return true;
+        },
+        [filterMap],
+    );
+
+    // biome-ignore lint/correctness/useExhaustiveDependencies: フィルターが変更されるまで更新したくないためcalcedRootは依存配列に含めない
+    const hiddenNodeIdSet: Set<string> = useMemo(
+        () => {
+            const filtered = filterNode(calcedRoot, isShownNode);
+            const filteredNodeIdSet: Set<string> = filtered
+                ? new Set([...depthFirstSearch(filtered)].map((node) => node.id))
+                : new Set();
+            const allNodeIdSet = new Set([...depthFirstSearch(calcedRoot)].map((node) => node.id));
+            const diffSet = allNodeIdSet.difference(filteredNodeIdSet);
+            return diffSet;
+        },
+        [isShownNode],
+    );
 
     const handlePointerDown = (_e: React.PointerEvent<HTMLDivElement>, id: string) => {
         setDraggingId(id);
@@ -214,11 +241,19 @@ const WbsLayout = ({
                 <button
                     type="button"
                     className="flex items-center gap-1 cursor-pointer"
-                    onClick={() => setHiddenItemModal(false)}
+                    onClick={itemFilterHandler.setTrue}
                 >
                     <ListFilter className="size-4" />
                     <span>フィルター</span>
                 </button>
+                <Dialog isOpen={isOpenItemFilter} close={itemFilterHandler.setFalse}>
+                    <ItemFilter
+                        key={String(isOpenItemFilter)}
+                        rootNode={calcedRoot}
+                        filterMap={filterMap}
+                        setFilterMap={setFilterMap}
+                    />
+                </Dialog>
                 <button
                     type="button"
                     className="flex items-center gap-1 cursor-pointer"
@@ -294,21 +329,13 @@ const WbsLayout = ({
                         handlePointerDown={handlePointerDown}
                         handlePointerUp={handlePointerUp}
                         handlePointerMove={handlePointerMove}
-                        filterMap={filterMap}
+                        hiddenNodeIdSet={hiddenNodeIdSet}
                         hiddenColumnSet={hiddenColumnSet}
                     />
                 </div>
             </div>
             {noteNode && (
                 <WbsNoteModal node={noteNode} updateNode={updateNode} onClose={closeNote} />
-            )}
-            {!hiddenItenFilterModal && (
-                <ItemFilterModal
-                    rootNode={calcedRoot}
-                    filterMap={filterMap}
-                    setFilterMap={setFilterMap}
-                    onClose={() => setHiddenItemModal(true)}
-                />
             )}
         </div>
     );
