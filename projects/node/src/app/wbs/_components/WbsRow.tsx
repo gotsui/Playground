@@ -168,24 +168,26 @@ const WbsRow = ({
                             </div>
                         )}
                         {!hiddenColumnSet.has("startDate") && (
-                            <div className="flex-1">
+                            <div className="flex-2 min-w-0">
                                 <input
-                                    className="w-full border rounded-md px-2 py-1"
+                                    type="date"
+                                    className="min-w-0 size-full border rounded-md px-2 py-1"
                                     value={editForm?.startDate || ""}
                                     onChange={(e) => updateForm({ startDate: e.target.value })}
                                 />
                             </div>
                         )}
                         {!hiddenColumnSet.has("endDate") && (
-                            <div className="flex-1">
+                            <div className="flex-2 min-w-0">
                                 <input
-                                    className="w-full border rounded-md px-2 py-1"
+                                    type="date"
+                                    className="min-w-0 size-full border rounded-md px-2 py-1"
                                     value={editForm?.endDate || ""}
                                     onChange={(e) => updateForm({ endDate: e.target.value })}
                                 />
                             </div>
                         )}
-                        <div className="flex-2 flex gap-2 justify-end">
+                        <div className="flex-2 flex gap-2 justify-end select-none">
                             <button type="button" onClick={saveEdit} className="text-green-600 text-sm">
                                 保存
                             </button>
@@ -260,8 +262,8 @@ const WbsRow = ({
                             </div>
                         )}
                         {!hiddenColumnSet.has("startDate") && (
-                            <div className="flex-1 text-center">
-                                {node.assignee && (
+                            <div className="flex-2 text-center">
+                                {node.startDate && (
                                     <span className="text-gray-500 ml-2">
                                         {node.startDate?.toLocaleDateString("ja-JP", {
                                             timeZone: "Asia/Tokyo",
@@ -274,8 +276,8 @@ const WbsRow = ({
                             </div>
                         )}
                         {!hiddenColumnSet.has("endDate") && (
-                            <div className="flex-1 text-center">
-                                {node.assignee && (
+                            <div className="flex-2 text-center">
+                                {node.endDate && (
                                     <span className="text-gray-500 ml-2">
                                         {node.endDate?.toLocaleDateString("ja-JP", {
                                             timeZone: "Asia/Tokyo",
@@ -287,7 +289,7 @@ const WbsRow = ({
                                 )}
                             </div>
                         )}
-                        <div className="flex-2 flex justify-end gap-4">
+                        <div className="flex-2 flex justify-end lg:gap-4 gap-2">
                             <button type="button" className="relative" onClick={() => openNote(node)}>
                                 <StickyNote className="size-4 text-gray-500 cursor-pointer" />
                                 {node.notes && (

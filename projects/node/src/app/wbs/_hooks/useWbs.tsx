@@ -61,6 +61,7 @@ export const useWbs = (initialTaskNode: TaskNode) => {
         if (editingId || editForm) return;
 
         setEditingId(node.id);
+        // <input type="date">はYYYY-MM-DD形式以外無効のためsv-SEを指定
         setEditForm({
             id: node.id,
             name: node.name,
@@ -69,13 +70,13 @@ export const useWbs = (initialTaskNode: TaskNode) => {
             buffer: node.buffer.toString(),
             actualEffort: node.actualEffort.toString(),
             assignee: node.assignee || "",
-            startDate: node.startDate?.toLocaleDateString("ja-JP", {
+            startDate: node.startDate?.toLocaleDateString("sv-SE", {
                 timeZone: "Asia/Tokyo",
                 year: "numeric",
                 month: "2-digit",
                 day: "2-digit",
             }) || "",
-            endDate: node.endDate?.toLocaleDateString("ja-JP", {
+            endDate: node.endDate?.toLocaleDateString("sv-SE", {
                 timeZone: "Asia/Tokyo",
                 year: "numeric",
                 month: "2-digit",
