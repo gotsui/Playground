@@ -65,11 +65,13 @@ export const GET = async (_: NextRequest, { params }: { params: { id: string } }
                 logical_id as "logicalId",
                 logical_parent_id as "logicalParentId",
                 name,
-                assignee,
                 status,
                 planned_effort as "plannedEffort",
                 buffer,
                 actual_effort as "actualEffort",
+                assignee,
+                start_date as "startDate",
+                end_date as "endDate",
                 notes
             FROM
                 tmp

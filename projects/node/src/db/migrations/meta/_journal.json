@@ -43,6 +43,13 @@
       "when": 1773850500233,
       "tag": "0005_long_loki",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1775307251589,
+      "tag": "0006_swift_skrulls",
+      "breakpoints": true
     }
   ]
 }

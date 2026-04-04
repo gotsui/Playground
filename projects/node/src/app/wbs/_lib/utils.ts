@@ -93,8 +93,8 @@ export const hasDifference = (node1: TaskNode, node2: TaskNode) => {
         "buffer",
         "actualEffort",
         "assignee",
-        // "startDate",
-        // "endDate",
+        "startDate",
+        "endDate",
         "notes",
     ]);
 
@@ -105,6 +105,14 @@ export const hasDifference = (node1: TaskNode, node2: TaskNode) => {
 
             if (!node1Value && !node2Value) {
                 continue;
+            }
+
+            if (node1Value instanceof Date && node2Value instanceof Date) {
+                if (node1Value.getTime() === node1Value.getTime()) {
+                    continue;
+                } else {
+                    return true;
+                }
             }
 
             if (node1Value !== node2Value) {
