@@ -4,7 +4,6 @@ import { useCallback, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ChevronDown, ChevronUp, Eye, ListFilter } from "lucide-react";
 
-import ItemFilterModal from "./ItemFilterModal";
 import WbsHeader from "./WbsHeader";
 import WbsNoteModal from "./WbsNoteModal";
 import WbsRow from "./WbsRow";
