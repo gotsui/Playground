@@ -74,6 +74,27 @@ export function* depthFirstSearch(node: TaskNode): Generator<TaskNode> {
     }
 }
 
+export function* breadthFirstSearch(node: TaskNode): Generator<TaskNode> {
+    const queue: TaskNode[] = [];
+    const explored = new Set<string>();
+    explored.add(node.id);
+    queue.push(node);
+
+    while (queue.length > 0) {
+        const dequeued = queue.shift();
+        if (!dequeued) continue;
+
+        yield dequeued;
+
+        for (const child of dequeued.children) {
+            if (!explored.has(child.id)) {
+                explored.add(child.id);
+                queue.push(child);
+            }
+        }
+    }
+};
+
 export const hasDifference = (node1: TaskNode, node2: TaskNode) => {
     const node1List = [...depthFirstSearch(node1)];
     const node2List = [...depthFirstSearch(node2)];
