@@ -9,12 +9,19 @@ import WbsNoteModal from "./WbsNoteModal";
 import WbsRow from "./WbsRow";
 import ColumnFilter from "./modal/ColumnFilter";
 import Dialog from "./modal/Dialog";
+import ItemFilter from "./modal/ItemFilter";
 import { useBoolean } from "../_hooks/useBoolean";
 import { useWbs } from "../_hooks/useWbs";
 import { idSchema, taskNodeSchema } from "../_lib/schema";
 import type { ColumnFilterKey, TaskNode, WbsFilterMap } from "../_lib/types";
 import { depthFirstSearch, filterNode, hasDifference } from "../_lib/utils";
-import ItemFilter from "./modal/ItemFilter";
+
+type SSS = {
+    top: number;
+    left: number;
+    width: number;
+    height: number;
+};
 
 type Props = {
     initialTaskNode: TaskNode;
@@ -35,6 +42,8 @@ const WbsLayout = ({
 
     const [isOpenColumnFilter, columnFilterHandler] = useBoolean();
     const [isOpenItemFilter, itemFilterHandler] = useBoolean();
+
+    const [rect, setRect] = useState<SSS | null>(null);
 
     const {
         calcedRoot,
@@ -91,6 +100,7 @@ const WbsLayout = ({
     const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>, id: string) => {
         if (!draggingId || id === draggingId) {
             setDraggingId("");
+            setRect(null);
             return;
         }
 
@@ -107,26 +117,48 @@ const WbsLayout = ({
         }
 
         setDraggingId("");
+        setRect(null);
     };
 
-    const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>, _id: string) => {
-        if (!draggingId) return;
+    const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>, id: string) => {
+        if (!draggingId || id === draggingId) {
+            setRect(null);
+            return
+        };
 
         e.stopPropagation();
-        // const rect = e.currentTarget.getBoundingClientRect();
-        // const relativeY = e.clientY - rect.top;
+        const rect = e.currentTarget.getBoundingClientRect();
+        const relativeY = e.clientY - rect.top;
 
-        // if (relativeY < rect.height / 4) {
-        //     e.currentTarget.style.backgroundColor = "red";
-        // } else if (relativeY < rect.height * 3 / 4) {
-        //     if (id === draggingId) {
-        //         e.currentTarget.style.backgroundColor = "";
-        //     } else {
-        //         e.currentTarget.style.backgroundColor = "yellow";
-        //     }
-        // } else {
-        //     e.currentTarget.style.backgroundColor = "blue";
-        // }
+        if (id === calcedRoot.id) {
+            setRect({
+                top: rect.top,
+                left: rect.left,
+                width: rect.width,
+                height: rect.height,
+            });
+        }else if (relativeY < rect.height / 3) {
+            setRect({
+                top: rect.top,
+                left: rect.left,
+                width: rect.width,
+                height: rect.height / 3,
+            });
+        } else if (relativeY < rect.height * 2 / 3) {
+            setRect({
+                top: rect.top + rect.height / 3,
+                left: rect.left,
+                width: rect.width,
+                height: rect.height / 3,
+            });
+        } else {
+            setRect({
+                top: rect.top + rect.height * 2 / 3,
+                left: rect.left,
+                width: rect.width,
+                height: rect.height / 3,
+            });
+        }
     }
 
     const handleClickSave = async () => {
@@ -342,6 +374,10 @@ const WbsLayout = ({
             {noteNode && (
                 <WbsNoteModal node={noteNode} updateNode={updateNode} onClose={closeNote} />
             )}
+            <div
+                className="fixed bg-blue-300/50 pointer-events-none"
+                style={{ ...rect }}
+            />
         </div>
     );
 };
