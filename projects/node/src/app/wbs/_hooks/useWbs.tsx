@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import { statusSchema, taskNodeSchema } from "../_lib/schema";
 import type { EditingRow, TaskNode } from "../_lib/types";
-import { calcTotals, generateId } from "../_lib/utils";
+import { calcTotals, depthFirstSearch, generateId } from "../_lib/utils";
 
 export const createNode = (name?: string): TaskNode => {
     return {
@@ -21,7 +21,7 @@ export const createNode = (name?: string): TaskNode => {
 export const useWbs = (initialTaskNode: TaskNode) => {
     const [wbs, setWbs] = useState<TaskNode>(initialTaskNode);
     const [ccpmMode, setCcpmMode] = useState(false);
-    const [expanded, setExpanded] = useState<Set<string>>(new Set([initialTaskNode.id]));
+    const [expanded, setExpanded] = useState<Set<string>>(new Set([...depthFirstSearch(initialTaskNode)].map((node) => node.id)));
     const [editingId, setEditingId] = useState<string | null>(null);
     const [editForm, setEditForm] = useState<EditingRow | null>(null);
     const [noteNode, setNoteNode] = useState<TaskNode | null>(null);
