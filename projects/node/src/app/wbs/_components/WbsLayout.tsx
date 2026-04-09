@@ -256,11 +256,20 @@ const WbsLayout = ({
             <div className="flex items-center max-w-7xl w-full mx-auto px-12 py-1 gap-4">
                 <button
                     type="button"
-                    className="flex items-center gap-1 cursor-pointer"
+                    className="relative flex items-center gap-1 cursor-pointer"
                     onClick={columnFilterHandler.setTrue}
                 >
                     <Eye className="size-4" />
                     <span>表示</span>
+                    {hiddenColumnSet.size > 0 && (
+                        <span
+                            className={[
+                                "top-0 start-2.5 absolute w-2.5 h-2.5",
+                                "bg-green-500 border-2 border-white rounded-full",
+                                "dark:border-gray-800",
+                            ].join(" ")}
+                        />
+                    )}
                 </button>
                 <Dialog isOpen={isOpenColumnFilter} close={columnFilterHandler.setFalse}>
                     <ColumnFilter
@@ -271,11 +280,20 @@ const WbsLayout = ({
                 </Dialog>
                 <button
                     type="button"
-                    className="flex items-center gap-1 cursor-pointer"
+                    className="relative flex items-center gap-1 cursor-pointer"
                     onClick={itemFilterHandler.setTrue}
                 >
                     <ListFilter className="size-4" />
                     <span>フィルター</span>
+                    {filterMap.values().some((set) => set.size > 0) && (
+                        <span
+                            className={[
+                                "top-0 start-2.5 absolute w-2.5 h-2.5",
+                                "bg-green-500 border-2 border-white rounded-full",
+                                "dark:border-gray-800",
+                            ].join(" ")}
+                        />
+                    )}
                 </button>
                 <Dialog isOpen={isOpenItemFilter} close={itemFilterHandler.setFalse}>
                     <ItemFilter
