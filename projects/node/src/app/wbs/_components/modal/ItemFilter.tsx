@@ -10,12 +10,16 @@ type Props = {
     rootNode: TaskNode;
     filterMap: WbsFilterMap;
     setFilterMap: React.Dispatch<React.SetStateAction<WbsFilterMap>>;
+    ignoreChildren: boolean;
+    setIgnoreChildren: (v: boolean) => void;
 };
 
 const ItemFilter = ({
     rootNode,
     filterMap,
     setFilterMap,
+    ignoreChildren,
+    setIgnoreChildren,
 }: Props) => {
     const [selectedProp, setSelectedProp] = useState<WbsFilterKey | null>(null);
     const [hiddenSet, setHiddenSet] = useState<Set<string>>(new Set());
@@ -73,7 +77,14 @@ const ItemFilter = ({
     return (
         <div className="size-full flex overflow-hidden px-4 pb-4">
             <div className="flex flex-col gap-2 w-1/3">
-                <p className="text-lg mb-4">フィルター設定</p>
+                <p className="text-lg mb-2">フィルター設定</p>
+                <div className="mb-2">
+                    <Checkbox
+                        label="子タスクに含む場合は表示"
+                        checked={!ignoreChildren}
+                        onChange={() => setIgnoreChildren(!ignoreChildren)}
+                    />
+                </div>
                 <button
                     type="button"
                     className="flex items-center gap-1 cursor-pointer"

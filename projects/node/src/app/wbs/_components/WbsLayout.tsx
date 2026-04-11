@@ -34,16 +34,19 @@ const WbsLayout = ({
     const wbsId = Array.isArray(id) ? id[0] : id;
     const router = useRouter();
 
+    // ドラッグ
     const [savedTask, setSavedTask] = useState(initialTaskNode);
     const [draggingId, setDraggingId] = useState("");
+    const [rect, setRect] = useState<SSS | null>(null);
 
+    // フィルター
     const [hiddenColumnSet, setHiddenColumnSet] = useState<Set<ColumnFilterKey>>(new Set(["totalWithBuffer"]));
     const [filterMap, setFilterMap] = useState<WbsFilterMap>(new Map());
+    const [ignoreChildren, setIgnoreChildren] = useState(false);
 
+    // モーダル
     const [isOpenColumnFilter, columnFilterHandler] = useBoolean();
     const [isOpenItemFilter, itemFilterHandler] = useBoolean();
-
-    const [rect, setRect] = useState<SSS | null>(null);
 
     const {
         calcedRoot,
@@ -82,7 +85,7 @@ const WbsLayout = ({
     // biome-ignore lint/correctness/useExhaustiveDependencies: フィルターが変更されるまで更新したくないためcalcedRootは依存配列に含めない
     const hiddenNodeIdSet: Set<string> = useMemo(
         () => {
-            const filtered = filterNode(calcedRoot, isShownNode);
+            const filtered = filterNode(calcedRoot, isShownNode, ignoreChildren);
             const filteredNodeIdSet: Set<string> = filtered
                 ? new Set([...depthFirstSearch(filtered)].map((node) => node.id))
                 : new Set();
@@ -90,7 +93,7 @@ const WbsLayout = ({
             const diffSet = allNodeIdSet.difference(filteredNodeIdSet);
             return diffSet;
         },
-        [isShownNode],
+        [isShownNode, ignoreChildren],
     );
 
     const handlePointerDown = (_e: React.PointerEvent<HTMLDivElement>, id: string) => {
@@ -301,6 +304,8 @@ const WbsLayout = ({
                         rootNode={calcedRoot}
                         filterMap={filterMap}
                         setFilterMap={setFilterMap}
+                        ignoreChildren={ignoreChildren}
+                        setIgnoreChildren={setIgnoreChildren}
                     />
                 </Dialog>
                 <button
