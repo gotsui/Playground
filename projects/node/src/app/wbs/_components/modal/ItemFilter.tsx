@@ -90,7 +90,6 @@ const ItemFilter = ({
                     className="flex items-center gap-1 cursor-pointer"
                     onClick={() => handleClickItem("name")}
                 >
-                    <span>タスク名</span>
                     <div className="relative">
                         <Filter size={16} />
                         {(filterMap.get("name") || new Set()).size !== 0 && (
@@ -103,13 +102,13 @@ const ItemFilter = ({
                             />
                         )}
                     </div>
+                    <span>タスク名</span>
                 </button>
                 <button
                     type="button"
                     className="flex items-center gap-1 cursor-pointer"
                     onClick={() => handleClickItem("assignee")}
                 >
-                    <span>主担当</span>
                     <div className="relative">
                         <Filter size={16} />
                         {(filterMap.get("assignee") || new Set()).size !== 0 && (
@@ -122,13 +121,13 @@ const ItemFilter = ({
                             />
                         )}
                     </div>
+                    <span>主担当</span>
                 </button>
                 <button
                     type="button"
                     className="flex items-center gap-1 cursor-pointer"
                     onClick={() => handleClickItem("status")}
                 >
-                    <span>ステータス</span>
                     <div className="relative">
                         <Filter size={16} />
                         {(filterMap.get("status") || new Set()).size !== 0 && (
@@ -141,6 +140,7 @@ const ItemFilter = ({
                             />
                         )}
                     </div>
+                    <span>ステータス</span>
                 </button>
             </div>
             <div
