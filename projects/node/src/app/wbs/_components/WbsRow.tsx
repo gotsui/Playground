@@ -189,7 +189,7 @@ const WbsRow = ({
                         )}
                         <div className="flex-2 flex gap-2 justify-end select-none">
                             <button type="button" onClick={saveEdit} className="text-green-600 text-sm">
-                                保存
+                                確定
                             </button>
                             <button type="button" onClick={cancelEdit} className="text-gray-500 text-sm">
                                 キャンセル
