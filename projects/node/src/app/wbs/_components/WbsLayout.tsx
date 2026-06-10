@@ -163,21 +163,21 @@ const WbsLayout = ({
                 top: rect.top,
                 left: rect.left,
                 width: rect.width,
-                height: rect.height / 3,
+                height: rect.height / 4,
             });
         } else if (relativeY < rect.height * 2 / 3) {
             setRect({
-                top: rect.top + rect.height / 3,
+                top: rect.top,
                 left: rect.left,
                 width: rect.width,
-                height: rect.height / 3,
+                height: rect.height,
             });
         } else {
             setRect({
-                top: rect.top + rect.height * 2 / 3,
+                top: rect.top + rect.height * 3 / 4,
                 left: rect.left,
                 width: rect.width,
-                height: rect.height / 3,
+                height: rect.height / 4,
             });
         }
     }
@@ -416,7 +416,7 @@ const WbsLayout = ({
                 <WbsNoteModal node={noteNode} updateNode={updateNode} onClose={closeNote} />
             )}
             <div
-                className="fixed bg-blue-300/50 pointer-events-none"
+                className="fixed bg-indigo-300/50 pointer-events-none"
                 style={{ ...rect }}
             />
         </div>
