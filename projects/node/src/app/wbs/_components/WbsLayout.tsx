@@ -68,6 +68,7 @@ const WbsLayout = ({
         closeNote,
         moveNode,
         updateNode,
+        findNode,
     } = useWbs(initialTaskNode);
 
     const isShownNode = useCallback(
@@ -108,6 +109,15 @@ const WbsLayout = ({
             return;
         }
 
+        const draggingNode = findNode(calcedRoot, draggingId);
+
+        // 親ノードを子ノードに移動不可
+        if (draggingNode && findNode(draggingNode, id)) {
+            setDraggingId("");
+            setRect(null);
+            return
+        }
+
         e.stopPropagation();
         const rect = e.currentTarget.getBoundingClientRect();
         const relativeY = e.clientY - rect.top;
@@ -129,6 +139,13 @@ const WbsLayout = ({
             setRect(null);
             return
         };
+
+        const draggingNode = findNode(calcedRoot, draggingId);
+
+        if (draggingNode && findNode(draggingNode, id)) {
+            setRect(null);
+            return
+        }
 
         e.stopPropagation();
         const rect = e.currentTarget.getBoundingClientRect();
@@ -247,7 +264,7 @@ const WbsLayout = ({
     };
 
     return (
-        <div className="size-full flex flex-col bg-gray-100 pb-4">
+        <div className="size-full flex flex-col bg-gray-100 pb-4" onPointerUp={(e) => handlePointerUp(e, "")}>
             <WbsHeader
                 name={calcedRoot.name}
                 ccpmMode={ccpmMode}

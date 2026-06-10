@@ -8,7 +8,7 @@ import {
     Trash2,
 } from "lucide-react";
 
-import type { ColumnFilterKey, EditingRow, TaskNode, TaskWithCalc } from "../_lib/types";
+import type { ColumnFilterKey, EditingRow, TaskWithCalc } from "../_lib/types";
 
 type Props = {
     node: TaskWithCalc;

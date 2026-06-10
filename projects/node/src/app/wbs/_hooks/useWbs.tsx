@@ -281,5 +281,6 @@ export const useWbs = (initialTaskNode: TaskNode) => {
         closeNote: () => setNoteNode(null),
         moveNode,
         updateNode,
+        findNode,
     };
 };
