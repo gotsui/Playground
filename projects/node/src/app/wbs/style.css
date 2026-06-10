@@ -1,14 +1,13 @@
-.filter-anchor-scope {
+.anchor-scope {
     anchor-scope: --filter-anchor;
 }
 
-.filter-anchor {
+.anchor {
     anchor-name: --filter-anchor;
 }
 
-.filter-popover {
+.popover {
     position-anchor: --filter-anchor;
     position: absolute;
-    position-area: bottom span-right;
-    position-try-fallbacks: bottom span-left, top span-right, top span-left;
+    position-area: top center;
 }

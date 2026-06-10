@@ -15,6 +15,7 @@ import { useWbs } from "../_hooks/useWbs";
 import { idSchema, taskNodeSchema } from "../_lib/schema";
 import type { ColumnFilterKey, TaskNode, WbsFilterMap } from "../_lib/types";
 import { depthFirstSearch, filterNode, hasDifference } from "../_lib/utils";
+import "../style.css";
 
 type SSS = {
     top: number;

@@ -37,8 +37,18 @@ const WbsHeader = ({
                             </span>
                         )}
                     </div>
-                    <button type="button" className="cursor-pointer" onClick={onClickSave}>
-                        <Save />
+                    <button type="button" className="cursor-pointer anchor-scope group" onClick={onClickSave}>
+                        <Save className="relative anchor" />
+                        <span
+                            className={[
+                                "hidden p-1 z-100",
+                                "bg-gray-500 text-white text-nowrap rounded-md",
+                                "group-hover:block after:",
+                                "popover",
+                            ].join(" ")}
+                        >
+                            保存
+                        </span>
                     </button>
                     <button type="button" className="cursor-pointer" onClick={onClickDownload}>
                         <Download />

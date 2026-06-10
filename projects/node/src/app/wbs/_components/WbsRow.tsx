@@ -290,24 +290,56 @@ const WbsRow = ({
                             </div>
                         )}
                         <div className="flex-2 flex justify-end lg:gap-4 gap-2">
-                            <button type="button" className="relative" onClick={() => openNote(node)}>
-                                <StickyNote className="size-4 text-gray-500 cursor-pointer" />
-                                {node.notes && (
-                                    <span
-                                        className={[
-                                            "top-[-3] start-2.5 absolute w-2.5 h-2.5",
-                                            "bg-green-500 border-2 border-white rounded-full",
-                                            "dark:border-gray-800",
-                                        ].join(" ")}
-                                    />
-                                )}
+                            <button type="button" className="size-4 cursor-pointer anchor-scope group" onClick={() => openNote(node)}>
+                                <div className="relative anchor">
+                                    <StickyNote className="size-full text-gray-500" />
+                                    {node.notes && (
+                                        <span
+                                            className={[
+                                                "top-[-3] start-2.5 absolute w-2.5 h-2.5",
+                                                "bg-green-500 border-2 border-white rounded-full",
+                                                "dark:border-gray-800",
+                                            ].join(" ")}
+                                        />
+                                    )}
+                                </div>
+                                <span
+                                    className={[
+                                        "hidden p-1 z-100",
+                                        "bg-gray-500 text-white text-nowrap rounded-md",
+                                        "group-hover:block after:",
+                                        "popover",
+                                    ].join(" ")}
+                                >
+                                    備考
+                                </span>
                             </button>
-                            <button type="button" onClick={() => addChild(node.id)}>
-                                <Plus className="size-4 text-blue-600 cursor-pointer" />
+                            <button type="button" className="size-4 cursor-pointer anchor-scope group" onClick={() => addChild(node.id)}>
+                                <Plus className="size-full text-blue-600 relative anchor" />
+                                <span
+                                    className={[
+                                        "hidden p-1 z-100",
+                                        "bg-gray-500 text-white text-nowrap rounded-md",
+                                        "group-hover:block after:",
+                                        "popover",
+                                    ].join(" ")}
+                                >
+                                    子タスク追加
+                                </span>
                             </button>
                             {!isRoot && (
-                                <button type="button" onClick={() => deleteNode(node.id)}>
-                                    <Trash2 className="size-4 text-red-600 cursor-pointer" />
+                                <button type="button" className="size-4 cursor-pointer anchor-scope group" onClick={() => deleteNode(node.id)}>
+                                    <Trash2 className="size-full text-red-600 relative anchor" />
+                                    <span
+                                        className={[
+                                            "hidden p-1 z-100",
+                                            "bg-gray-500 text-white text-nowrap rounded-md",
+                                            "group-hover:block after:",
+                                            "popover",
+                                        ].join(" ")}
+                                    >
+                                        削除
+                                    </span>
                                 </button>
                             )}
                             <div onPointerDown={(e) => handlePointerDown(e, node.id)}>
