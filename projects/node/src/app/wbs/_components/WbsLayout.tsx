@@ -103,7 +103,7 @@ const WbsLayout = ({
     };
 
     const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>, id: string) => {
-        if (!draggingId || id === draggingId) {
+        if (!draggingId || !id || id === draggingId) {
             setDraggingId("");
             setRect(null);
             return;
