@@ -1,4 +1,4 @@
-import type { TaskNode, TaskWithCalc, WbsTask } from "./types";
+import type { TaskHistoryNode, TaskNode, TaskWithCalc, WbsTask, WbsTaskHistory } from "./types";
 
 export const generateId = () => crypto.randomUUID();
 
@@ -51,6 +51,30 @@ export const parseTaskNode = (wbsTasks: WbsTask[]): TaskNode | null => {
     let root: TaskNode | null = null;
 
     wbsTasks.forEach((task) => {
+        if (task.parentId) {
+            const currentNode = idNodeMap.get(task.id);
+            const parentNode = idNodeMap.get(task.parentId);
+
+            if (currentNode && parentNode) {
+                parentNode.children.push(currentNode);
+            }
+        } else {
+            root = idNodeMap.get(task.id) || null;
+        }
+    });
+
+    return root;
+};
+
+export const parseTaskHistoryNode = (wbsTaskHistories: WbsTaskHistory[]): TaskHistoryNode | null => {
+    const idNodeMap = new Map<string, TaskHistoryNode>(wbsTaskHistories.map((task) => ([
+        task.id,
+        { ...task, createdAt: new Date(task.createdAt), children: [] },
+    ])));
+
+    let root: TaskHistoryNode | null = null;
+
+    wbsTaskHistories.forEach((task) => {
         if (task.parentId) {
             const currentNode = idNodeMap.get(task.id);
             const parentNode = idNodeMap.get(task.parentId);

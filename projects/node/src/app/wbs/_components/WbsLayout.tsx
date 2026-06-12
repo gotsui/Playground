@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ChevronDown, ChevronUp, Eye, ListFilter } from "lucide-react";
+import { ChevronDown, ChevronUp, Eye, History, ListFilter } from "lucide-react";
 
 import WbsHeader from "./WbsHeader";
 import WbsNoteModal from "./WbsNoteModal";
@@ -16,6 +16,7 @@ import { idSchema, taskNodeSchema } from "../_lib/schema";
 import type { ColumnFilterKey, TaskNode, WbsFilterMap } from "../_lib/types";
 import { depthFirstSearch, filterNode, hasDifference } from "../_lib/utils";
 import "../style.css";
+import UpdateHistory from "./modal/UpdateHistory"
 
 type SSS = {
     top: number;
@@ -25,6 +26,7 @@ type SSS = {
 };
 
 type Props = {
+
     initialTaskNode: TaskNode;
 };
 
@@ -48,6 +50,7 @@ const WbsLayout = ({
     // モーダル
     const [isOpenColumnFilter, columnFilterHandler] = useBoolean();
     const [isOpenItemFilter, itemFilterHandler] = useBoolean();
+    const [isOpenEvm, evmHandler] = useBoolean();
 
     const {
         calcedRoot,
@@ -353,6 +356,20 @@ const WbsLayout = ({
                     <ChevronDown className="size-4" />
                     <span>展開</span>
                 </button>
+                <button
+                    type="button"
+                    className="relative flex items-center gap-1 cursor-pointer"
+                    onClick={itemFilterHandler.setTrue}
+                >
+                    <History className="size-4" />
+                    <span>履歴</span>
+                </button>
+                <Dialog isOpen={isOpenItemFilter} close={itemFilterHandler.setFalse}>
+                    <UpdateHistory
+                        key={String(isOpenItemFilter)}
+                        wbsId={wbsId || ""}
+                    />
+                </Dialog>
             </div>
             <div className="flex-1 flex flex-col max-w-7xl w-full mx-auto overflow-hidden px-4">
                 <div className="bg-white rounded-xl shadow-lg overflow-auto">

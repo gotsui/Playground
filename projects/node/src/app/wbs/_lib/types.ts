@@ -1,6 +1,6 @@
 import type z from "zod";
 
-import type { wbsSchema, wbsTaskSchema } from "./schema";
+import type { wbsSchema, wbsTaskHistorySchema, wbsTaskSchema } from "./schema";
 
 export type Status = "新規" | "進行中" | "完了";
 
@@ -46,3 +46,10 @@ export type ColumnFilterKey = Exclude<keyof TaskNode, "id" | "name" | "children"
     | "withBuffer"
     | "totalWithBuffer"
 ;
+
+export type WbsTaskHistory = z.infer<typeof wbsTaskHistorySchema>;
+
+export type TaskHistoryNode = TaskNode & {
+    createdAt: Date;
+    createdBy: string;
+};

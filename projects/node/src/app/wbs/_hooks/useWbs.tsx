@@ -5,6 +5,7 @@ import { useState } from "react";
 import { statusSchema, taskNodeSchema } from "../_lib/schema";
 import type { EditingRow, TaskNode } from "../_lib/types";
 import { calcTotals, depthFirstSearch, generateId } from "../_lib/utils";
+import { dateToString } from "@/lib/date";
 
 export const createNode = (name?: string): TaskNode => {
     return {
@@ -70,18 +71,8 @@ export const useWbs = (initialTaskNode: TaskNode) => {
             buffer: node.buffer.toString(),
             actualEffort: node.actualEffort.toString(),
             assignee: node.assignee || "",
-            startDate: node.startDate?.toLocaleDateString("sv-SE", {
-                timeZone: "Asia/Tokyo",
-                year: "numeric",
-                month: "2-digit",
-                day: "2-digit",
-            }) || "",
-            endDate: node.endDate?.toLocaleDateString("sv-SE", {
-                timeZone: "Asia/Tokyo",
-                year: "numeric",
-                month: "2-digit",
-                day: "2-digit",
-            }) || "",
+            startDate: node.startDate ? dateToString(node.startDate, "sv-SE") : "",
+            endDate: node.endDate ? dateToString(node.endDate, "sv-SE") : "",
             notes: node.notes || "",
         });
     };

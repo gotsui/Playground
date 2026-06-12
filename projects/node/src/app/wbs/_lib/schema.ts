@@ -3,6 +3,7 @@ import { z } from "zod";
 import type { TaskNode } from "./types";
 
 const dateToStringSchema = z.coerce.date().transform((date) => date.toLocaleDateString("ja-JP", { timeZone: "Asia/Tokyo" }));
+const datetimeToStringSchema = z.coerce.date().transform((date) => date.toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" }));
 
 export const statusSchema = z.enum(["新規", "進行中", "完了"]);
 
@@ -42,3 +43,14 @@ export const wbsTaskSchema = baseNodeSchema.and(z.object({
 }));
 
 export const wbsTasksSchema = z.array(wbsTaskSchema);
+
+export const wbsTaskHistorySchema = baseNodeSchema.and(z.object({
+    taskId: z.uuidv4(),
+    parentId: z.uuidv4().nullable(),
+    logicalId: z.uuidv4(),
+    logicalParentId: z.uuidv4().nullable(),
+    createdAt: datetimeToStringSchema,
+    createdBy: z.string(),
+}));
+
+export const wbsTaskHistoriesSchema = z.array(wbsTaskHistorySchema);
