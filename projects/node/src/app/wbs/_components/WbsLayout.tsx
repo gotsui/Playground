@@ -10,15 +10,15 @@ import WbsRow from "./WbsRow";
 import ColumnFilter from "./modal/ColumnFilter";
 import Dialog from "./modal/Dialog";
 import ItemFilter from "./modal/ItemFilter";
+import UpdateHistory from "./modal/UpdateHistory"
 import { useBoolean } from "../_hooks/useBoolean";
 import { useWbs } from "../_hooks/useWbs";
 import { idSchema, taskNodeSchema } from "../_lib/schema";
 import type { ColumnFilterKey, TaskNode, WbsFilterMap } from "../_lib/types";
 import { depthFirstSearch, filterNode, hasDifference } from "../_lib/utils";
 import "../style.css";
-import UpdateHistory from "./modal/UpdateHistory"
 
-type SSS = {
+type DragRect = {
     top: number;
     left: number;
     width: number;
@@ -26,7 +26,6 @@ type SSS = {
 };
 
 type Props = {
-
     initialTaskNode: TaskNode;
 };
 
@@ -40,7 +39,7 @@ const WbsLayout = ({
     // ドラッグ
     const [savedTask, setSavedTask] = useState(initialTaskNode);
     const [draggingId, setDraggingId] = useState("");
-    const [rect, setRect] = useState<SSS | null>(null);
+    const [rect, setRect] = useState<DragRect | null>(null);
 
     // フィルター
     const [hiddenColumnSet, setHiddenColumnSet] = useState<Set<ColumnFilterKey>>(new Set(["totalWithBuffer"]));
@@ -50,7 +49,7 @@ const WbsLayout = ({
     // モーダル
     const [isOpenColumnFilter, columnFilterHandler] = useBoolean();
     const [isOpenItemFilter, itemFilterHandler] = useBoolean();
-    const [isOpenEvm, evmHandler] = useBoolean();
+    const [isOpenHistory, historyHandler] = useBoolean();
 
     const {
         calcedRoot,
@@ -359,14 +358,14 @@ const WbsLayout = ({
                 <button
                     type="button"
                     className="relative flex items-center gap-1 cursor-pointer"
-                    onClick={itemFilterHandler.setTrue}
+                    onClick={historyHandler.setTrue}
                 >
                     <History className="size-4" />
                     <span>履歴</span>
                 </button>
-                <Dialog isOpen={isOpenItemFilter} close={itemFilterHandler.setFalse}>
+                <Dialog isOpen={isOpenHistory} close={historyHandler.setFalse}>
                     <UpdateHistory
-                        key={String(isOpenItemFilter)}
+                        key={String(isOpenHistory)}
                         wbsId={wbsId || ""}
                     />
                 </Dialog>

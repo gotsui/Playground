@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { TaskHistoryNode } from "../../_lib/types";
+import type { TaskHistoryNode } from "../../_lib/types";
 import { wbsTaskHistoriesSchema } from "../../_lib/schema";
-import { parseTaskHistoryNode } from "../../_lib/utils";
+import { diffNodes, parseTaskHistoryNode } from "../../_lib/utils";
 import { partition, trim } from "@/lib/array";
-import { datetimeToString, dateToString } from "@/lib/date";
+import { datetimeToString } from "@/lib/date";
 
 type Props = {
     wbsId: string;
@@ -19,6 +19,10 @@ const UpdateHistory = ({
 
     useEffect(() => {
         const fetchData = async () => {
+            if (!wbsId) {
+                return;
+            }
+
             setIsLoading(true);
 
             const res = await fetch(`/api/wbs/history/${wbsId}`);
@@ -49,7 +53,62 @@ const UpdateHistory = ({
         };
 
         fetchData();
-    }, []);
+    }, [wbsId]);
+
+    const sss = (nodes: TaskHistoryNode[]): Map<string, string> => {
+        if (nodes.length === 0) {
+            return new Map();
+        }
+
+        const sss: Map<string, string> = new Map();
+        let previousNode: TaskHistoryNode = nodes[0];
+
+        for (let i = 0; i < nodes.length; i++) {
+            const currentNode = nodes[i];
+
+            if (i === 0) {
+                sss.set(crypto.randomUUID(), datetimeToString(currentNode.createdAt))
+                sss.set(crypto.randomUUID(), "+++ 新規作成");
+            }
+
+            const diff = diffNodes(previousNode, currentNode);
+
+            if (diff.removedNodePathList.length > 0 || diff.addedNodePathList.length > 0 || diff.updatedFields.length > 0) {
+                sss.set(crypto.randomUUID(), datetimeToString(currentNode.createdAt));
+                
+                if (diff.removedNodePathList.length > 0) {
+                    sss.set(crypto.randomUUID(), "+++ 削除");
+                    diff.removedNodePathList.forEach((path) => {
+                        sss.set(crypto.randomUUID(), `+++++++ ${path.join("/")}`);
+                    });
+                }
+
+                if (diff.addedNodePathList.length > 0) {
+                    sss.set(crypto.randomUUID(), "+++ 追加");
+                    diff.addedNodePathList.forEach((path) => {
+                        sss.set(crypto.randomUUID(), `+++++++ ${path.join("/")}`);
+                    });
+                }
+
+                if (diff.updatedFields.length) {
+                    sss.set(crypto.randomUUID(), "+++ 更新");
+
+                    for (const updateField of diff.updatedFields) {
+                        sss.set(crypto.randomUUID(), updateField.path.join("/"));
+
+                        for (const field of updateField.fields) {
+                            sss.set(crypto.randomUUID(), field.key);
+                            sss.set(crypto.randomUUID(), `"+++++++ ${field.before?.toString() || ""} → ${field.after?.toString()}`);
+                        }
+                    }
+                }
+            }
+
+            previousNode = currentNode;
+        }
+
+        return sss;
+    };
 
     return (
         <div>
@@ -59,16 +118,9 @@ const UpdateHistory = ({
                 </div>
             ) : (
                 <ul className="m-4">
-                    {taskNodes.map((node) => (
-                        <li
-                            key={node.id}
-                            className={[
-                                "grid grid-cols-12 items-center",
-                            ].join(" ")}
-                        >
-                            <div className="col-span-6">
-                                {datetimeToString(node.createdAt)}
-                            </div>
+                    {Array.from(sss(taskNodes)).map(([key, value]) => (
+                        <li key={key}>
+                            {value}
                         </li>
                     ))}
                 </ul>

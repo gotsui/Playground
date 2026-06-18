@@ -1,3 +1,4 @@
+import { partition } from "@/lib/array";
 import type { TaskHistoryNode, TaskNode, TaskWithCalc, WbsTask, WbsTaskHistory } from "./types";
 
 export const generateId = () => crypto.randomUUID();
@@ -45,7 +46,12 @@ export const parseWbsTasks = (
 export const parseTaskNode = (wbsTasks: WbsTask[]): TaskNode | null => {
     const idNodeMap = new Map<string, TaskNode>(wbsTasks.map((task) => ([
         task.id,
-        { ...task, children: [] },
+        {
+            ...task,
+            id: task.logicalId,
+            parentId: task.logicalParentId,
+            children: [],
+        },
     ])));
 
     let root: TaskNode | null = null;
@@ -69,7 +75,13 @@ export const parseTaskNode = (wbsTasks: WbsTask[]): TaskNode | null => {
 export const parseTaskHistoryNode = (wbsTaskHistories: WbsTaskHistory[]): TaskHistoryNode | null => {
     const idNodeMap = new Map<string, TaskHistoryNode>(wbsTaskHistories.map((task) => ([
         task.id,
-        { ...task, createdAt: new Date(task.createdAt), children: [] },
+        {
+            ...task,
+            id: task.logicalId,
+            parentId: task.logicalParentId,
+            createdAt: new Date(task.createdAt),
+            children: [],
+        },
     ])));
 
     let root: TaskHistoryNode | null = null;
@@ -119,6 +131,19 @@ export function* breadthFirstSearch(node: TaskNode): Generator<TaskNode> {
     }
 };
 
+const diffCheckKeySet = new Set<keyof TaskNode>([
+    "id",
+    "name",
+    "status",
+    "plannedEffort",
+    "buffer",
+    "actualEffort",
+    "assignee",
+    "startDate",
+    "endDate",
+    "notes",
+]);
+
 export const hasDifference = (node1: TaskNode, node2: TaskNode) => {
     const node1List = [...depthFirstSearch(node1)];
     const node2List = [...depthFirstSearch(node2)];
@@ -127,21 +152,8 @@ export const hasDifference = (node1: TaskNode, node2: TaskNode) => {
         return true;
     }
 
-    const checkKeySet = new Set<keyof TaskNode>([
-        "id",
-        "name",
-        "status",
-        "plannedEffort",
-        "buffer",
-        "actualEffort",
-        "assignee",
-        "startDate",
-        "endDate",
-        "notes",
-    ]);
-
     for (let i = 0; i < node1List.length; i++) {
-        for (const key of checkKeySet) {
+        for (const key of diffCheckKeySet) {
             const node1Value = node1List[i][key];
             const node2Value = node2List[i][key];
 
@@ -164,6 +176,90 @@ export const hasDifference = (node1: TaskNode, node2: TaskNode) => {
     }
 
     return false;
+};
+
+type DiffField = {
+    key: keyof TaskNode;
+    before: TaskNode[keyof TaskNode];
+    after: TaskNode[keyof TaskNode];
+};
+
+export const diffNodes = (node1: TaskNode, node2: TaskNode) => {
+    const node1Map: Map<string, TaskNode> = new Map([...depthFirstSearch(node1)].map((node) => [node.id, node]));
+    const node2Map: Map<string, TaskNode> = new Map([...depthFirstSearch(node2)].map((node) => [node.id, node]));
+    console.log(node1Map);
+    console.log(node2Map);
+
+    const removed = Array.from(node1Map).filter(([key, _]) => !node2Map.has(key));
+    const [existing, added] = partition(Array.from(node2Map), ([id, _]) => node1Map.has(id));
+    const updated = existing.filter(([id, node]) => {
+        const n = node1Map.get(id);
+        return n && hasDifference(n, node);
+    });
+
+    const updatedFields: { path: string[]; fields: DiffField[]; }[] = []
+
+    for (let i = 0; i < updated.length; i++) {
+        const nodeId = updated[i][0];
+        const fields: DiffField[] = [];
+
+        for (const key of diffCheckKeySet) {
+            const n1 = node1Map.get(nodeId);
+            const n2 = node2Map.get(nodeId);
+
+            if (!n1 || !n2) {
+                continue;
+            }
+
+            const node1Value = n1[key];
+            const node2Value = n2[key];
+
+            if (!node1Value && !node2Value) {
+                continue;
+            }
+
+            if (node1Value instanceof Date && node2Value instanceof Date) {
+                if (node1Value.getTime() !== node2Value.getTime()) {
+                    fields.push({ key, before: node1Value, after: node2Value });
+                }
+            } else if (node1Value !== node2Value) {
+                fields.push({ key, before: node1Value, after: node2Value });
+            }
+        }
+
+        if (fields.length > 0) {
+            updatedFields.push({ path: calcNodePath(node2, nodeId), fields });
+        }
+    }
+
+    return {
+        removedNodePathList: removed.map(([key, _]) => calcNodePath(node1, key)),
+        addedNodePathList: added.map(([key, _]) => calcNodePath(node2, key)),
+        updatedFields,
+    };
+};
+
+export const calcNodePath = (node: TaskNode, id: string) => {
+    const traverse = (node: TaskNode, path: string[]): boolean => {
+        path.push(node.name);
+
+        if (node.id === id) {
+            return true;
+        }
+
+        for (const child of node.children) {
+            if (traverse(child, path)) {
+                return true;
+            }
+        }
+
+        path.pop();
+        return false;
+    };
+
+    const path: string[] = [];
+    traverse(node, path);
+    return path;
 };
 
 export const filterNode = (
