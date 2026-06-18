@@ -187,8 +187,6 @@ type DiffField = {
 export const diffNodes = (node1: TaskNode, node2: TaskNode) => {
     const node1Map: Map<string, TaskNode> = new Map([...depthFirstSearch(node1)].map((node) => [node.id, node]));
     const node2Map: Map<string, TaskNode> = new Map([...depthFirstSearch(node2)].map((node) => [node.id, node]));
-    console.log(node1Map);
-    console.log(node2Map);
 
     const removed = Array.from(node1Map).filter(([key, _]) => !node2Map.has(key));
     const [existing, added] = partition(Array.from(node2Map), ([id, _]) => node1Map.has(id));

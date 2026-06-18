@@ -18,6 +18,9 @@ const baseNodeSchema = z.object({
     startDate: z.coerce.date().optional().nullable(),
     endDate: z.coerce.date().optional().nullable(),
     notes: z.string().optional().nullable(),
+}).refine((data) => !data.startDate || !data.endDate || (data.startDate && data.endDate && data.startDate <= data.endDate), {
+    message: "終了日は開始日以降の日付を入力してください",
+    path: ["endDate"],
 });
 
 export const taskNodeSchema: z.ZodType<TaskNode> = z.lazy(() =>
