@@ -374,20 +374,24 @@ const WbsLayout = ({
                         wbsId={wbsId || ""}
                     />
                 </Dialog>
-                <button
-                    type="button"
-                    className="relative flex items-center gap-1 cursor-pointer"
-                    onClick={memberListHandler.setTrue}
-                >
-                    <Users className="size-4" />
-                    <span>メンバー</span>
-                </button>
-                <Dialog isOpen={isOpenMemberList} close={memberListHandler.setFalse}>
-                    <MemberList
-                        key={String(isOpenMemberList)}
-                        wbsId={wbsId || ""}
-                    />
-                </Dialog>
+                {(wbsRole === "owner" || wbsRole === "admin") && (
+                    <>
+                        <button
+                            type="button"
+                            className="relative flex items-center gap-1 cursor-pointer"
+                            onClick={memberListHandler.setTrue}
+                        >
+                            <Users className="size-4" />
+                            <span>メンバー</span>
+                        </button>
+                        <Dialog isOpen={isOpenMemberList} close={memberListHandler.setFalse}>
+                            <MemberList
+                                key={String(isOpenMemberList)}
+                                wbsId={wbsId || ""}
+                            />
+                        </Dialog>
+                    </>
+                )}
             </div>
             <div className="flex-1 flex flex-col max-w-7xl w-full mx-auto overflow-hidden px-4">
                 <div className="bg-white rounded-xl shadow-lg overflow-auto">
