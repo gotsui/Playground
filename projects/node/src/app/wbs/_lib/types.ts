@@ -1,6 +1,13 @@
 import type z from "zod";
 
-import type { wbsSchema, wbsTaskHistorySchema, wbsTaskSchema } from "./schema";
+import type {
+    wbsMemberSchema,
+    wbsRoleSchema,
+    wbsSchema,
+    wbsTaskHistorySchema,
+    wbsTaskSchema,
+    wbsUserSchema,
+} from "./schema";
 
 export type Status = "新規" | "進行中" | "完了";
 
@@ -53,3 +60,7 @@ export type TaskHistoryNode = TaskNode & {
     createdAt: Date;
     createdBy: string;
 };
+
+export type WbsUser = z.infer<typeof wbsUserSchema>;
+export type WbsRole = z.infer<typeof wbsRoleSchema>;
+export type WbsMember = z.infer<typeof wbsMemberSchema>;

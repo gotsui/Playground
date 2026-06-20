@@ -5,7 +5,7 @@ import { createNode } from "../_hooks/useWbs";
 
 const NewWbsPage = () => {
     return (
-        <WbsLayout initialTaskNode={createNode("新規タスク")} />
+        <WbsLayout initialTaskNode={createNode("新規タスク")} wbsRole="owner" />
     );
 };
 

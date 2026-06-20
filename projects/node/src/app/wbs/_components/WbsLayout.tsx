@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ChevronDown, ChevronUp, Eye, History, ListFilter } from "lucide-react";
+import { ChevronDown, ChevronUp, Eye, History, ListFilter, Users } from "lucide-react";
 
 import WbsHeader from "./WbsHeader";
 import WbsNoteModal from "./WbsNoteModal";
@@ -14,9 +14,10 @@ import UpdateHistory from "./modal/UpdateHistory"
 import { useBoolean } from "../_hooks/useBoolean";
 import { useWbs } from "../_hooks/useWbs";
 import { idSchema, taskNodeSchema } from "../_lib/schema";
-import type { ColumnFilterKey, TaskNode, WbsFilterMap } from "../_lib/types";
+import type { ColumnFilterKey, TaskNode, WbsFilterMap, WbsRole } from "../_lib/types";
 import { depthFirstSearch, filterNode, hasDifference } from "../_lib/utils";
 import "../style.css";
+import MemberList from "./modal/MemberList";
 
 type DragRect = {
     top: number;
@@ -27,10 +28,12 @@ type DragRect = {
 
 type Props = {
     initialTaskNode: TaskNode;
+    wbsRole: WbsRole;
 };
 
 const WbsLayout = ({
     initialTaskNode,
+    wbsRole,
 }: Props) => {
     const { id } = useParams();
     const wbsId = Array.isArray(id) ? id[0] : id;
@@ -50,6 +53,7 @@ const WbsLayout = ({
     const [isOpenColumnFilter, columnFilterHandler] = useBoolean();
     const [isOpenItemFilter, itemFilterHandler] = useBoolean();
     const [isOpenHistory, historyHandler] = useBoolean();
+    const [isOpenMemberList, memberListHandler] = useBoolean();
 
     const {
         calcedRoot,
@@ -275,6 +279,7 @@ const WbsLayout = ({
                 projectBuffer={ccpmMode ? calcedRoot.buffer : undefined}
                 onClickSave={wbsId ? () => handleClickUpdate(wbsId) : handleClickSave}
                 onClickDownload={handleClickDownload}
+                wbsRole={wbsRole}
             />
             <div className="flex items-center max-w-7xl w-full mx-auto px-12 py-1 gap-4">
                 <button
@@ -366,6 +371,20 @@ const WbsLayout = ({
                 <Dialog isOpen={isOpenHistory} close={historyHandler.setFalse}>
                     <UpdateHistory
                         key={String(isOpenHistory)}
+                        wbsId={wbsId || ""}
+                    />
+                </Dialog>
+                <button
+                    type="button"
+                    className="relative flex items-center gap-1 cursor-pointer"
+                    onClick={memberListHandler.setTrue}
+                >
+                    <Users className="size-4" />
+                    <span>メンバー</span>
+                </button>
+                <Dialog isOpen={isOpenMemberList} close={memberListHandler.setFalse}>
+                    <MemberList
+                        key={String(isOpenMemberList)}
                         wbsId={wbsId || ""}
                     />
                 </Dialog>

@@ -1,11 +1,11 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import z from "zod";
 
 import { taskNodeSchema } from "@/app/wbs/_lib/schema";
 import { parseWbsTasks } from "@/app/wbs/_lib/utils";
 import { db } from "@/db";
-import { wbsTaskHistories, wbsTasks } from "@/db/wbs-schema";
+import { wbsTaskHistories, wbsTaskMembers, wbsTasks } from "@/db/wbs-schema";
 import { getCurrentUserId } from "@/lib/auth/session";
 
 const paramsSchema = z.object({
@@ -17,6 +17,16 @@ const bodySchema = z.object({
 });
 
 export const GET = async (_: NextRequest, { params }: { params: { id: string } }) => {
+    const userId = await getCurrentUserId();
+
+    if (!userId) {
+        console.log("ログイン情報取得エラー");
+        return NextResponse.json(
+            { error: "ログイン情報を取得できません"},
+            { status: 401 },
+        );
+    }
+
     const parsedParams = paramsSchema.safeParse(await params);
 
     if (!parsedParams.success) {
@@ -76,8 +86,19 @@ export const GET = async (_: NextRequest, { params }: { params: { id: string } }
                 tmp
         `);
 
+        const roleResult = await db
+            .select()
+            .from(wbsTaskMembers)
+            .where(and(
+                eq(wbsTaskMembers.taskId, taskId),
+                eq(wbsTaskMembers.userId, userId),
+            ));
+
         return NextResponse.json(
-            { wbsTasks: wbsTasksResult.rows },
+            {
+                wbsTasks: wbsTasksResult.rows,
+                role: roleResult[0]?.role || "",
+            },
             { status: 200 },
         );
     } catch (error) {
@@ -93,6 +114,7 @@ export const POST = async (req: NextRequest, { params }: { params: { id: string 
     const userId = await getCurrentUserId();
 
     if (!userId) {
+        console.log("ログイン情報取得エラー");
         return NextResponse.json(
             { error: "ログイン情報を取得できません"},
             { status: 401 },
@@ -114,9 +136,16 @@ export const POST = async (req: NextRequest, { params }: { params: { id: string 
     const taskId = parsedParams.data.id;
 
     try {
-        const taskResults = await db.select().from(wbsTasks).where(eq(wbsTasks.id, taskId));
+        const roleResult = await db
+            .select()
+            .from(wbsTaskMembers)
+            .where(and(
+                eq(wbsTaskMembers.taskId, taskId),
+                eq(wbsTaskMembers.userId, userId),
+            ));
 
-        if (userId !== taskResults[0].createdBy) {
+        if (roleResult.length === 0 || roleResult[0].role === "viewer") {
+            console.log("編集権限エラー", roleResult[0]?.role || "ロール設定なし");
             return NextResponse.json(
                 { error: "編集権限がありません" },
                 { status: 403 },
@@ -153,6 +182,7 @@ export const DELETE = async (_: NextRequest, { params }: { params: { id: string 
     const userId = await getCurrentUserId();
 
     if (!userId) {
+        console.log("ログイン情報取得エラー");
         return NextResponse.json(
             { error: "ログイン情報を取得できません"},
             { status: 401 },

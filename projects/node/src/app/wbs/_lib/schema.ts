@@ -57,3 +57,21 @@ export const wbsTaskHistorySchema = baseNodeSchema.and(z.object({
 }));
 
 export const wbsTaskHistoriesSchema = z.array(wbsTaskHistorySchema);
+
+export const wbsRoleSchema = z.enum(["owner", "admin", "editor", "viewer"]);
+
+export const wbsUserSchema = z.object({
+    id: z.uuidv4(),
+    name: z.string(),
+});
+
+export const wbsUsersSchema = z.array(wbsUserSchema);
+
+export const wbsMemberSchema = z.object({
+    id: z.uuidv4(),
+    userId: z.uuidv4(),
+    userName: z.string(),
+    role: wbsRoleSchema,
+});
+
+export const wbsMembersSchema = z.array(wbsMemberSchema);
