@@ -3,6 +3,7 @@ import {
     check,
     doublePrecision,
     foreignKey,
+    pgEnum,
     pgTable,
     text,
     timestamp,
@@ -17,6 +18,8 @@ const createdAt = timestamp("created_at", { withTimezone: true })
     .defaultNow()
     .notNull();
 const createdBy = uuid("createdBy").references(() => users.id).notNull();
+
+export const roleEnum = pgEnum("role", ["owner", "admin", "editor", "viewer"]);
 
 export const wbsTasks = pgTable("wbs_tasks", {
     id,
@@ -54,3 +57,12 @@ export const wbsTaskHistories = pgTable("wbs_task_histories", {
         foreignColumns: [table.id],
     }),
 ]);
+
+export const wbsTaskMembers = pgTable("wbs_task_members", {
+    id,
+    taskId: uuid("task_id").references(() => wbsTasks.id).notNull(),
+    userId: uuid("user_id").references(() => users.id).notNull(),
+    role: roleEnum("role").default("viewer").notNull(),
+    createdAt,
+    createdBy,
+});
