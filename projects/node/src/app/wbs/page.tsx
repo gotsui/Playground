@@ -86,18 +86,18 @@ const WbsHomePage = () => {
                     <div className="animate-ping h-4 w-4 bg-blue-600 rounded-full"></div>
                 </div>
             ) : (
-                <ul className="m-4">
+                <div className="max-w-7xl w-full mx-auto px-4">
+                    <div className="flex mb-4">
+                        <div className="flex-1">プロジェクト名</div>
+                        <div className="flex-1">編集</div>
+                        <div className="flex-1">削除</div>
+                    </div>
                     {wbsList.map((wbs) => (
-                        <li
-                            key={wbs.id}
-                            className={[
-                                "grid grid-cols-12 items-center",
-                            ].join(" ")}
-                        >
-                            <div className="col-span-6">
-                                {wbs.name}
+                        <div key={wbs.id} className="flex">
+                            <div className="flex-1">
+                                <div className="ps-4">{wbs.name}</div>
                             </div>
-                            <div className="col-span-3">
+                            <div className="flex-1">
                                 <Link
                                     href={`/wbs/${wbs.id}`}
                                     className={[
@@ -108,7 +108,7 @@ const WbsHomePage = () => {
                                     <Edit2 />
                                 </Link>
                             </div>
-                            <div className="col-span-3">
+                            <div className="flex-1">
                                 <button
                                     type="button"
                                     className={[
@@ -120,9 +120,9 @@ const WbsHomePage = () => {
                                     <Trash2 className="hover:underline" />
                                 </button>
                             </div>
-                        </li>
+                        </div>
                     ))}
-                </ul>
+                </div>
             )}
         </div>
     );
