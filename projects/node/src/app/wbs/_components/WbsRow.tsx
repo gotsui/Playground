@@ -175,7 +175,7 @@ const WbsRow = ({
                             <div className="flex-1 min-w-0">
                                 <button
                                     type="button"
-                                    className="relative w-full border rounded-md px-0 py-1"
+                                    className="relative block min-h-7 w-full border rounded-md px-0 py-1"
                                     onClick={() => startDateInputRef.current?.showPicker()}
                                 >
                                     <input
@@ -192,7 +192,7 @@ const WbsRow = ({
                             <div className="flex-1 min-w-0">
                                 <button
                                     type="button"
-                                    className="relative w-full border rounded-md px-0 py-1"
+                                    className="relative block min-h-7 w-full border rounded-md px-0 py-1"
                                     onClick={() => endDateInputRef.current?.showPicker()}
                                 >
                                     <input
