@@ -419,10 +419,10 @@ const WbsLayout = ({
                             <div className="flex-1 text-center">主担当</div>
                         )}
                         {!hiddenColumnSet.has("startDate") && (
-                            <div className="flex-2 text-center">開始日</div>
+                            <div className="flex-1 text-center">開始日</div>
                         )}
                         {!hiddenColumnSet.has("endDate") && (
-                            <div className="flex-2 text-center">終了日</div>
+                            <div className="flex-1 text-center">終了日</div>
                         )}
                         <div className="flex-2 text-right" />
                     </div>

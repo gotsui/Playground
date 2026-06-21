@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 
 import type { ColumnFilterKey, EditingRow, TaskWithCalc } from "../_lib/types";
+import { useRef } from "react";
 
 type Props = {
     node: TaskWithCalc;
@@ -57,6 +58,9 @@ const WbsRow = ({
     hiddenNodeIdSet,
     hiddenColumnSet,
 }: Props) => {
+    const startDateInputRef = useRef<HTMLInputElement>(null);
+    const endDateInputRef = useRef<HTMLInputElement>(null);
+
     if (hiddenNodeIdSet.has(node.id)) {
         return null;
     }
@@ -168,23 +172,37 @@ const WbsRow = ({
                             </div>
                         )}
                         {!hiddenColumnSet.has("startDate") && (
-                            <div className="flex-2 min-w-0">
-                                <input
-                                    type="date"
-                                    className="min-w-0 size-full border rounded-md px-2 py-1"
-                                    value={editForm?.startDate || ""}
-                                    onChange={(e) => updateForm({ startDate: e.target.value })}
-                                />
+                            <div className="flex-1 min-w-0">
+                                <button
+                                    type="button"
+                                    className="relative w-full border rounded-md px-0 py-1"
+                                    onClick={() => startDateInputRef.current?.showPicker()}
+                                >
+                                    <input
+                                        ref={startDateInputRef}
+                                        type="date"
+                                        className="absolute invisible"
+                                        onChange={(e) => updateForm({ startDate: e.target.value })}
+                                    />
+                                    {editForm?.startDate.replaceAll("-", "/") || ""}
+                                </button>
                             </div>
                         )}
                         {!hiddenColumnSet.has("endDate") && (
-                            <div className="flex-2 min-w-0">
-                                <input
-                                    type="date"
-                                    className="min-w-0 size-full border rounded-md px-2 py-1"
-                                    value={editForm?.endDate || ""}
-                                    onChange={(e) => updateForm({ endDate: e.target.value })}
-                                />
+                            <div className="flex-1 min-w-0">
+                                <button
+                                    type="button"
+                                    className="relative w-full border rounded-md px-0 py-1"
+                                    onClick={() => endDateInputRef.current?.showPicker()}
+                                >
+                                    <input
+                                        ref={endDateInputRef}
+                                        type="date"
+                                        className="absolute invisible"
+                                        onChange={(e) => updateForm({ endDate: e.target.value })}
+                                    />
+                                    {editForm?.endDate.replaceAll("-", "/") || ""}
+                                </button>
                             </div>
                         )}
                         <div className="flex-2 flex gap-2 justify-end select-none">
@@ -262,7 +280,7 @@ const WbsRow = ({
                             </div>
                         )}
                         {!hiddenColumnSet.has("startDate") && (
-                            <div className="flex-2 text-center">
+                            <div className="flex-1 text-center">
                                 {node.startDate && (
                                     <span className="text-gray-500 ml-2">
                                         {node.startDate?.toLocaleDateString("ja-JP", {
@@ -276,7 +294,7 @@ const WbsRow = ({
                             </div>
                         )}
                         {!hiddenColumnSet.has("endDate") && (
-                            <div className="flex-2 text-center">
+                            <div className="flex-1 text-center">
                                 {node.endDate && (
                                     <span className="text-gray-500 ml-2">
                                         {node.endDate?.toLocaleDateString("ja-JP", {
