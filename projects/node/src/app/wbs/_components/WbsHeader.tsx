@@ -56,8 +56,18 @@ const WbsHeader = ({
                             </span>
                         </button>
                     )}
-                    <button type="button" className="cursor-pointer" onClick={onClickDownload}>
-                        <Download />
+                    <button type="button" className="cursor-pointer anchor-scope group" onClick={onClickDownload}>
+                        <Download className="relative anchor" />
+                        <span
+                            className={[
+                                "hidden p-1 z-100",
+                                "bg-gray-500 text-white text-nowrap rounded-md",
+                                "group-hover:block after:",
+                                "popover",
+                            ].join(" ")}
+                        >
+                            ダウンロード
+                        </span>
                     </button>
                 </div>
             </div>
