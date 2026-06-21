@@ -5,7 +5,7 @@ import type { TaskHistoryNode } from "../../_lib/types";
 import { wbsTaskHistoriesSchema } from "../../_lib/schema";
 import { diffNodes, parseTaskHistoryNode } from "../../_lib/utils";
 import { partition, trim } from "@/lib/array";
-import { datetimeToString } from "@/lib/date";
+import { datetimeToString, dateToString } from "@/lib/date";
 
 type Props = {
     wbsId: string;
@@ -97,8 +97,11 @@ const UpdateHistory = ({
                         sss.set(crypto.randomUUID(), updateField.path.join("/"));
 
                         for (const field of updateField.fields) {
+                            const before = field.before instanceof Date ? dateToString(field.before) : field.before?.toString() || "";
+                            const after = field.after instanceof Date ? dateToString(field.after) : field.after?.toString() || "";
+
                             sss.set(crypto.randomUUID(), field.key);
-                            sss.set(crypto.randomUUID(), `"+++++++ ${field.before?.toString() || ""} → ${field.after?.toString()}`);
+                            sss.set(crypto.randomUUID(), `"+++++++ ${before} → ${after}`);
                         }
                     }
                 }
