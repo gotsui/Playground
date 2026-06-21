@@ -76,6 +76,10 @@ const MemberList = ({
         setSelectedRole("");
     };
 
+    const handleClickDeleteMember = (id: string) => {
+        setMembers((prev) => prev.filter((member) => member.id !== id));
+    };
+
     const handleClickSave = async () => {
         setIsSaving(true);
 
@@ -164,7 +168,15 @@ const MemberList = ({
                                 <option value={"viewer"}>viewer</option>
                             </select>
                         </div>
-                        <div className="flex-1"></div>
+                        <div className="flex-1">
+                            <button
+                                type="button"
+                                className="px-2 py-1 bg-red-500 text-white hover:bg-red-600 rounded"
+                                onClick={() => handleClickDeleteMember(other.id)}
+                            >
+                                削除
+                            </button>
+                        </div>
                     </div>
                 ))}
                 <div className="flex space-x-2">

@@ -31,7 +31,7 @@ export const PUT = async (req: NextRequest, { params }: { params: { id: string }
                 ...field,
                 formId: parsed.data.id,
             }))));
-        })
+        });
 
         return NextResponse.json(
             { status: 201 },

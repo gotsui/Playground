@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import z from "zod";
 
 import { db } from "@/db";
@@ -87,6 +87,7 @@ export const POST = async (req: NextRequest, { params }: { params: { id: string 
     }
 
     const taskId = parsedParams.data.id;
+    const members = parsedBody.data.members;
 
     try {
         const roleResult = await db
@@ -119,21 +120,36 @@ export const POST = async (req: NextRequest, { params }: { params: { id: string 
     }
 
     try {
-        await db
-            .insert(wbsTaskMembers)
-            .values(parsedBody.data.members.map((member) => ({
-                id: member.id,
-                taskId,
-                userId: member.userId,
-                role: member.role,
-                createdBy: userId,
-            })))
-            .onConflictDoUpdate({
-                set: {
-                    role: sql`EXCLUDED.role`,
-                },
-                target: wbsTaskMembers.id,
-            })
+        const membersResult = await db
+            .select()
+            .from(wbsTaskMembers)
+            .where(eq(wbsTaskMembers.taskId, taskId));
+
+        const deletingUserIds = membersResult
+            .filter((existing) => !members.some((member) => member.userId === existing.userId))
+            .map((member) => member.userId);
+
+        await db.transaction(async (tx) => {
+            await tx
+                .delete(wbsTaskMembers)
+                .where(inArray(wbsTaskMembers.userId, deletingUserIds));
+
+            await tx
+                .insert(wbsTaskMembers)
+                .values(members.map((member) => ({
+                    id: member.id,
+                    taskId,
+                    userId: member.userId,
+                    role: member.role,
+                    createdBy: userId,
+                })))
+                .onConflictDoUpdate({
+                    set: {
+                        role: sql`EXCLUDED.role`,
+                    },
+                    target: wbsTaskMembers.id,
+                });
+        });
 
         return NextResponse.json({ status: 201 });
     } catch (error) {
