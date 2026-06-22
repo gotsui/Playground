@@ -45,7 +45,7 @@ const WbsLayout = ({
     const [rect, setRect] = useState<DragRect | null>(null);
 
     // フィルター
-    const [hiddenColumnSet, setHiddenColumnSet] = useState<Set<ColumnFilterKey>>(new Set(["totalWithBuffer"]));
+    const [hiddenColumnSet, setHiddenColumnSet] = useState<Set<ColumnFilterKey>>(new Set());
     const [filterMap, setFilterMap] = useState<WbsFilterMap>(new Map());
     const [ignoreChildren, setIgnoreChildren] = useState(false);
 
@@ -360,21 +360,25 @@ const WbsLayout = ({
                     <ChevronDown className="size-4" />
                     <span>展開</span>
                 </button>
-                <button
-                    type="button"
-                    className="relative flex items-center gap-1 cursor-pointer"
-                    onClick={historyHandler.setTrue}
-                >
-                    <History className="size-4" />
-                    <span>履歴</span>
-                </button>
-                <Dialog isOpen={isOpenHistory} close={historyHandler.setFalse}>
-                    <UpdateHistory
-                        key={String(isOpenHistory)}
-                        wbsId={wbsId || ""}
-                    />
-                </Dialog>
-                {(wbsRole === "owner" || wbsRole === "admin") && (
+                {wbsId && (
+                    <>
+                        <button
+                            type="button"
+                            className="relative flex items-center gap-1 cursor-pointer"
+                            onClick={historyHandler.setTrue}
+                        >
+                            <History className="size-4" />
+                            <span>履歴</span>
+                        </button>
+                        <Dialog isOpen={isOpenHistory} close={historyHandler.setFalse}>
+                            <UpdateHistory
+                                key={String(isOpenHistory)}
+                                wbsId={wbsId || ""}
+                            />
+                        </Dialog>
+                    </>
+                )}
+                {wbsId && (wbsRole === "owner" || wbsRole === "admin") && (
                     <>
                         <button
                             type="button"

@@ -25,6 +25,10 @@ const MemberList = ({
 
     useEffect(() => {
         const fetchData = async () => {
+            if (!wbsId) {
+                return;
+            }
+
             setIsLoading(true);
 
             const res = await fetch(`/api/wbs/member/${wbsId}`);
