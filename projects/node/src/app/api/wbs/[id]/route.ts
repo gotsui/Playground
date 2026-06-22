@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, isNull, sql } from "drizzle-orm";
 import z from "zod";
 
 import { taskNodeSchema } from "@/app/wbs/_lib/schema";
@@ -38,6 +38,30 @@ export const GET = async (_: NextRequest, { params }: { params: { id: string } }
     }
 
     const taskId = parsedParams.data.id;
+
+    // 削除済みWBSへのURL直接アクセス禁止
+    try {
+        const tasksResult = await db
+            .select()
+            .from(wbsTasks)
+            .where(and(
+                eq(wbsTasks.id, taskId),
+                isNull(wbsTasks.deletedAt),
+            ));
+
+        if (tasksResult.length === 0) {
+            return NextResponse.json(
+                { error: "Failed to fetch" },
+                { status: 404 },
+            );
+        }
+    } catch (error) {
+        console.error(error);
+        return NextResponse.json(
+            { error: "Failed to fetch" },
+            { status: 500 },
+        );
+    }
 
     try {
         const wbsTasksResult = await db.execute(sql`
