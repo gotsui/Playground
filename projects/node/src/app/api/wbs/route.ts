@@ -5,7 +5,7 @@ import z from "zod";
 import { taskNodeSchema } from "@/app/wbs/_lib/schema";
 import { parseWbsTasks } from "@/app/wbs/_lib/utils";
 import { db } from "@/db";
-import { wbsTaskHistories, wbsTasks } from "@/db/wbs-schema";
+import { wbsTaskHistories, wbsTaskMembers, wbsTasks } from "@/db/wbs-schema";
 import { getCurrentUserId } from "@/lib/auth/session";
 
 const postSchema = z.object({
@@ -86,11 +86,24 @@ export const POST = async (req: NextRequest) => {
         const taskId = await db.transaction(async (tx) => {
             const wbsTasksResults = await tx.insert(wbsTasks).values({ createdBy: userId }).returning();
             const taskId = wbsTasksResults[0].id;
-            await tx.insert(wbsTaskHistories).values(parsedWbsTasks.map((task) => ({
-                ...task,
-                taskId,
-                createdBy: userId,
-            })));
+            console.log("taskId", taskId);
+
+            await tx
+                .insert(wbsTaskHistories)
+                .values(parsedWbsTasks.map((task) => ({
+                    ...task,
+                    taskId,
+                    createdBy: userId,
+                })));
+
+            await tx
+                .insert(wbsTaskMembers)
+                .values({
+                    taskId,
+                    userId,
+                    role: "owner",
+                    createdBy: userId,
+                });
             return taskId;
         });
 
