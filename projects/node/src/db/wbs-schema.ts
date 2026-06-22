@@ -17,7 +17,7 @@ const id = uuid("id").primaryKey().defaultRandom();
 const createdAt = timestamp("created_at", { withTimezone: true })
     .defaultNow()
     .notNull();
-const createdBy = uuid("createdBy").references(() => users.id).notNull();
+const createdBy = uuid("created_by").references(() => users.id).notNull();
 
 export const roleEnum = pgEnum("role", ["owner", "admin", "editor", "viewer"]);
 
@@ -26,7 +26,7 @@ export const wbsTasks = pgTable("wbs_tasks", {
     createdAt,
     createdBy,
     deletedAt: timestamp("deleted_at", { withTimezone: true }),
-    deletedBy: uuid("deletedBy").references(() => users.id),
+    deletedBy: uuid("deleted_by").references(() => users.id),
 }, (table) => [
     check(
         "deleted_check",
