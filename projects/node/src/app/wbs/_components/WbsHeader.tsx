@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowLeft, Download, Save } from "lucide-react";
 
 import type { WbsRole } from "../_lib/types";
+import { useState } from "react";
 
 type Props = {
     name: string;
@@ -23,6 +24,14 @@ const WbsHeader = ({
     onClickDownload,
     wbsRole,
 }: Props) => {
+    const [isSaving, setIsSaving] = useState(false);
+
+    const handleClickSave = () => {
+        setIsSaving(true);
+        onClickSave();
+        setIsSaving(false);
+    };
+
     return (
         <div className="bg-white shadow-sm border-b">
             <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
@@ -42,7 +51,12 @@ const WbsHeader = ({
                         )}
                     </div>
                     {wbsRole !== "viewer" && (
-                        <button type="button" className="cursor-pointer anchor-scope group" onClick={onClickSave}>
+                        <button
+                            type="button"
+                            className="cursor-pointer anchor-scope group"
+                            onClick={handleClickSave}
+                            disabled={isSaving}
+                        >
                             <Save className="relative anchor" />
                             <span
                                 className={[
