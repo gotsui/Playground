@@ -28,7 +28,7 @@ const WbsNoteModal = ({
                 <div className="bg-white rounded-lg p-8 max-w-2xl w-full max-h-96 overflow-y-auto focus:outline-none" onClick={(e) => e.stopPropagation()}>
                     <h3 className="text-xl font-bold mb-4">{node.name} - 備考</h3>
                     <textarea
-                        className="size-full whitespace-pre-wrap text-gray-700 p-2"
+                        className="size-full whitespace-pre-wrap text-gray-700 p-2 border border-gray-400 rounded"
                         value={value}
                         onChange={(e) => setValue(e.target.value)}
                         placeholder="（備考なし）"
