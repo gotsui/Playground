@@ -139,8 +139,10 @@ const diffCheckKeySet = new Set<keyof TaskNode>([
     "buffer",
     "actualEffort",
     "assignee",
-    "startDate",
-    "endDate",
+    "plannedStartDate",
+    "plannedEndDate",
+    "actualStartDate",
+    "actualEndDate",
     "notes",
 ]);
 

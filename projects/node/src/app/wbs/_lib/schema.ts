@@ -17,6 +17,10 @@ const baseNodeSchema = z.object({
     assignee: z.string().optional().nullable(),
     startDate: z.coerce.date().optional().nullable(),
     endDate: z.coerce.date().optional().nullable(),
+    plannedStartDate: z.coerce.date().optional().nullable(),
+    plannedEndDate: z.coerce.date().optional().nullable(),
+    actualStartDate: z.coerce.date().optional().nullable(),
+    actualEndDate: z.coerce.date().optional().nullable(),
     notes: z.string().optional().nullable(),
 }).refine((data) => !data.startDate || !data.endDate || (data.startDate && data.endDate && data.startDate <= data.endDate), {
     message: "終了日は開始日以降の日付を入力してください",

@@ -422,11 +422,17 @@ const WbsLayout = ({
                         {!hiddenColumnSet.has("assignee") && (
                             <div className="flex-1 text-center">主担当</div>
                         )}
-                        {!hiddenColumnSet.has("startDate") && (
-                            <div className="flex-1 text-center">開始日</div>
+                        {!hiddenColumnSet.has("plannedStartDate") && (
+                            <div className="flex-1 text-center">開始予定日</div>
                         )}
-                        {!hiddenColumnSet.has("endDate") && (
-                            <div className="flex-1 text-center">終了日</div>
+                        {!hiddenColumnSet.has("plannedEndDate") && (
+                            <div className="flex-1 text-center">終了予定日</div>
+                        )}
+                        {!hiddenColumnSet.has("actualStartDate") && (
+                            <div className="flex-1 text-center">開始実績日</div>
+                        )}
+                        {!hiddenColumnSet.has("actualEndDate") && (
+                            <div className="flex-1 text-center">終了実績日</div>
                         )}
                         <div className="flex-2 text-right" />
                     </div>

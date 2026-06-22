@@ -103,8 +103,10 @@ export const GET = async (_: NextRequest, { params }: { params: { id: string } }
                 buffer,
                 actual_effort as "actualEffort",
                 assignee,
-                start_date as "startDate",
-                end_date as "endDate",
+                planned_start_date as "plannedStartDate",
+                planned_end_date as "plannedEndDate",
+                actual_start_date as "actualStartDate",
+                actual_end_date as "actualEndDate",
                 notes
             FROM
                 tmp

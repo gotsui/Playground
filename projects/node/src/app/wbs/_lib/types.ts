@@ -19,8 +19,10 @@ export type TaskNode = {
     buffer: number;
     actualEffort: number;
     assignee?: string | null;
-    startDate?: Date | null;
-    endDate?: Date | null;
+    plannedStartDate?: Date | null;
+    plannedEndDate?: Date | null;
+    actualStartDate?: Date | null;
+    actualEndDate?: Date | null;
     notes?: string | null;
     children: TaskNode[];
 };
@@ -38,8 +40,10 @@ export type EditingRow = {
     buffer: string;
     actualEffort: string;
     assignee: string;
-    startDate: string;
-    endDate: string;
+    plannedStartDate: string;
+    plannedEndDate: string;
+    actualStartDate: string;
+    actualEndDate: string;
     notes: string;
 };
 

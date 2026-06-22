@@ -58,8 +58,10 @@ const WbsRow = ({
     hiddenNodeIdSet,
     hiddenColumnSet,
 }: Props) => {
-    const startDateInputRef = useRef<HTMLInputElement>(null);
-    const endDateInputRef = useRef<HTMLInputElement>(null);
+    const plannedStartDateRef = useRef<HTMLInputElement>(null);
+    const plannedEndDateRef = useRef<HTMLInputElement>(null);
+    const actualStartDateRef = useRef<HTMLInputElement>(null);
+    const actualEndDateRef = useRef<HTMLInputElement>(null);
 
     if (hiddenNodeIdSet.has(node.id)) {
         return null;
@@ -171,37 +173,71 @@ const WbsRow = ({
                                 />
                             </div>
                         )}
-                        {!hiddenColumnSet.has("startDate") && (
+                        {!hiddenColumnSet.has("plannedStartDate") && (
                             <div className="flex-1 min-w-0">
                                 <button
                                     type="button"
                                     className="relative block min-h-7 w-full border rounded-md px-0 py-1"
-                                    onClick={() => startDateInputRef.current?.showPicker()}
+                                    onClick={() => plannedStartDateRef.current?.showPicker()}
                                 >
                                     <input
-                                        ref={startDateInputRef}
+                                        ref={plannedStartDateRef}
                                         type="date"
                                         className="absolute invisible"
-                                        onChange={(e) => updateForm({ startDate: e.target.value })}
+                                        onChange={(e) => updateForm({ plannedStartDate: e.target.value })}
                                     />
-                                    {editForm?.startDate.replaceAll("-", "/") || ""}
+                                    {editForm?.plannedStartDate.replaceAll("-", "/") || ""}
                                 </button>
                             </div>
                         )}
-                        {!hiddenColumnSet.has("endDate") && (
+                        {!hiddenColumnSet.has("plannedEndDate") && (
                             <div className="flex-1 min-w-0">
                                 <button
                                     type="button"
                                     className="relative block min-h-7 w-full border rounded-md px-0 py-1"
-                                    onClick={() => endDateInputRef.current?.showPicker()}
+                                    onClick={() => plannedEndDateRef.current?.showPicker()}
                                 >
                                     <input
-                                        ref={endDateInputRef}
+                                        ref={plannedEndDateRef}
                                         type="date"
                                         className="absolute invisible"
-                                        onChange={(e) => updateForm({ endDate: e.target.value })}
+                                        onChange={(e) => updateForm({ plannedEndDate: e.target.value })}
                                     />
-                                    {editForm?.endDate.replaceAll("-", "/") || ""}
+                                    {editForm?.plannedEndDate.replaceAll("-", "/") || ""}
+                                </button>
+                            </div>
+                        )}
+                        {!hiddenColumnSet.has("actualStartDate") && (
+                            <div className="flex-1 min-w-0">
+                                <button
+                                    type="button"
+                                    className="relative block min-h-7 w-full border rounded-md px-0 py-1"
+                                    onClick={() => actualStartDateRef.current?.showPicker()}
+                                >
+                                    <input
+                                        ref={actualStartDateRef}
+                                        type="date"
+                                        className="absolute invisible"
+                                        onChange={(e) => updateForm({ actualStartDate: e.target.value })}
+                                    />
+                                    {editForm?.actualStartDate.replaceAll("-", "/") || ""}
+                                </button>
+                            </div>
+                        )}
+                        {!hiddenColumnSet.has("actualEndDate") && (
+                            <div className="flex-1 min-w-0">
+                                <button
+                                    type="button"
+                                    className="relative block min-h-7 w-full border rounded-md px-0 py-1"
+                                    onClick={() => actualEndDateRef.current?.showPicker()}
+                                >
+                                    <input
+                                        ref={actualEndDateRef}
+                                        type="date"
+                                        className="absolute invisible"
+                                        onChange={(e) => updateForm({ actualEndDate: e.target.value })}
+                                    />
+                                    {editForm?.actualEndDate.replaceAll("-", "/") || ""}
                                 </button>
                             </div>
                         )}
@@ -279,11 +315,11 @@ const WbsRow = ({
                                 {node.assignee && <span className="text-gray-500 ml-2">{node.assignee}</span>}
                             </div>
                         )}
-                        {!hiddenColumnSet.has("startDate") && (
+                        {!hiddenColumnSet.has("plannedStartDate") && (
                             <div className="flex-1 text-center">
-                                {node.startDate && (
+                                {node.plannedStartDate && (
                                     <span className="text-gray-500 ml-2">
-                                        {node.startDate?.toLocaleDateString("ja-JP", {
+                                        {node.plannedStartDate?.toLocaleDateString("ja-JP", {
                                             timeZone: "Asia/Tokyo",
                                             year: "numeric",
                                             month: "2-digit",
@@ -293,11 +329,39 @@ const WbsRow = ({
                                 )}
                             </div>
                         )}
-                        {!hiddenColumnSet.has("endDate") && (
+                        {!hiddenColumnSet.has("plannedEndDate") && (
                             <div className="flex-1 text-center">
-                                {node.endDate && (
+                                {node.plannedEndDate && (
                                     <span className="text-gray-500 ml-2">
-                                        {node.endDate?.toLocaleDateString("ja-JP", {
+                                        {node.plannedEndDate?.toLocaleDateString("ja-JP", {
+                                            timeZone: "Asia/Tokyo",
+                                            year: "numeric",
+                                            month: "2-digit",
+                                            day: "2-digit",
+                                        })}
+                                    </span>
+                                )}
+                            </div>
+                        )}
+                        {!hiddenColumnSet.has("actualStartDate") && (
+                            <div className="flex-1 text-center">
+                                {node.actualStartDate && (
+                                    <span className="text-gray-500 ml-2">
+                                        {node.actualStartDate?.toLocaleDateString("ja-JP", {
+                                            timeZone: "Asia/Tokyo",
+                                            year: "numeric",
+                                            month: "2-digit",
+                                            day: "2-digit",
+                                        })}
+                                    </span>
+                                )}
+                            </div>
+                        )}
+                        {!hiddenColumnSet.has("actualEndDate") && (
+                            <div className="flex-1 text-center">
+                                {node.actualEndDate && (
+                                    <span className="text-gray-500 ml-2">
+                                        {node.actualEndDate?.toLocaleDateString("ja-JP", {
                                             timeZone: "Asia/Tokyo",
                                             year: "numeric",
                                             month: "2-digit",

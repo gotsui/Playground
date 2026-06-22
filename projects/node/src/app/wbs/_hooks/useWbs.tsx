@@ -71,8 +71,10 @@ export const useWbs = (initialTaskNode: TaskNode) => {
             buffer: node.buffer.toString(),
             actualEffort: node.actualEffort.toString(),
             assignee: node.assignee || "",
-            startDate: node.startDate ? dateToString(node.startDate, "sv-SE") : "",
-            endDate: node.endDate ? dateToString(node.endDate, "sv-SE") : "",
+            plannedStartDate: node.plannedStartDate ? dateToString(node.plannedStartDate, "sv-SE") : "",
+            plannedEndDate: node.plannedEndDate ? dateToString(node.plannedEndDate, "sv-SE") : "",
+            actualStartDate: node.actualStartDate ? dateToString(node.actualStartDate, "sv-SE") : "",
+            actualEndDate: node.actualEndDate ? dateToString(node.actualEndDate, "sv-SE") : "",
             notes: node.notes || "",
         });
     };
@@ -87,8 +89,10 @@ export const useWbs = (initialTaskNode: TaskNode) => {
             buffer: Number(editForm.buffer),
             actualEffort: Number(editForm.actualEffort),
             assignee: editForm.assignee || undefined,
-            startDate: editForm.startDate ? new Date(editForm.startDate) : undefined,
-            endDate: editForm.endDate ? new Date(editForm.endDate) : undefined,
+            plannedStartDate: editForm.plannedStartDate ? new Date(editForm.plannedStartDate) : undefined,
+            plannedEndDate: editForm.plannedEndDate ? new Date(editForm.plannedEndDate) : undefined,
+            actualStartDate: editForm.actualStartDate ? new Date(editForm.actualStartDate) : undefined,
+            actualEndDate: editForm.actualEndDate ? new Date(editForm.actualEndDate) : undefined,
             notes: editForm.notes || undefined,
         };
 

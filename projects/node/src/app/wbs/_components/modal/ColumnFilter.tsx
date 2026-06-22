@@ -26,8 +26,10 @@ const ColumnFilter = ({
         ["actualEffort", "実績工数"],
         ["totalWithBuffer", "小計"],
         ["assignee", "主担当"],
-        ["startDate", "開始日"],
-        ["endDate", "終了日"],
+        ["plannedStartDate", "開始予定日"],
+        ["plannedEndDate", "終了予定日"],
+        ["actualStartDate", "開始実績日"],
+        ["actualEndDate", "終了実績日"],
     ]);
 
     const handleChangeFilterAll = () => {
