@@ -270,7 +270,7 @@ const WbsLayout = ({
     };
 
     return (
-        <div className="size-full flex flex-col bg-gray-100 pb-4" onPointerUp={(e) => handlePointerUp(e, "")}>
+        <div className="size-full flex flex-col bg-gray-100 pb-4 select-none" onPointerUp={(e) => handlePointerUp(e, "")}>
             <WbsHeader
                 name={calcedRoot.name}
                 ccpmMode={ccpmMode}
