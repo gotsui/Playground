@@ -149,40 +149,51 @@ const MemberList = ({
                     <div className="flex-1">ロール</div>
                     <div className="flex-1"></div>
                 </div>
-                {others.map((other) => (
-                    <div key={other.id} className="flex space-x-2">
-                        <div className="flex-1">{other.userName}</div>
-                        <div className="flex-1">
-                            <select
-                                className="w-full p-1 border rounded"
-                                value={other.role || ""}
-                                onChange={(e) => {
-                                    const parsedRole = wbsRoleSchema.safeParse(e.target.value);
+                {others.map((other) => {
+                    if (other.role === "owner") {
+                        return (
+                            <div key={other.id} className="flex space-x-2">
+                                <div className="flex-1">{other.userName}</div>
+                                <div className="flex-1">{other.role}</div>
+                                <div className="flex-1" />
+                            </div>
+                        );
+                    } else {
+                        return (
+                            <div key={other.id} className="flex space-x-2">
+                                <div className="flex-1">{other.userName}</div>
+                                <div className="flex-1">
+                                    <select
+                                        className="w-full p-1 border rounded"
+                                        value={other.role || ""}
+                                        onChange={(e) => {
+                                            const parsedRole = wbsRoleSchema.safeParse(e.target.value);
 
-                                    if (parsedRole.success) {
-                                        setMembers((prev) => prev.map((member) => member.userId === other.userId
-                                            ? { ...member, role: parsedRole.data }
-                                            : member
-                                        ));
-                                    }
-                                }}
-                            >
-                                <option value={"admin"}>admin</option>
-                                <option value={"editor"}>editor</option>
-                                <option value={"viewer"}>viewer</option>
-                            </select>
-                        </div>
-                        <div className="flex-1">
-                            <button
-                                type="button"
-                                className="px-2 py-1 bg-red-500 text-white hover:bg-red-600 rounded"
-                                onClick={() => handleClickDeleteMember(other.id)}
-                            >
-                                削除
-                            </button>
-                        </div>
-                    </div>
-                ))}
+                                            if (parsedRole.success) {
+                                                setMembers((prev) => prev.map((member) => member.userId === other.userId
+                                                    ? { ...member, role: parsedRole.data }
+                                                    : member
+                                                ));
+                                            }
+                                        }}
+                                    >
+                                        <option value={"admin"}>admin</option>
+                                        <option value={"editor"}>editor</option>
+                                        <option value={"viewer"}>viewer</option>
+                                    </select>
+                                </div>
+                                <div className="flex-1">
+                                    <button
+                                        type="button"
+                                        className="px-2 py-1 bg-red-500 text-white hover:bg-red-600 rounded"
+                                        onClick={() => handleClickDeleteMember(other.id)}
+                                    >
+                                        削除
+                                    </button>
+                                </div>
+                            </div>
+                        );
+                    }})}
                 <div className="flex space-x-2">
                     <div className="flex-1">
                         <select
