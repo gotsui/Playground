@@ -6,14 +6,27 @@ export const generateId = () => crypto.randomUUID();
 export const calcTotals = (node: TaskNode): TaskWithCalc => {
     const calcedChildren = node.children.map(calcTotals);
 
-    const childrenEffort = calcedChildren.reduce((acc, child) => acc + child.plannedEffort, 0);
-    const childrenTotalWithBuffer = calcedChildren.reduce((acc, child) => acc + child.totalWithBuffer, 0);
+    const childrenTotalEffort = calcedChildren.reduce((acc, child) => {
+        if (child.children.length > 0) {
+            return acc + child.totalPlannedEffort;
+        } else {
+            return acc + child.plannedEffort;
+        }
+    }, 0);
+
+    const childrenTotalBuffer = calcedChildren.reduce((acc, child) => {
+        if (child.children.length > 0) {
+            return acc + child.totalBuffer;
+        } else {
+            return acc + child.buffer;
+        }
+    }, 0);
 
     return {
         ...node,
         children: calcedChildren,
-        totalEffort: node.plannedEffort + childrenEffort,
-        totalWithBuffer: node.plannedEffort + node.buffer + childrenTotalWithBuffer,
+        totalPlannedEffort: node.plannedEffort + childrenTotalEffort,
+        totalBuffer: node.buffer + childrenTotalBuffer,
     };
 };
 

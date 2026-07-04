@@ -1,15 +1,18 @@
-import {
-    ChevronDown,
-    ChevronRight,
-    Dot,
-    Menu,
-    Plus,
-    StickyNote,
-    Trash2,
-} from "lucide-react";
+"use client"
 
 import type { ColumnFilterKey, EditingRow, TaskWithCalc } from "../_lib/types";
-import { useRef } from "react";
+import PlannedEffort from "./columns/PlannedEffort";
+import PlannedBuffer from "./columns/PlannedBuffer";
+import TaskStatus from "./columns/TaskStatus";
+import PlannedEffortWithBuffer from "./columns/PlannedEffortWithBuffer";
+import ActualEffort from "./columns/ActualEffort";
+import TaskAssignee from "./columns/TaskAssignee";
+import PlannedStartDate from "./columns/PlannedStartDate";
+import PlannedEndDate from "./columns/PlannedEndDate";
+import ActualStartDate from "./columns/ActualStartDate";
+import ActualEndDate from "./columns/ActualEndDate";
+import TaskMenu from "./columns/TaskMenu";
+import TaskName from "./columns/TaskName";
 
 type Props = {
     node: TaskWithCalc;
@@ -58,20 +61,12 @@ const WbsRow = ({
     hiddenNodeIdSet,
     hiddenColumnSet,
 }: Props) => {
-    const plannedStartDateRef = useRef<HTMLInputElement>(null);
-    const plannedEndDateRef = useRef<HTMLInputElement>(null);
-    const actualStartDateRef = useRef<HTMLInputElement>(null);
-    const actualEndDateRef = useRef<HTMLInputElement>(null);
-
     if (hiddenNodeIdSet.has(node.id)) {
         return null;
     }
 
     const isEditing = editingId === node.id;
     const isExpanded = expanded.has(node.id);
-    const hasChildren = node.children.length > 0;
-    const withBuffer = node.plannedEffort + node.buffer;
-    const paddingLeft = depth * 24;
 
     return (
         <>
@@ -87,354 +82,94 @@ const WbsRow = ({
                 onPointerUp={(e) => handlePointerUp(e, node.id)}
                 onPointerMove={(e) => handlePointerMove(e, node.id)}
             >
-                {isEditing ? (
-                    <>
-                        <div className="flex-4 flex items-center">
-                            {hasChildren ? (
-                                <div
-                                    className="p-1 ml-1"
-                                    style={{ paddingLeft: `${paddingLeft}px` }}
-                                >
-                                    {isExpanded ? <ChevronDown className="size-5" /> : <ChevronRight className="size-5" />}
-                                </div>
-                            ) : (
-                                <div
-                                    style={{ paddingLeft: `${paddingLeft}px` }}
-                                >
-                                    <Dot className="size-7" />
-                                </div>
-                            )}
-                            <input
-                                className="w-full border rounded-md px-2 py-1"
-                                value={editForm?.name || ""}
-                                onChange={(e) => updateForm({ name: e.target.value })}
-                            />
-                        </div>
-                        {!hiddenColumnSet.has("status") && (
-                            <div className="flex-1">
-                                <select
-                                    className="w-full border rounded-md px-2 py-1.5"
-                                    value={editForm?.status || "新規"}
-                                    onChange={(e) => updateForm({ status: e.target.value })}
-                                >
-                                    <option>新規</option>
-                                    <option>進行中</option>
-                                    <option>完了</option>
-                                </select>
-                            </div>
-                        )}
-                        {!hiddenColumnSet.has("plannedEffort") && (
-                            <div className="flex-1">
-                                <input
-                                    className={`w-full border rounded-md px-2 py-1 text-right ${ccpmMode && isRoot ? "bg-gray-200" : ""}`}
-                                    value={ccpmMode && isRoot ? "0" : editForm?.plannedEffort}
-                                    disabled={ccpmMode && isRoot}
-                                    onChange={(e) => updateForm({ plannedEffort: e.target.value })}
-                                />
-                            </div>
-                        )}
-                        {!hiddenColumnSet.has("buffer") && (
-                            <div className="flex-1">
-                                <input
-                                    className="w-full border rounded-md px-2 py-1 text-right"
-                                    value={editForm?.buffer || ""}
-                                    onChange={(e) => updateForm({ buffer: e.target.value })}
-                                />
-                            </div>
-                        )}
-                        {!hiddenColumnSet.has("withBuffer") && (
-                            <div className="flex-1 text-right font-bold text-green-600">
-                                {withBuffer} h
-                            </div>
-                        )}
-                        {!hiddenColumnSet.has("totalWithBuffer") && hasChildren && (
-                            <div className="flex-1 text-right text-gray-600">
-                                計 {node.totalWithBuffer} h
-                            </div>
-                        )}
-                        {!hiddenColumnSet.has("totalWithBuffer") && !hasChildren && (
-                            <div className="flex-1" />
-                        )}
-                        {!hiddenColumnSet.has("actualEffort") && (
-                            <div className="flex-1">
-                                <input
-                                    className="w-full border rounded-md px-2 py-1 text-right"
-                                    value={editForm?.actualEffort || ""}
-                                    onChange={(e) => updateForm({ actualEffort: e.target.value })}
-                                />
-                            </div>
-                        )}
-                        {!hiddenColumnSet.has("assignee") && (
-                            <div className="flex-1">
-                                <input
-                                    className="w-full border rounded-md px-2 py-1"
-                                    value={editForm?.assignee || ""}
-                                    onChange={(e) => updateForm({ assignee: e.target.value })}
-                                />
-                            </div>
-                        )}
-                        {!hiddenColumnSet.has("plannedStartDate") && (
-                            <div className="flex-1 min-w-0">
-                                <button
-                                    type="button"
-                                    className="relative block min-h-7 w-full border rounded-md px-0 py-1"
-                                    onClick={() => plannedStartDateRef.current?.showPicker()}
-                                >
-                                    <input
-                                        ref={plannedStartDateRef}
-                                        type="date"
-                                        className="absolute invisible"
-                                        onChange={(e) => updateForm({ plannedStartDate: e.target.value })}
-                                    />
-                                    {editForm?.plannedStartDate.replaceAll("-", "/") || ""}
-                                </button>
-                            </div>
-                        )}
-                        {!hiddenColumnSet.has("plannedEndDate") && (
-                            <div className="flex-1 min-w-0">
-                                <button
-                                    type="button"
-                                    className="relative block min-h-7 w-full border rounded-md px-0 py-1"
-                                    onClick={() => plannedEndDateRef.current?.showPicker()}
-                                >
-                                    <input
-                                        ref={plannedEndDateRef}
-                                        type="date"
-                                        className="absolute invisible"
-                                        onChange={(e) => updateForm({ plannedEndDate: e.target.value })}
-                                    />
-                                    {editForm?.plannedEndDate.replaceAll("-", "/") || ""}
-                                </button>
-                            </div>
-                        )}
-                        {!hiddenColumnSet.has("actualStartDate") && (
-                            <div className="flex-1 min-w-0">
-                                <button
-                                    type="button"
-                                    className="relative block min-h-7 w-full border rounded-md px-0 py-1"
-                                    onClick={() => actualStartDateRef.current?.showPicker()}
-                                >
-                                    <input
-                                        ref={actualStartDateRef}
-                                        type="date"
-                                        className="absolute invisible"
-                                        onChange={(e) => updateForm({ actualStartDate: e.target.value })}
-                                    />
-                                    {editForm?.actualStartDate.replaceAll("-", "/") || ""}
-                                </button>
-                            </div>
-                        )}
-                        {!hiddenColumnSet.has("actualEndDate") && (
-                            <div className="flex-1 min-w-0">
-                                <button
-                                    type="button"
-                                    className="relative block min-h-7 w-full border rounded-md px-0 py-1"
-                                    onClick={() => actualEndDateRef.current?.showPicker()}
-                                >
-                                    <input
-                                        ref={actualEndDateRef}
-                                        type="date"
-                                        className="absolute invisible"
-                                        onChange={(e) => updateForm({ actualEndDate: e.target.value })}
-                                    />
-                                    {editForm?.actualEndDate.replaceAll("-", "/") || ""}
-                                </button>
-                            </div>
-                        )}
-                        <div className="flex-2 flex gap-2 justify-end select-none">
-                            <button type="button" onClick={saveEdit} className="text-green-600 text-sm">
-                                確定
-                            </button>
-                            <button type="button" onClick={cancelEdit} className="text-gray-500 text-sm">
-                                キャンセル
-                            </button>
-                        </div>
-                    </>
-                ) : (
-                    <>
-                        <div className="flex-4 flex items-center">
-                            {hasChildren ? (
-                                <button
-                                    type="button"
-                                    className="p-1 ml-1 cursor-pointer"
-                                    onClick={() => toggleExpand(node.id)}
-                                    style={{ paddingLeft: `${paddingLeft}px` }}
-                                >
-                                    {isExpanded ? <ChevronDown className="size-5" /> : <ChevronRight className="size-5" />}
-                                </button>
-                            ) : (
-                                <div
-                                    style={{ paddingLeft: `${paddingLeft}px` }}
-                                >
-                                    <Dot className="size-7" />
-                                </div>
-                            )}
-                            <span className="font-medium">{node.name}</span>
-                        </div>
-                        {!hiddenColumnSet.has("status") && (
-                            <div className="flex-1 text-center">
-                                <span className={`inline-block w-4/5 text-center text-nowrap py-0.5 rounded-md ${
-                                    node.status === "完了" ? "bg-green-100 text-green-800" :
-                                    node.status === "進行中" ? "bg-yellow-100 text-yellow-800" :
-                                    "bg-gray-100 text-gray-600"
-                                }`}>
-                                    {node.status}
-                                </span>
-                            </div>
-                        )}
-                        {!hiddenColumnSet.has("plannedEffort") && (
-                            <div className="flex-1 text-right">
-                                {node.plannedEffort} h
-                            </div>
-                        )}
-                        {!hiddenColumnSet.has("buffer") && (
-                            <div className="flex-1 text-right">
-                                {node.buffer} h
-                            </div>
-                        )}
-                        {!hiddenColumnSet.has("withBuffer") && (
-                            <div className="flex-1 text-right">
-                                <strong className="text-green-600">{withBuffer} h</strong>
-                            </div>
-                        )}
-                        {!hiddenColumnSet.has("totalWithBuffer") && hasChildren && (
-                            <div className="flex-1 text-right text-gray-600">
-                                計 {node.totalWithBuffer} h
-                            </div>
-                        )}
-                        {!hiddenColumnSet.has("totalWithBuffer") && !hasChildren && (
-                            <div className="flex-1" />
-                        )}
-                        {!hiddenColumnSet.has("actualEffort") && (
-                            <div className="flex-1 text-right">
-                                {node.actualEffort} h
-                            </div>
-                        )}
-                        {!hiddenColumnSet.has("assignee") && (
-                            <div className="flex-1 text-center">
-                                {node.assignee && <span className="text-gray-500 ml-2">{node.assignee}</span>}
-                            </div>
-                        )}
-                        {!hiddenColumnSet.has("plannedStartDate") && (
-                            <div className="flex-1 text-center">
-                                {node.plannedStartDate && (
-                                    <span className="text-gray-500 ml-2">
-                                        {node.plannedStartDate?.toLocaleDateString("ja-JP", {
-                                            timeZone: "Asia/Tokyo",
-                                            year: "numeric",
-                                            month: "2-digit",
-                                            day: "2-digit",
-                                        })}
-                                    </span>
-                                )}
-                            </div>
-                        )}
-                        {!hiddenColumnSet.has("plannedEndDate") && (
-                            <div className="flex-1 text-center">
-                                {node.plannedEndDate && (
-                                    <span className="text-gray-500 ml-2">
-                                        {node.plannedEndDate?.toLocaleDateString("ja-JP", {
-                                            timeZone: "Asia/Tokyo",
-                                            year: "numeric",
-                                            month: "2-digit",
-                                            day: "2-digit",
-                                        })}
-                                    </span>
-                                )}
-                            </div>
-                        )}
-                        {!hiddenColumnSet.has("actualStartDate") && (
-                            <div className="flex-1 text-center">
-                                {node.actualStartDate && (
-                                    <span className="text-gray-500 ml-2">
-                                        {node.actualStartDate?.toLocaleDateString("ja-JP", {
-                                            timeZone: "Asia/Tokyo",
-                                            year: "numeric",
-                                            month: "2-digit",
-                                            day: "2-digit",
-                                        })}
-                                    </span>
-                                )}
-                            </div>
-                        )}
-                        {!hiddenColumnSet.has("actualEndDate") && (
-                            <div className="flex-1 text-center">
-                                {node.actualEndDate && (
-                                    <span className="text-gray-500 ml-2">
-                                        {node.actualEndDate?.toLocaleDateString("ja-JP", {
-                                            timeZone: "Asia/Tokyo",
-                                            year: "numeric",
-                                            month: "2-digit",
-                                            day: "2-digit",
-                                        })}
-                                    </span>
-                                )}
-                            </div>
-                        )}
-                        <div className="flex-2 flex justify-end lg:gap-4 gap-2">
-                            <button type="button" className="size-4 cursor-pointer anchor-scope group" onClick={() => openNote(node)}>
-                                <div className="relative anchor">
-                                    <StickyNote className="size-full text-gray-500" />
-                                    {node.notes && (
-                                        <span
-                                            className={[
-                                                "top-[-3] start-2.5 absolute w-2.5 h-2.5",
-                                                "bg-green-500 border-2 border-white rounded-full",
-                                                "dark:border-gray-800",
-                                            ].join(" ")}
-                                        />
-                                    )}
-                                </div>
-                                <span
-                                    className={[
-                                        "hidden p-1 z-100",
-                                        "bg-gray-500 text-white text-nowrap rounded-md",
-                                        "group-hover:block after:",
-                                        "popover",
-                                    ].join(" ")}
-                                >
-                                    備考
-                                </span>
-                            </button>
-                            <button type="button" className="size-4 cursor-pointer anchor-scope group" onClick={() => addChild(node.id)}>
-                                <Plus className="size-full text-blue-600 relative anchor" />
-                                <span
-                                    className={[
-                                        "hidden p-1 z-100",
-                                        "bg-gray-500 text-white text-nowrap rounded-md",
-                                        "group-hover:block after:",
-                                        "popover",
-                                    ].join(" ")}
-                                >
-                                    子タスク追加
-                                </span>
-                            </button>
-                            {!isRoot && (
-                                <button type="button" className="size-4 cursor-pointer anchor-scope group" onClick={() => deleteNode(node.id)}>
-                                    <Trash2 className="size-full text-red-600 relative anchor" />
-                                    <span
-                                        className={[
-                                            "hidden p-1 z-100",
-                                            "bg-gray-500 text-white text-nowrap rounded-md",
-                                            "group-hover:block after:",
-                                            "popover",
-                                        ].join(" ")}
-                                    >
-                                        削除
-                                    </span>
-                                </button>
-                            )}
-                            <div onPointerDown={(e) => handlePointerDown(e, node.id)}>
-                                <Menu
-                                    className={[
-                                        "size-4 active:cursor-grabbing",
-                                        `${isDragging ? "" : "cursor-grab"}`,
-                                    ].join(" ")}
-                                />
-                            </div>
-                        </div>
-                    </>
-                )}
+                <TaskName
+                    node={node}
+                    depth={depth}
+                    isEditing={isEditing}
+                    editForm={editForm}
+                    expanded={expanded}
+                    updateForm={updateForm}
+                    toggleExpand={toggleExpand}
+                />
+                <TaskStatus
+                    node={node}
+                    editForm={editForm}
+                    updateForm={updateForm}
+                    isEditing={isEditing}
+                    isVisible={!hiddenColumnSet.has("status")}
+                />
+                <PlannedEffort
+                    node={node}
+                    editForm={editForm}
+                    updateForm={updateForm}
+                    isEditing={isEditing}
+                    isVisible={!hiddenColumnSet.has("plannedEffort")}
+                />
+                <PlannedBuffer
+                    node={node}
+                    editForm={editForm}
+                    updateForm={updateForm}
+                    isEditing={isEditing}
+                    isVisible={!hiddenColumnSet.has("buffer")}
+                />
+                <PlannedEffortWithBuffer
+                    node={node}
+                    isVisible={!hiddenColumnSet.has("withBuffer")}
+                />
+                <ActualEffort
+                    node={node}
+                    editForm={editForm}
+                    updateForm={updateForm}
+                    isEditing={isEditing}
+                    isVisible={!hiddenColumnSet.has("actualEffort")}
+                />
+                <TaskAssignee
+                    node={node}
+                    editForm={editForm}
+                    updateForm={updateForm}
+                    isEditing={isEditing}
+                    isVisible={!hiddenColumnSet.has("assignee")}
+                />
+                <PlannedStartDate
+                    node={node}
+                    editForm={editForm}
+                    updateForm={updateForm}
+                    isEditing={isEditing}
+                    isVisible={!hiddenColumnSet.has("plannedStartDate")}
+                />
+                <PlannedEndDate
+                    node={node}
+                    editForm={editForm}
+                    updateForm={updateForm}
+                    isEditing={isEditing}
+                    isVisible={!hiddenColumnSet.has("plannedEndDate")}
+                />
+                <ActualStartDate
+                    node={node}
+                    editForm={editForm}
+                    updateForm={updateForm}
+                    isEditing={isEditing}
+                    isVisible={!hiddenColumnSet.has("actualStartDate")}
+                />
+                <ActualEndDate
+                    node={node}
+                    editForm={editForm}
+                    updateForm={updateForm}
+                    isEditing={isEditing}
+                    isVisible={!hiddenColumnSet.has("actualEndDate")}
+                />
+                <TaskMenu
+                    node={node}
+                    isEditing={isEditing}
+                    isRoot={isRoot}
+                    isDragging={isDragging}
+                    saveEdit={saveEdit}
+                    cancelEdit={cancelEdit}
+                    openNote={openNote}
+                    addChild={addChild}
+                    deleteNode={deleteNode}
+                    handlePointerDown={handlePointerDown}
+                />
             </div>
             {isExpanded && node.children.map((child) => (
                 <WbsRow

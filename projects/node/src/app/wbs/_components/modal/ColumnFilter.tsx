@@ -24,7 +24,6 @@ const ColumnFilter = ({
         ["buffer", "バッファ"],
         ["withBuffer", "バッファ込み"],
         ["actualEffort", "実績工数"],
-        ["totalWithBuffer", "小計"],
         ["assignee", "主担当"],
         ["plannedStartDate", "開始予定日"],
         ["plannedEndDate", "終了予定日"],

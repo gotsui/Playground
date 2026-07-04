@@ -275,7 +275,7 @@ const WbsLayout = ({
                 name={calcedRoot.name}
                 ccpmMode={ccpmMode}
                 onToggleCcpm={toggleCcpmMode}
-                totalHours={calcedRoot.totalWithBuffer}
+                totalHours={calcedRoot.totalPlannedEffort + calcedRoot.totalBuffer}
                 projectBuffer={ccpmMode ? calcedRoot.buffer : undefined}
                 onClickSave={wbsId ? () => handleClickUpdate(wbsId) : handleClickSave}
                 onClickDownload={handleClickDownload}
@@ -412,9 +412,6 @@ const WbsLayout = ({
                         )}
                         {!hiddenColumnSet.has("withBuffer") && (
                             <div className="flex-1 text-right">バッファ込み</div>
-                        )}
-                        {!hiddenColumnSet.has("totalWithBuffer") && (
-                            <div className="flex-1 text-right">小計</div>
                         )}
                         {!hiddenColumnSet.has("actualEffort") && (
                             <div className="flex-1 text-right">実績工数</div>
