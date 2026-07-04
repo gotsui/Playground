@@ -21,6 +21,14 @@ const ActualEffort = ({
         return null;
     }
 
+    if (node.children.length > 0) {
+        return (
+            <div className="flex-1 text-right">
+                {node.totalActualEffort} h
+            </div>
+        );
+    }
+
     if (isEditing) {
         return (
             <div className="flex-1">

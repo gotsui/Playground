@@ -30,6 +30,7 @@ export type TaskNode = {
 export type TaskWithCalc = TaskNode & {
     totalPlannedEffort: number;
     totalBuffer: number;
+    totalActualEffort: number;
 };
 
 export type EditingRow = {
