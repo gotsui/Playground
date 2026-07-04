@@ -281,7 +281,7 @@ const WbsLayout = ({
                 onClickDownload={handleClickDownload}
                 wbsRole={wbsRole}
             />
-            <div className="flex items-center max-w-7xl w-full mx-auto px-12 py-1 gap-4">
+            <div className="flex items-center px-12 py-1 gap-4">
                 <button
                     type="button"
                     className="relative flex items-center gap-1 cursor-pointer"
@@ -397,7 +397,7 @@ const WbsLayout = ({
                     </>
                 )}
             </div>
-            <div className="flex-1 flex flex-col max-w-7xl w-full mx-auto overflow-hidden px-4">
+            <div className="flex-1 flex flex-col overflow-hidden px-4">
                 <div className="bg-white rounded-xl shadow-lg overflow-auto">
                     <div className="sticky z-50 top-0 flex gap-4 font-bold text-sm bg-blue-50 py-4 px-8 border-b-2 border-gray-200">
                         <div className="flex-4">タスク名</div>
