@@ -6,23 +6,20 @@ import { useState } from "react";
 
 type Props = {
     name: string;
-    ccpmMode: boolean;
-    onToggleCcpm: (enabled: boolean) => void;
     totalHours: number;
-    projectBuffer?: number;
     onClickSave: () => void;
     onClickDownload: () => void;
     wbsRole: WbsRole;
+    isEditing: boolean;
 };
 
 const WbsHeader = ({
     name,
-    ccpmMode,
     totalHours,
-    projectBuffer,
     onClickSave,
     onClickDownload,
     wbsRole,
+    isEditing,
 }: Props) => {
     const [isSaving, setIsSaving] = useState(false);
 
@@ -44,18 +41,13 @@ const WbsHeader = ({
                 <div className="flex items-center gap-10">
                     <div className="text-xl font-bold text-blue-600">
                         総予定工数（バッファ込み）：{totalHours}h
-                        {ccpmMode && projectBuffer !== undefined && (
-                            <span className="ml-4 text-purple-600">
-                                プロジェクトバッファ：{projectBuffer}h
-                            </span>
-                        )}
                     </div>
                     {wbsRole !== "viewer" && (
                         <button
                             type="button"
                             className="cursor-pointer anchor-scope group"
                             onClick={handleClickSave}
-                            disabled={isSaving}
+                            disabled={isSaving || isEditing}
                         >
                             <Save className="relative anchor" />
                             <span

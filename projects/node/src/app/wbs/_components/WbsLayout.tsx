@@ -59,9 +59,6 @@ const WbsLayout = ({
 
     const {
         wbs,
-        // calcedRoot,
-        ccpmMode,
-        toggleCcpmMode,
         expanded,
         toggleExpand,
         editingId,
@@ -281,13 +278,11 @@ const WbsLayout = ({
         <div className="size-full flex flex-col bg-gray-100 pb-4 select-none" onPointerUp={(e) => handlePointerUp(e, "")}>
             <WbsHeader
                 name={calcedRoot.name}
-                ccpmMode={ccpmMode}
-                onToggleCcpm={toggleCcpmMode}
                 totalHours={calcedRoot.totalPlannedEffort + calcedRoot.totalBuffer}
-                projectBuffer={ccpmMode ? calcedRoot.buffer : undefined}
                 onClickSave={wbsId ? () => handleClickUpdate(wbsId) : handleClickSave}
                 onClickDownload={handleClickDownload}
                 wbsRole={wbsRole}
+                isEditing={editingId !== null}
             />
             <div className="flex items-center px-12 py-1 gap-4">
                 <button
@@ -449,7 +444,6 @@ const WbsLayout = ({
                     <WbsRow
                         node={calcedRoot}
                         depth={0}
-                        ccpmMode={ccpmMode}
                         isRoot={true}
                         editingId={editingId}
                         editForm={editForm}

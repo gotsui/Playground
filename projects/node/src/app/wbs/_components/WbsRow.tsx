@@ -17,7 +17,6 @@ import TaskName from "./columns/TaskName";
 type Props = {
     node: TaskWithCalc;
     depth: number;
-    ccpmMode: boolean;
     isRoot: boolean;
     editingId: string | null;
     editForm: EditingRow | null;
@@ -41,7 +40,6 @@ type Props = {
 const WbsRow = ({
     node,
     depth,
-    ccpmMode,
     isRoot,
     editingId,
     editForm,
@@ -176,7 +174,6 @@ const WbsRow = ({
                     key={child.id}
                     node={child as TaskWithCalc}
                     depth={depth + 1}
-                    ccpmMode={ccpmMode}
                     isRoot={false}
                     editingId={editingId}
                     editForm={editForm}

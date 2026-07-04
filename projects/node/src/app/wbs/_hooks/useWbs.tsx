@@ -21,23 +21,11 @@ export const createNode = (name?: string): TaskNode => {
 
 export const useWbs = (initialTaskNode: TaskNode) => {
     const [wbs, setWbs] = useState<TaskNode>(initialTaskNode);
-    const [ccpmMode, setCcpmMode] = useState(false);
     const [expanded, setExpanded] = useState<Set<string>>(new Set([...depthFirstSearch(initialTaskNode)].map((node) => node.id)));
     const [editingId, setEditingId] = useState<string | null>(null);
     const [editForm, setEditForm] = useState<EditingRow | null>(null);
     const [noteNode, setNoteNode] = useState<TaskNode | null>(null);
     const [isAdding, setIsAdding] = useState(false);
-
-    // const calcedRoot = calcTotals(wbs);
-
-    const toggleCcpmMode = (enabled: boolean) => {
-        setCcpmMode(enabled);
-
-        if (enabled) {
-            // ルートのeffortを0に強制
-            setWbs((prev) => ({ ...prev, effort: 0 }));
-        }
-    };
 
     const toggleExpand = (id: string) => {
         setExpanded((prev) => {
@@ -95,10 +83,6 @@ export const useWbs = (initialTaskNode: TaskNode) => {
             actualEndDate: editForm.actualEndDate ? new Date(editForm.actualEndDate) : undefined,
             notes: editForm.notes || undefined,
         };
-
-        if (ccpmMode && editingId === wbs.id) {
-            updates.plannedEffort = 0;
-        }
 
         const newWbs = findAndUpdate(wbs, editingId, updates);
         const parsed = taskNodeSchema.safeParse(newWbs);
@@ -258,8 +242,6 @@ export const useWbs = (initialTaskNode: TaskNode) => {
 
     return {
         wbs,
-        ccpmMode,
-        toggleCcpmMode,
         expanded,
         toggleExpand,
         editingId,
