@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import { statusSchema, taskNodeSchema } from "../_lib/schema";
 import type { EditingRow, TaskNode } from "../_lib/types";
-import { calcTotals, depthFirstSearch, generateId } from "../_lib/utils";
+import { depthFirstSearch, generateId } from "../_lib/utils";
 import { dateToString } from "@/lib/date";
 
 export const createNode = (name?: string): TaskNode => {
@@ -28,7 +28,7 @@ export const useWbs = (initialTaskNode: TaskNode) => {
     const [noteNode, setNoteNode] = useState<TaskNode | null>(null);
     const [isAdding, setIsAdding] = useState(false);
 
-    const calcedRoot = calcTotals(wbs);
+    // const calcedRoot = calcTotals(wbs);
 
     const toggleCcpmMode = (enabled: boolean) => {
         setCcpmMode(enabled);
@@ -258,7 +258,6 @@ export const useWbs = (initialTaskNode: TaskNode) => {
 
     return {
         wbs,
-        calcedRoot,
         ccpmMode,
         toggleCcpmMode,
         expanded,

@@ -3,8 +3,9 @@ import type { TaskHistoryNode, TaskNode, TaskWithCalc, WbsTask, WbsTaskHistory }
 
 export const generateId = () => crypto.randomUUID();
 
-export const calcTotals = (node: TaskNode): TaskWithCalc => {
-    const calcedChildren = node.children.map(calcTotals);
+export const calcTotals = (node: TaskNode, hiddenNodeIdSet: Set<string>, isSubtotalOnlyVisible: boolean): TaskWithCalc => {
+    const filtered = isSubtotalOnlyVisible ? node.children.filter((child) => !hiddenNodeIdSet.has(child.id)) : node.children;
+    const calcedChildren = filtered.map((child) => calcTotals(child, hiddenNodeIdSet, isSubtotalOnlyVisible));
 
     const childrenTotalPlannedEffort = calcedChildren.reduce((acc, child) => {
         if (child.children.length > 0) {

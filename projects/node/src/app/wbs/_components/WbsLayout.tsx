@@ -15,9 +15,10 @@ import { useBoolean } from "../_hooks/useBoolean";
 import { useWbs } from "../_hooks/useWbs";
 import { idSchema, taskNodeSchema } from "../_lib/schema";
 import type { ColumnFilterKey, TaskNode, WbsFilterMap, WbsRole } from "../_lib/types";
-import { depthFirstSearch, filterNode, hasDifference } from "../_lib/utils";
+import { calcTotals, depthFirstSearch, filterNode, hasDifference } from "../_lib/utils";
 import "../style.css";
 import MemberList from "./modal/MemberList";
+import Checkbox from "./Checkbox";
 
 type DragRect = {
     top: number;
@@ -48,6 +49,7 @@ const WbsLayout = ({
     const [hiddenColumnSet, setHiddenColumnSet] = useState<Set<ColumnFilterKey>>(new Set());
     const [filterMap, setFilterMap] = useState<WbsFilterMap>(new Map());
     const [ignoreChildren, setIgnoreChildren] = useState(false);
+    const [isSubtotalOnlyVisible, setIsSubtotalOnlyVisible] = useState(false);
 
     // モーダル
     const [isOpenColumnFilter, columnFilterHandler] = useBoolean();
@@ -56,7 +58,8 @@ const WbsLayout = ({
     const [isOpenMemberList, memberListHandler] = useBoolean();
 
     const {
-        calcedRoot,
+        wbs,
+        // calcedRoot,
         ccpmMode,
         toggleCcpmMode,
         expanded,
@@ -93,15 +96,20 @@ const WbsLayout = ({
     // biome-ignore lint/correctness/useExhaustiveDependencies: フィルターが変更されるまで更新したくないためcalcedRootは依存配列に含めない
     const hiddenNodeIdSet: Set<string> = useMemo(
         () => {
-            const filtered = filterNode(calcedRoot, isShownNode, ignoreChildren);
+            const filtered = filterNode(wbs, isShownNode, ignoreChildren);
             const filteredNodeIdSet: Set<string> = filtered
                 ? new Set([...depthFirstSearch(filtered)].map((node) => node.id))
                 : new Set();
-            const allNodeIdSet = new Set([...depthFirstSearch(calcedRoot)].map((node) => node.id));
+            const allNodeIdSet = new Set([...depthFirstSearch(wbs)].map((node) => node.id));
             const diffSet = allNodeIdSet.difference(filteredNodeIdSet);
             return diffSet;
         },
         [isShownNode, ignoreChildren],
+    );
+
+    const calcedRoot = useMemo(
+        () => calcTotals(wbs, hiddenNodeIdSet, isSubtotalOnlyVisible),
+        [wbs, hiddenNodeIdSet, isSubtotalOnlyVisible]
     );
 
     const handlePointerDown = (_e: React.PointerEvent<HTMLDivElement>, id: string) => {
@@ -396,6 +404,11 @@ const WbsLayout = ({
                         </Dialog>
                     </>
                 )}
+                <Checkbox
+                    label="工数の合計にフィルターを適用"
+                    checked={isSubtotalOnlyVisible}
+                    onChange={() => setIsSubtotalOnlyVisible(!isSubtotalOnlyVisible)}
+                />
             </div>
             <div className="flex-1 flex flex-col overflow-hidden px-4">
                 <div className="bg-white rounded-xl shadow-lg overflow-auto">
