@@ -40,7 +40,7 @@ const WbsHeader = ({
                 </div>
                 <div className="flex items-center gap-10">
                     <div className="text-xl font-bold text-blue-600">
-                        総予定工数（バッファ込み）：{totalHours}h
+                        総予定工数（バッファ込み）：{totalHours} h
                     </div>
                     {wbsRole !== "viewer" && (
                         <button

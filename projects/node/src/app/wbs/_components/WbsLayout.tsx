@@ -105,6 +105,11 @@ const WbsLayout = ({
     );
 
     const calcedRoot = useMemo(
+        () => calcTotals(wbs, new Set(), false),
+        [wbs]
+    );
+
+    const calcedFilteredRoot = useMemo(
         () => calcTotals(wbs, hiddenNodeIdSet, isSubtotalOnlyVisible),
         [wbs, hiddenNodeIdSet, isSubtotalOnlyVisible]
     );
@@ -442,7 +447,7 @@ const WbsLayout = ({
                         <div className="flex-2 text-right" />
                     </div>
                     <WbsRow
-                        node={calcedRoot}
+                        node={calcedFilteredRoot}
                         depth={0}
                         isRoot={true}
                         editingId={editingId}
