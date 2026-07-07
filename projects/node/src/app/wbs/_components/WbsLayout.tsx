@@ -16,7 +16,7 @@ import { useWbs } from "../_hooks/useWbs";
 import { idSchema, taskNodeSchema } from "../_lib/schema";
 import type { ColumnFilterKey, TaskNode, WbsFilterMap, WbsRole } from "../_lib/types";
 import { calcTotals, depthFirstSearch, filterNode, hasDifference } from "../_lib/utils";
-import "../style.css";
+import "../styles.css";
 import MemberList from "./modal/MemberList";
 import Checkbox from "./Checkbox";
 
