@@ -3,19 +3,19 @@
 import { PointerEvent } from "react";
 
 import { Handle } from "../lib/resize";
-import { Field } from "../types";
+import { FormElement } from "../types";
 
 type Props = {
-    field: Field;
+    element: FormElement;
     onPointerDown: (
         e: PointerEvent<HTMLDivElement>,
-        field: Field,
+        element: FormElement,
         handle: Handle,
     ) => void;
 };
 
 const ResizeHandle = ({
-    field,
+    element,
     onPointerDown,
 }: Props) => {
     return (
@@ -26,7 +26,7 @@ const ResizeHandle = ({
                 "pointer-events-none",
             ].join(" ")}
             style={{
-                ...field.rect,
+                ...element.rect,
             }}
         >
             <div
@@ -38,7 +38,7 @@ const ResizeHandle = ({
                     "pointer-events-auto",
                 ].join(" ")}
                 onClick={(e) => e.stopPropagation()}
-                onPointerDown={(e) => onPointerDown(e, field, "topLeft")}
+                onPointerDown={(e) => onPointerDown(e, element, "topLeft")}
             />
             <div
                 className={[
@@ -49,7 +49,7 @@ const ResizeHandle = ({
                     "pointer-events-auto",
                 ].join(" ")}
                 onClick={(e) => e.stopPropagation()}
-                onPointerDown={(e) => onPointerDown(e, field, "topCenter")}
+                onPointerDown={(e) => onPointerDown(e, element, "topCenter")}
             />
             <div
                 className={[
@@ -60,7 +60,7 @@ const ResizeHandle = ({
                     "pointer-events-auto",
                 ].join(" ")}
                 onClick={(e) => e.stopPropagation()}
-                onPointerDown={(e) => onPointerDown(e, field, "topRight")}
+                onPointerDown={(e) => onPointerDown(e, element, "topRight")}
             />
             <div
                 className={[
@@ -71,7 +71,7 @@ const ResizeHandle = ({
                     "pointer-events-auto",
                 ].join(" ")}
                 onClick={(e) => e.stopPropagation()}
-                onPointerDown={(e) => onPointerDown(e, field, "middleLeft")}
+                onPointerDown={(e) => onPointerDown(e, element, "middleLeft")}
             />
             <div
                 className={[
@@ -82,7 +82,7 @@ const ResizeHandle = ({
                     "pointer-events-auto",
                 ].join(" ")}
                 onClick={(e) => e.stopPropagation()}
-                onPointerDown={(e) => onPointerDown(e, field, "middleRight")}
+                onPointerDown={(e) => onPointerDown(e, element, "middleRight")}
             />
             <div
                 className={[
@@ -93,7 +93,7 @@ const ResizeHandle = ({
                     "pointer-events-auto",
                 ].join(" ")}
                 onClick={(e) => e.stopPropagation()}
-                onPointerDown={(e) => onPointerDown(e, field, "bottomLeft")}
+                onPointerDown={(e) => onPointerDown(e, element, "bottomLeft")}
             />
             <div
                 className={[
@@ -104,7 +104,7 @@ const ResizeHandle = ({
                     "pointer-events-auto",
                 ].join(" ")}
                 onClick={(e) => e.stopPropagation()}
-                onPointerDown={(e) => onPointerDown(e, field, "bottomCenter")}
+                onPointerDown={(e) => onPointerDown(e, element, "bottomCenter")}
             />
             <div
                 className={[
@@ -115,7 +115,7 @@ const ResizeHandle = ({
                     "pointer-events-auto",
                 ].join(" ")}
                 onClick={(e) => e.stopPropagation()}
-                onPointerDown={(e) => onPointerDown(e, field, "bottomRight")}
+                onPointerDown={(e) => onPointerDown(e, element, "bottomRight")}
             />
         </div>
     );

@@ -44,7 +44,7 @@ export const referenceValueSchema = z.enum([
     "system-datetime",
 ]);
 
-const baseFieldSchema = z.object({
+const baseFormElementSchema = z.object({
     id: z.uuidv4(),
     name: z.string(),
     rect: rectSchema,
@@ -65,7 +65,7 @@ const baseDataSchema = z.object({
     alignItems: alignItemsSchema,
 });
 
-const fieldDataSchema = z.discriminatedUnion("type", [
+const elementDataSchema = z.discriminatedUnion("type", [
     z.object({
         type: z.literal("label"),
         data: baseDataSchema,
@@ -79,5 +79,5 @@ const fieldDataSchema = z.discriminatedUnion("type", [
     })
 ]);
 
-export const fieldSchema = baseFieldSchema.and(fieldDataSchema);
-export const fieldsSchema = z.array(fieldSchema);
+export const formElementSchema = baseFormElementSchema.and(elementDataSchema);
+export const elementsSchema = z.array(formElementSchema);

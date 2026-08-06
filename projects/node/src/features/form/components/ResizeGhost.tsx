@@ -3,24 +3,24 @@
 import { calcRelativePosition } from "../lib/position";
 import { Handle, resizeRect } from "../lib/resize";
 import usePointerPosition from "../lib/usePointerPosition";
-import { Field } from "../types";
+import { FormElement } from "../types";
 
 type Props = {
     grid: HTMLElement;
-    field: Field;
+    element: FormElement;
     handle: Handle;
 };
 
 const ResizeGhost = ({
     grid,
-    field,
+    element,
     handle,
 }: Props) => {
     const { pointerPosition } = usePointerPosition();
     if (!pointerPosition) return null;
 
     const rect = resizeRect(
-        field.rect,
+        element.rect,
         handle,
         calcRelativePosition(pointerPosition, grid),
     );
@@ -29,11 +29,11 @@ const ResizeGhost = ({
         <div
             className="absolute flex pointer-events-none opacity-50 z-100"
             style={{
-                ...field.data,
+                ...element.data,
                 ...rect,
             }}
         >
-            {field.data.value}
+            {element.data.value}
         </div>
     );
 };

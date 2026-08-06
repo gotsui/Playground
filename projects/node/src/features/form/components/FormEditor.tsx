@@ -2,14 +2,15 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "next/navigation";
+import Link from "next/link";
 import { ArrowLeft, Square, SquareChartGantt, TextCursorInput } from "lucide-react";
 
-import { Field, Rect } from "../types";
+import { FormElement as FormElementType, Rect } from "../types";
 import useDnD, { OnPointerUpAction, XYPosition } from "../lib/useDnD";
 import { Handle, resizeRect } from "../lib/resize";
-import { createInput, createLabel } from "../lib/field";
+import { createInput, createLabel } from "../lib/formElement";
 import { calcOffset, calcRelativePosition } from "../lib/position";
-import { fieldSchema } from "../schemas/field";
+import { formElementSchema } from "../schemas/formElement";
 import Grid from "./Grid";
 import DragRect from "./DragRect";
 import DragGhost from "./DragGhost";
@@ -17,45 +18,44 @@ import ResizeGhost from "./ResizeGhost";
 import DataEditor from "./editrows/DataEditor";
 import SaveDialogButton from "./SaveDialogButton";
 import UpdateButton from "./UpdateButton";
-import Link from "next/link";
-import FormField from "./FormField";
+import FormElement from "./FormElement";
 import "../styles.css";
 
 type Props = {
-    defaultFields: Field[];
+    defaultElements: FormElementType[];
 };
 
 const FormEditor = ({
-    defaultFields,
+    defaultElements,
 }: Props) => {
     const { id } = useParams();
     const formId = Array.isArray(id) ? id[0] : id;
 
-    const [fields, setFields] = useState<Field[]>(defaultFields);
-    const [fieldType, setFieldType] = useState<Field["type"] | null>(null);
-    const [selectedFieldId, setSelectedFieldId] = useState<string | null>(null);
+    const [elements, setElements] = useState<FormElementType[]>(defaultElements);
+    const [elementType, setElementType] = useState<FormElementType["type"] | null>(null);
+    const [selectedElementId, setSelectedElementId] = useState<string | null>(null);
     const [startPosition, setStartPosition] = useState<XYPosition | null>(null);
     const [offset, setOffset] = useState<XYPosition | null>(null);
     const [handle, setHandle] = useState<Handle | null>(null);
     const gridContainerRef = useRef<HTMLDivElement>(null);
     const { handlePointerDown } = useDnD();
 
-    const selectedField = fields.find((field) => field.id === selectedFieldId);
+    const selectedElement = elements.find((element) => element.id === selectedElementId);
     const gridSize = useMemo(() => ({ row: 100, column: 50 }), []);
     const cellSize = useMemo(() => ({ width: 50, height: 50 }), []);
 
-    const createField = (type: Field["type"], rect: Rect) => {
+    const createElement = (type: FormElementType["type"], rect: Rect) => {
         switch (type) {
             case "label": {
-                const newField = createLabel(rect);
-                setFields((prev) => prev.concat(newField));
-                setSelectedFieldId(newField.id);
+                const newElement = createLabel(rect);
+                setElements((prev) => prev.concat(newElement));
+                setSelectedElementId(newElement.id);
                 break;
             }
             case "input": {
-                const newField = createInput(rect);
-                setFields((prev) => prev.concat(newField));
-                setSelectedFieldId(newField.id);
+                const newElement = createInput(rect);
+                setElements((prev) => prev.concat(newElement));
+                setSelectedElementId(newElement.id);
                 break;
             }
             default:
@@ -63,23 +63,23 @@ const FormEditor = ({
         };
     };
 
-    const moveField = (id: string, position: XYPosition) => {
-        setFields((prev) => prev.map(
-            (field) => field.id === id
+    const moveElement = (id: string, position: XYPosition) => {
+        setElements((prev) => prev.map(
+            (element) => element.id === id
                 ? {
-                    ...field,
+                    ...element,
                     rect: {
-                        ...field.rect,
+                        ...element.rect,
                         top: position.y,
                         left: position.x,
                     },
                 }
-                : field
+                : element
         ));
     };
 
     const handleCreatePointerUp = (
-        type: Field["type"],
+        type: FormElementType["type"],
         startPosition: XYPosition,
     ): OnPointerUpAction => ({ position }) => {
         const endGrid = gridContainerRef.current;
@@ -95,8 +95,8 @@ const FormEditor = ({
             height: Math.abs(startY - endY),
         };
 
-        createField(type, rect);
-        setFieldType(null);
+        createElement(type, rect);
+        setElementType(null);
         setStartPosition(null);
     };
 
@@ -109,19 +109,19 @@ const FormEditor = ({
 
         const calced = calcRelativePosition(position, endGrid);
 
-        moveField(id, { x: calced.x + offset.x, y: calced.y + offset.y });
+        moveElement(id, { x: calced.x + offset.x, y: calced.y + offset.y });
         setOffset(null);
     };
 
-    const updateField = (next: Partial<Field> & Required<Pick<Field, "id">>) => {
-        const prev = fields.find((field) => field.id === next.id);
-        const parsed = fieldSchema.safeParse({ ...prev, ...next});
+    const updateElement = (next: Partial<FormElementType> & Required<Pick<FormElementType, "id">>) => {
+        const prev = elements.find((element) => element.id === next.id);
+        const parsed = formElementSchema.safeParse({ ...prev, ...next});
 
         if (parsed.success) {
-            setFields((prev) => prev.map(
-                (field) => field.id === parsed.data.id
+            setElements((prev) => prev.map(
+                (element) => element.id === parsed.data.id
                     ? parsed.data
-                    : field
+                    : element
             ));
         } else {
             console.log(parsed.error);
@@ -129,42 +129,42 @@ const FormEditor = ({
     };
 
     const handleResizePointerUp = (
-        field: Field,
+        element: FormElementType,
         handle: Handle,
     ): OnPointerUpAction => ({ position }) => {
         const endGrid = gridContainerRef.current;
         if (!endGrid) return;
 
         const rect = resizeRect(
-            field.rect,
+            element.rect,
             handle,
             calcRelativePosition(position, endGrid),
         );
 
-        updateField({ id: field.id, rect });
+        updateElement({ id: element.id, rect });
         setHandle(null);
     };
 
     const handleResizePointerDown = (
         e: React.PointerEvent<HTMLDivElement>,
-        field: Field,
+        element: FormElementType,
         handle: Handle,
     ) => {
         e.stopPropagation();
         setHandle(handle);
-        handlePointerDown(e, handleResizePointerUp(field, handle));
+        handlePointerDown(e, handleResizePointerUp(element, handle));
     };
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === "Escape") {
-                setFieldType(null);
+                setElementType(null);
             }
 
             if (e.key === "Delete") {
-                if (selectedFieldId) {
-                    setFields((prev) => prev.filter((field) => field.id !== selectedFieldId));
-                    setSelectedFieldId(null);
+                if (selectedElementId) {
+                    setElements((prev) => prev.filter((element) => element.id !== selectedElementId));
+                    setSelectedElementId(null);
                 }
             }
         };
@@ -174,7 +174,7 @@ const FormEditor = ({
         return () => {
             document.removeEventListener("keydown", handleKeyDown);
         };
-    }, [selectedFieldId, setSelectedFieldId, setFields, setFieldType]);
+    }, [selectedElementId, setSelectedElementId, setElements, setElementType]);
 
     return (
         <div className="w-screen h-screen">
@@ -187,20 +187,20 @@ const FormEditor = ({
                     </div>
                     {formId ? (
                         <div className="size-4">
-                            <UpdateButton id={formId} fields={fields} />
+                            <UpdateButton id={formId} elements={elements} />
                         </div>
                     ) : (
                         <div className="size-4">
-                            <SaveDialogButton caption="名前を付けて保存" fields={fields} />
+                            <SaveDialogButton caption="名前を付けて保存" elements={elements} />
                         </div>
                     )}
                     <div
                         className={[
                             "size-4 bg-gray-200 text-xs text-center cursor-pointer",
-                            `${fieldType === "label" ? "border" : ""}`,
+                            `${elementType === "label" ? "border" : ""}`,
                             "anchor-scope group",
                         ].join(" ")}
-                        onClick={() => setFieldType("label")}
+                        onClick={() => setElementType("label")}
                     >
                         <Square className="size-full relative anchor" />
                         <span
@@ -216,10 +216,10 @@ const FormEditor = ({
                     <div
                         className={[
                             "size-4 bg-gray-200 text-xs text-center cursor-pointer",
-                            `${fieldType === "input" ? "border" : ""}`,
+                            `${elementType === "input" ? "border" : ""}`,
                             "anchor-scope group",
                         ].join(" ")}
-                        onClick={() => setFieldType("input")}
+                        onClick={() => setElementType("input")}
                     >
                         <TextCursorInput className="size-full relative anchor" />
                         <span
@@ -235,10 +235,10 @@ const FormEditor = ({
                     <div
                         className={[
                             "size-4 bg-gray-200 text-xs text-center cursor-pointer",
-                            `${fieldType === "input" ? "border" : ""}`,
+                            `${elementType === "input" ? "border" : ""}`,
                             "anchor-scope group",
                         ].join(" ")}
-                        onClick={() => setFieldType("input")}
+                        onClick={() => setElementType("input")}
                     >
                         <SquareChartGantt className="size-full relative anchor" />
                         <span
@@ -255,39 +255,39 @@ const FormEditor = ({
                 <div className="flex-1 flex overflow-hidden">
                     <div
                         className="relative flex-1 overflow-auto"
-                        onClick={() => setSelectedFieldId(null)}
+                        onClick={() => setSelectedElementId(null)}
                     >
                         <div
                             ref={gridContainerRef}
                             className={[
                                 "absolute",
-                                `${fieldType ? "cursor-crosshair" : ""}`,
+                                `${elementType ? "cursor-crosshair" : ""}`,
                             ].join(" ")}
                             onPointerDown={
-                                fieldType && gridContainerRef.current
+                                elementType && gridContainerRef.current
                                     ? (e) => {
                                         const calced = calcRelativePosition(
                                             { x: e.clientX, y: e.clientY },
                                             gridContainerRef.current!,
                                         );
                                         setStartPosition(calced);
-                                        handlePointerDown(e, handleCreatePointerUp(fieldType, calced));
+                                        handlePointerDown(e, handleCreatePointerUp(elementType, calced));
                                     }
                                     : undefined
                             }
                         >
                             <Grid gridSize={gridSize} cellSize={cellSize} />
                         </div>
-                        {fields.map((field) => (
-                            <FormField
-                                key={field.id}
-                                field={field}
+                        {elements.map((element) => (
+                            <FormElement
+                                key={element.id}
+                                element={element}
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    setSelectedFieldId(field.id);
-                                    setFieldType(null);
+                                    setSelectedElementId(element.id);
+                                    setElementType(null);
                                 }}
-                                onPointerDownField={(e) => {
+                                onPointerDownElement={(e) => {
                                     if (!gridContainerRef.current) return;
 
                                     const offset = calcOffset(
@@ -295,14 +295,14 @@ const FormEditor = ({
                                             { x: e.clientX, y: e.clientY },
                                             gridContainerRef.current,
                                         ),
-                                        field.rect,
+                                        element.rect,
                                     );
 
                                     setOffset(offset);
-                                    handlePointerDown(e, handleMovePointerUp(field.id, offset));
+                                    handlePointerDown(e, handleMovePointerUp(element.id, offset));
                                 }}
                                 onPointerDownHandle={handleResizePointerDown}
-                                isSelected={field.id === selectedFieldId}
+                                isSelected={element.id === selectedElementId}
                             />
                         ))}
                         {startPosition && gridContainerRef.current && (
@@ -311,26 +311,26 @@ const FormEditor = ({
                                 startPosition={startPosition}
                             />
                         )}
-                        {selectedField && offset && gridContainerRef.current && (
+                        {selectedElement && offset && gridContainerRef.current && (
                             <DragGhost
                                 grid={gridContainerRef.current}
-                                field={selectedField}
+                                element={selectedElement}
                                 offset={offset}
                             />
                         )}
-                        {selectedField && handle && gridContainerRef.current && (
+                        {selectedElement && handle && gridContainerRef.current && (
                             <ResizeGhost
                                 grid={gridContainerRef.current}
-                                field={selectedField}
+                                element={selectedElement}
                                 handle={handle}
                             />
                         )}
                     </div>
                     <div className="w-60">
-                        {selectedField && (
+                        {selectedElement && (
                             <DataEditor
-                                field={selectedField}
-                                updateField={updateField}
+                                element={selectedElement}
+                                updateElement={updateElement}
                             />
                         )}
                     </div>

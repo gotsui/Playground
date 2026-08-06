@@ -1,9 +1,10 @@
 "use client";
 
-import { authClient } from "@/lib/auth/auth-client";
-import { Field } from "../types";
 import { useEffect, useState } from "react";
-import z, { email } from "zod";
+import z from "zod";
+
+import { authClient } from "@/lib/auth/auth-client";
+import { FormElement } from "../types";
 
 const userSchema = z.object({
     id: z.uuidv4(),
@@ -14,11 +15,11 @@ const userSchema = z.object({
 type User = z.infer<typeof userSchema>;
 
 type Props = {
-    fields: Field[];
+    elements: FormElement[];
 };
 
 const FormBuilder = ({
-    fields,
+    elements,
 }: Props) => {
     const [user, setUser] = useState<User | null>(null);
 
@@ -37,14 +38,14 @@ const FormBuilder = ({
 
     return (
         <div className="relative size-full">
-            {fields.map((field) => {
-                switch (field.type) {
+            {elements.map((element) => {
+                switch (element.type) {
                     case "input":
                         if (user) {
-                            return <InputField key={field.id} field={field} user={user} />
+                            return <InputElement key={element.id} element={element} user={user} />
                         }
                     case "label":
-                        return <LabelField key={field.id} field={field} />
+                        return <LabelElement key={element.id} element={element} />
                     default:
                         return null;
                 }
@@ -53,38 +54,38 @@ const FormBuilder = ({
     );
 };
 
-const LabelField = ({
-    field,
+const LabelElement = ({
+    element,
 }: {
-    field: Field;
+    element: FormElement;
 }) => {
-    if (field.type !== "label") return null;
+    if (element.type !== "label") return null;
 
     return (
         <div
             className="absolute flex"
             style={{
-                ...field.rect,
-                ...field.data,
+                ...element.rect,
+                ...element.data,
             }}
         >
-            {field.data.value}
+            {element.data.value}
         </div>
     );
 };
 
-const InputField = ({
-    field,
+const InputElement = ({
+    element,
     user,
 }: {
-    field: Field;
+    element: FormElement;
     user: User;
 }) => {
-    if (field.type !== "input") return null;
+    if (element.type !== "input") return null;
 
-    let value = field.data.value;
+    let value = element.data.value;
 
-    switch (field.data.referenceValue) {
+    switch (element.data.referenceValue) {
         case "none":
             break;
         case "user-name":
@@ -107,11 +108,11 @@ const InputField = ({
         <input
             className="absolute block px-2 py-1 outline-none"
             style={{
-                ...field.rect,
-                ...field.data,
+                ...element.rect,
+                ...element.data,
             }}
             defaultValue={value}
-            readOnly={!field.data.editable}
+            readOnly={!element.data.editable}
         />
     );
 };

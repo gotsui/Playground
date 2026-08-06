@@ -3,17 +3,17 @@
 import { calcRelativePosition } from "../lib/position";
 import { XYPosition } from "../lib/useDnD";
 import usePointerPosition from "../lib/usePointerPosition";
-import { Field } from "../types";
+import { FormElement } from "../types";
 
 type Props = {
     grid: HTMLElement;
-    field: Field;
+    element: FormElement;
     offset: XYPosition;
 };
 
 const DragGhost = ({
     grid,
-    field,
+    element,
     offset,
 }: Props) => {
     const { pointerPosition } = usePointerPosition();
@@ -27,12 +27,12 @@ const DragGhost = ({
             style={{
                 top: calced.y + offset.y,
                 left: calced.x + offset.x,
-                width: field.rect.width,
-                height: field.rect.height,
-                ...field.data,
+                width: element.rect.width,
+                height: element.rect.height,
+                ...element.data,
             }}
         >
-            {field.data.value}
+            {element.data.value}
         </div>
     );
 };

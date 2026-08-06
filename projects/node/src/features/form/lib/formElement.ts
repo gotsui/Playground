@@ -1,6 +1,6 @@
-import { Field, Rect } from "../types";
+import { FormElement, Rect } from "../types";
 
-export const createLabel = (rect: Rect): Field => {
+export const createLabel = (rect: Rect): FormElement => {
     return {
         id: crypto.randomUUID(),
         name: "",
@@ -23,7 +23,7 @@ export const createLabel = (rect: Rect): Field => {
     };
 };
 
-export const createInput = (rect: Rect): Field => {
+export const createInput = (rect: Rect): FormElement => {
     return {
         id: crypto.randomUUID(),
         name: "",

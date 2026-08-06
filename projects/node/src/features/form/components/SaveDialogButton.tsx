@@ -1,19 +1,20 @@
 "use client";
 
 import { Save } from "lucide-react";
-import { Field } from "../types";
 import { useRef, useState } from "react";
-import { nameSchema } from "../schemas/form";
 import { useRouter } from "next/navigation";
+
+import { nameSchema } from "../schemas/form";
+import { FormElement } from "../types";
 
 type Props = {
     caption: string;
-    fields: Field[];
+    elements: FormElement[];
 };
 
 const SaveDialogButton = ({
     caption,
-    fields,
+    elements,
 }: Props) => {
     const [name, setName] = useState("");
     const [errors, setErrors] = useState<string[]>([]);
@@ -38,7 +39,7 @@ const SaveDialogButton = ({
             nextErrors.push(...parsedName.error.flatten().formErrors);
         }
 
-        if (fields.length === 0) {
+        if (elements.length === 0) {
             nextErrors.push("フィールドが存在しません");
         }
 
@@ -56,7 +57,7 @@ const SaveDialogButton = ({
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 name: parsedName.data,
-                fields,
+                elements,
             }),
         });
 

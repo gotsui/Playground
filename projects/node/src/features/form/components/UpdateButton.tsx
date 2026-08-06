@@ -1,21 +1,24 @@
+"use client";
+
 import { Save } from "lucide-react";
-import { Field } from "../types";
+
+import { FormElement } from "../types";
 
 type Props = {
     id: string;
-    fields: Field[];
+    elements: FormElement[];
 };
 
 const UpdateButton = ({
     id,
-    fields,
+    elements,
 }: Props) => {
     const handleClick = async () => {
         const res = await fetch(`/api/form/${id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                fields,
+                elements,
             }),
         });
 
