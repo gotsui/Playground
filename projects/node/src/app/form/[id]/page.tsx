@@ -1,7 +1,7 @@
 import { db } from "@/db";
 import { fields } from "@/db/schema";
 import FormBuilder from "@/features/form/components/FormBuilder";
-import { fieldsSchema } from "@/features/form/schemas/field";
+import { formElementsSchema } from "@/features/form/schemas/formElement";
 import { idSchema } from "@/features/form/schemas/form";
 import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
@@ -19,10 +19,10 @@ const Page = async ({ params }: Props) => {
     }
 
     const result = await db.select().from(fields).where(eq(fields.formId, parsedParams.data));
-    const parsedFields = fieldsSchema.safeParse(result);
+    const parsedFields = formElementsSchema.safeParse(result);
 
     return (
-        <FormBuilder fields={parsedFields.data ?? []} />
+        <FormBuilder elements={parsedFields.data ?? []} />
     );
 };
 

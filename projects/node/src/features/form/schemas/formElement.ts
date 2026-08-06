@@ -80,4 +80,4 @@ const elementDataSchema = z.discriminatedUnion("type", [
 ]);
 
 export const formElementSchema = baseFormElementSchema.and(elementDataSchema);
-export const elementsSchema = z.array(formElementSchema);
+export const formElementsSchema = z.array(formElementSchema);

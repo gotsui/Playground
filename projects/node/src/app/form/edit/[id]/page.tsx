@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 
 import { db } from "@/db";
 import { fields } from "@/db/schema";
-import { fieldsSchema } from "@/features/form/schemas/field";
+import { formElementsSchema } from "@/features/form/schemas/formElement";
 import FormEditor from "@/features/form/components/FormEditor";
 
 type Props = {
@@ -12,10 +12,10 @@ type Props = {
 const Page = async ({ params }: Props) => {
     const { id } = await params;
     const result = await db.select().from(fields).where(eq(fields.formId, id));
-    const parsed = fieldsSchema.safeParse(result);
+    const parsed = formElementsSchema.safeParse(result);
 
     return (
-        <FormEditor defaultFields={parsed.data ?? []} />
+        <FormEditor defaultElements={parsed.data ?? []} />
     );
 };
 
