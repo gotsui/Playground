@@ -1,4 +1,4 @@
-import { FormElement, Rect } from "../types";
+import type { FormElement, Rect } from "../types";
 
 export const createLabel = (rect: Rect): FormElement => {
     return {

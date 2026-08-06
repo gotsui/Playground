@@ -1,9 +1,9 @@
 "use client";
 
 import { calcRelativePosition } from "../lib/position";
-import { XYPosition } from "../lib/useDnD";
+import type { XYPosition } from "../lib/useDnD";
 import usePointerPosition from "../lib/usePointerPosition";
-import { FormElement } from "../types";
+import type { FormElement } from "../types";
 
 type Props = {
     grid: HTMLElement;

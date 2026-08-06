@@ -1,6 +1,6 @@
 "use client";
 
-import { KeyboardEvent, useEffect, useState } from "react";
+import { type KeyboardEvent, useEffect, useState } from "react";
 import z from "zod";
 
 import DataEditRow from "./DataEditRow";

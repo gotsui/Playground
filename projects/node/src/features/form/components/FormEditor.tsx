@@ -5,9 +5,9 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Square, SquareChartGantt, TextCursorInput } from "lucide-react";
 
-import { FormElement as FormElementType, Rect } from "../types";
-import useDnD, { OnPointerUpAction, XYPosition } from "../lib/useDnD";
-import { Handle, resizeRect } from "../lib/resize";
+import type { FormElement as FormElementType, Rect } from "../types";
+import useDnD, { type OnPointerUpAction, type XYPosition } from "../lib/useDnD";
+import { type Handle, resizeRect } from "../lib/resize";
 import { createInput, createLabel } from "../lib/formElement";
 import { calcOffset, calcRelativePosition } from "../lib/position";
 import { formElementSchema } from "../schemas/formElement";
@@ -174,7 +174,7 @@ const FormEditor = ({
         return () => {
             document.removeEventListener("keydown", handleKeyDown);
         };
-    }, [selectedElementId, setSelectedElementId, setElements, setElementType]);
+    }, [selectedElementId]);
 
     return (
         <div className="w-screen h-screen">
@@ -194,7 +194,8 @@ const FormEditor = ({
                             <SaveDialogButton caption="名前を付けて保存" elements={elements} />
                         </div>
                     )}
-                    <div
+                    <button
+                        type="button"
                         className={[
                             "size-4 bg-gray-200 text-xs text-center cursor-pointer",
                             `${elementType === "label" ? "border" : ""}`,
@@ -212,8 +213,9 @@ const FormEditor = ({
                         >
                             text
                         </span>
-                    </div>
-                    <div
+                    </button>
+                    <button
+                        type="button"
                         className={[
                             "size-4 bg-gray-200 text-xs text-center cursor-pointer",
                             `${elementType === "input" ? "border" : ""}`,
@@ -231,8 +233,9 @@ const FormEditor = ({
                         >
                             input
                         </span>
-                    </div>
-                    <div
+                    </button>
+                    <button
+                        type="button"
                         className={[
                             "size-4 bg-gray-200 text-xs text-center cursor-pointer",
                             `${elementType === "input" ? "border" : ""}`,
@@ -250,9 +253,10 @@ const FormEditor = ({
                         >
                             textarea
                         </span>
-                    </div>
+                    </button>
                 </div>
                 <div className="flex-1 flex overflow-hidden">
+                    {/* biome-ignore lint/a11y/noStaticElementInteractions lint/a11y/useKeyWithClickEvents: マウス専用の要素選択解除 */}
                     <div
                         className="relative flex-1 overflow-auto"
                         onClick={() => setSelectedElementId(null)}
@@ -266,9 +270,13 @@ const FormEditor = ({
                             onPointerDown={
                                 elementType && gridContainerRef.current
                                     ? (e) => {
+                                        if (!gridContainerRef.current) {
+                                            return;
+                                        }
+
                                         const calced = calcRelativePosition(
                                             { x: e.clientX, y: e.clientY },
-                                            gridContainerRef.current!,
+                                            gridContainerRef.current,
                                         );
                                         setStartPosition(calced);
                                         handlePointerDown(e, handleCreatePointerUp(elementType, calced));

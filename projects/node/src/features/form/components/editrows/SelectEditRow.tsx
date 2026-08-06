@@ -1,7 +1,7 @@
 "use client";
 
-import { ChangeEvent } from "react";
-import z from "zod";
+import type { ChangeEvent } from "react";
+import type z from "zod";
 
 import DataEditRow from "./DataEditRow";
 

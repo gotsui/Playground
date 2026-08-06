@@ -1,6 +1,6 @@
-import z from "zod";
-import { formElementSchema, rectSchema } from "./schemas/formElement";
-import { formSchema } from "./schemas/form";
+import type z from "zod";
+import type { formElementSchema, rectSchema } from "./schemas/formElement";
+import type { formSchema } from "./schemas/form";
 
 export type Rect = z.infer<typeof rectSchema>;
 

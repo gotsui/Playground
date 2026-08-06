@@ -2,7 +2,7 @@
 
 import { Save } from "lucide-react";
 
-import { FormElement } from "../types";
+import type { FormElement } from "../types";
 
 type Props = {
     id: string;
@@ -29,7 +29,7 @@ const UpdateButton = ({
     };
 
     return (
-        <button className="size-full" onClick={handleClick}>
+        <button type="button" className="size-full" onClick={handleClick}>
             <Save className="size-full" />
         </button>
     );

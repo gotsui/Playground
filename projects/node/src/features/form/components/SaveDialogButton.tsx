@@ -5,7 +5,7 @@ import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { nameSchema } from "../schemas/form";
-import { FormElement } from "../types";
+import type { FormElement } from "../types";
 
 type Props = {
     caption: string;
@@ -18,7 +18,7 @@ const SaveDialogButton = ({
 }: Props) => {
     const [name, setName] = useState("");
     const [errors, setErrors] = useState<string[]>([]);
-    const [isPending, setIsPending] = useState(false);
+    const [_isPending, setIsPending] = useState(false);
     const dialogRef = useRef<HTMLDialogElement>(null);
     const router = useRouter();
 
@@ -83,7 +83,7 @@ const SaveDialogButton = ({
 
     return (
         <>
-            <button className="size-full" onClick={handleClickOpen}>
+            <button type="button" className="size-full" onClick={handleClickOpen}>
                 <Save className="size-full" />
             </button>
             <dialog
@@ -96,8 +96,8 @@ const SaveDialogButton = ({
             >
                 <div className="min-h-12 mb-2">
                     <p>{caption}</p>
-                    {errors.map((error, index) => (
-                        <p key={index} className="text-red-500">{error}</p>
+                    {errors.map((error) => (
+                        <p key={error} className="text-red-500">{error}</p>
                     ))}
                 </div>
                 <label className="block">
@@ -110,12 +110,14 @@ const SaveDialogButton = ({
                 </label>
                 <div className="flex justify-end space-x-4 mt-6">
                     <button
+                        type="button"
                         className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
                         onClick={handleClickSave}
                     >
                         保存
                     </button>
                     <button
+                        type="button"
                         className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
                         onClick={handleClickCancel}
                     >

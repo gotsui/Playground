@@ -18,9 +18,9 @@ const useDnD = () => {
         (event.target as HTMLElement).setPointerCapture(event.pointerId);
         setIsDragging(true);
         setPointerUpAction(() => onPointerUp);
-    }, [setIsDragging, setPointerUpAction]);
+    }, []);
 
-    const handlePointerUp = (event: PointerEvent) => {
+    const handlePointerUp = useCallback((event: PointerEvent) => {
         if (!isDragging) return;
 
         event.preventDefault();
@@ -30,7 +30,7 @@ const useDnD = () => {
         pointerUpAction?.({ position });
 
         setIsDragging(false);
-    };
+    }, [isDragging, pointerUpAction]);
 
     useEffect(() => {
         if (!isDragging) return;

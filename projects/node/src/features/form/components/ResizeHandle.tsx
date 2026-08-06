@@ -1,9 +1,9 @@
 "use client";
 
-import { PointerEvent } from "react";
+import type { PointerEvent } from "react";
 
-import { Handle } from "../lib/resize";
-import { FormElement } from "../types";
+import type { Handle } from "../lib/resize";
+import type { FormElement } from "../types";
 
 type Props = {
     element: FormElement;
@@ -29,6 +29,7 @@ const ResizeHandle = ({
                 ...element.rect,
             }}
         >
+            {/* biome-ignore lint/a11y/noStaticElementInteractions lint/a11y/useKeyWithClickEvents: マウス専用のリサイズハンドル */}
             <div
                 className={[
                     "absolute z-50 w-2 h-2",
@@ -40,6 +41,7 @@ const ResizeHandle = ({
                 onClick={(e) => e.stopPropagation()}
                 onPointerDown={(e) => onPointerDown(e, element, "topLeft")}
             />
+            {/* biome-ignore lint/a11y/noStaticElementInteractions lint/a11y/useKeyWithClickEvents: マウス専用のリサイズハンドル */}
             <div
                 className={[
                     "absolute z-50 w-2 h-2",
@@ -51,6 +53,7 @@ const ResizeHandle = ({
                 onClick={(e) => e.stopPropagation()}
                 onPointerDown={(e) => onPointerDown(e, element, "topCenter")}
             />
+            {/* biome-ignore lint/a11y/noStaticElementInteractions lint/a11y/useKeyWithClickEvents: マウス専用のリサイズハンドル */}
             <div
                 className={[
                     "absolute z-50 w-2 h-2",
@@ -62,6 +65,7 @@ const ResizeHandle = ({
                 onClick={(e) => e.stopPropagation()}
                 onPointerDown={(e) => onPointerDown(e, element, "topRight")}
             />
+            {/* biome-ignore lint/a11y/noStaticElementInteractions lint/a11y/useKeyWithClickEvents: マウス専用のリサイズハンドル */}
             <div
                 className={[
                     "absolute z-50 w-2 h-2",
@@ -73,6 +77,7 @@ const ResizeHandle = ({
                 onClick={(e) => e.stopPropagation()}
                 onPointerDown={(e) => onPointerDown(e, element, "middleLeft")}
             />
+            {/* biome-ignore lint/a11y/noStaticElementInteractions lint/a11y/useKeyWithClickEvents: マウス専用のリサイズハンドル */}
             <div
                 className={[
                     "absolute z-50 w-2 h-2",
@@ -84,6 +89,7 @@ const ResizeHandle = ({
                 onClick={(e) => e.stopPropagation()}
                 onPointerDown={(e) => onPointerDown(e, element, "middleRight")}
             />
+            {/* biome-ignore lint/a11y/noStaticElementInteractions lint/a11y/useKeyWithClickEvents: マウス専用のリサイズハンドル */}
             <div
                 className={[
                     "absolute z-50 w-2 h-2",
@@ -95,6 +101,7 @@ const ResizeHandle = ({
                 onClick={(e) => e.stopPropagation()}
                 onPointerDown={(e) => onPointerDown(e, element, "bottomLeft")}
             />
+            {/* biome-ignore lint/a11y/noStaticElementInteractions lint/a11y/useKeyWithClickEvents: マウス専用のリサイズハンドル */}
             <div
                 className={[
                     "absolute z-50 w-2 h-2",
@@ -106,6 +113,7 @@ const ResizeHandle = ({
                 onClick={(e) => e.stopPropagation()}
                 onPointerDown={(e) => onPointerDown(e, element, "bottomCenter")}
             />
+            {/* biome-ignore lint/a11y/noStaticElementInteractions lint/a11y/useKeyWithClickEvents: マウス専用のリサイズハンドル */}
             <div
                 className={[
                     "absolute z-50 w-2 h-2",

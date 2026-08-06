@@ -1,4 +1,4 @@
-import { Rect } from "../types";
+import type { Rect } from "../types";
 
 export type Point = {
     x: number;
@@ -15,13 +15,13 @@ export type Handle =
     | "bottomCenter"
     | "bottomRight";
 
-const Direction = {
+const _Direction = {
     Negative: -1,
     None: -1,
     Positive: 1,
 } as const;
 
-const Anchor = {
+const _Anchor = {
     Start: 1,
     Center: 0.5,
     End: 0,
@@ -61,7 +61,7 @@ export const resizeRect = (
         };
     } = {},
 ): Rect => {
-    const { minSize, maxSize } = options;
+    const { minSize: _minSize, maxSize: _maxSize } = options;
     const config = HANDLE_CONFIG[handle];
 
     // 固定点の取得
@@ -79,7 +79,7 @@ export const resizeRect = (
     return { left: newX, top: newY, width: newWidth, height: newHeight };
 };
 
-const clamp = (min?: number) => (max?: number) => (value: number): number => {
+const _clamp = (min?: number) => (max?: number) => (value: number): number => {
     const withMin = min === undefined ? value : Math.max(value, min);
     const withMax = max === undefined ? withMin : Math.min(withMin, max);
     return withMax;

@@ -13,7 +13,7 @@ const usePointerPosition = () => {
     const handlePointerMove = useCallback((event: PointerEvent) => {
         event.preventDefault();
         setPointerPosition({ x: event.clientX, y: event.clientY });
-    }, [setPointerPosition]);
+    }, []);
 
     useEffect(() => {
         document.addEventListener("pointermove", handlePointerMove);

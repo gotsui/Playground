@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import z from "zod";
 
 import { authClient } from "@/lib/auth/auth-client";
-import { FormElement } from "../types";
+import type { FormElement } from "../types";
 
 const userSchema = z.object({
     id: z.uuidv4(),
@@ -43,6 +43,8 @@ const FormBuilder = ({
                     case "input":
                         if (user) {
                             return <InputElement key={element.id} element={element} user={user} />
+                        } else {
+                            return null;
                         }
                     case "label":
                         return <LabelElement key={element.id} element={element} />

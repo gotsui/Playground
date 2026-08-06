@@ -1,5 +1,5 @@
-import { Rect } from "../types";
-import { XYPosition } from "./useDnD";
+import type { Rect } from "../types";
+import type { XYPosition } from "./useDnD";
 
 export const calcRelativePosition = (position: XYPosition, element: HTMLElement) => {
     const rect = element.getBoundingClientRect();

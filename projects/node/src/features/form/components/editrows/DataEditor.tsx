@@ -4,7 +4,7 @@ import {
     referenceValueSchema,
     writingModeSchema,
 } from "../../schemas/formElement";
-import { FormElement, Rect } from "../../types";
+import type { FormElement, Rect } from "../../types";
 import ColorEditRow from "./ColorEditRow";
 import NumberEditRow from "./NumberEditRow";
 import SelectEditRow from "./SelectEditRow";
