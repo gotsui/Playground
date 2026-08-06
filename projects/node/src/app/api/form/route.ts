@@ -2,14 +2,14 @@ import { type NextRequest, NextResponse } from "next/server";
 import z from "zod";
 import { asc } from "drizzle-orm";
 
-import { fieldsSchema } from "@/features/form/schemas/field";
+import { formElementsSchema } from "@/features/form/schemas/formElement";
 import { nameSchema } from "@/features/form/schemas/form";
 import { db } from "@/db";
 import { fields, forms } from "@/db/schema";
 
 const postSchema = z.object({
     name: nameSchema,
-    fields: fieldsSchema,
+    fields: formElementsSchema,
 });
 
 export const GET = async (_: NextRequest) => {

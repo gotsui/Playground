@@ -2,14 +2,14 @@ import { type NextRequest, NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import z from "zod";
 
-import { fieldsSchema } from "@/features/form/schemas/field";
+import { formElementsSchema } from "@/features/form/schemas/formElement";
 import { idSchema } from "@/features/form/schemas/form";
 import { db } from "@/db";
 import { fields } from "@/db/schema";
 
 const putSchema = z.object({
     id: idSchema,
-    fields: fieldsSchema,
+    fields: formElementsSchema,
 });
 
 export const PUT = async (req: NextRequest, { params }: { params: { id: string } }) => {
